@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Container, Card, CardContent, Typography, TextField, Button, Box, Alert, Stack, Divider, Grid } from '@mui/material';
+import { Container, Card, CardContent, Typography, TextField, Button, Box, Alert, Stack, Divider, Grid, InputAdornment, IconButton } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 
@@ -10,6 +12,7 @@ const LoginPage = () => {
   const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -158,11 +161,23 @@ const LoginPage = () => {
                 />
                 <TextField
                   label="Password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   fullWidth
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    )
+                  }}
                 />
                 
                 <Box display="flex" justifyContent="flex-end">
