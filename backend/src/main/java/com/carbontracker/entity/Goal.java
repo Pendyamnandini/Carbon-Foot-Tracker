@@ -37,6 +37,18 @@ public class Goal {
     @Column(name = "current_progress")
     private double currentProgress = 0.0;
 
+    @Builder.Default
+    @Column(name = "expected_progress")
+    private double expectedProgress = 0.0;
+
+    @Builder.Default
+    @Column(name = "variance")
+    private double variance = 0.0;
+
+    @Builder.Default
+    @Column(name = "track_status")
+    private String trackStatus = "ON_TRACK";
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private GoalStatus status;

@@ -6,9 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDate;
+import java.util.*;
 
 @Service
 public class BadgeService {
@@ -40,63 +39,127 @@ public class BadgeService {
         List<ActivityLog> logs = activityLogRepository.findByUserIdOrderByLogDateDesc(user.getId());
         List<Goal> goals = goalRepository.findByUserId(user.getId());
 
-        // 1. Green Starter: LOG_COUNT >= 1
-        if (!logs.isEmpty()) {
-            awardBadgeIfEligible(user, "Green Starter", "You logged your first activity!");
-        }
-
-        // 2. Sustainability Champion: CATEGORIES_LOGGED >= 4
-        Set<Category> uniqueCategories = new HashSet<>();
+        // 1. 7-Day Streak
+        Set<LocalDate> uniqueDates = new TreeSet<>(Comparator.reverseOrder());
         for (ActivityLog log : logs) {
-            uniqueCategories.add(log.getCategory());
+            uniqueDates.add(log.getLogDate());
         }
-        if (uniqueCategories.size() >= 4) {
-            awardBadgeIfEligible(user, "Sustainability Champion", "You logged activities in all 4 sustainability categories!");
+        int consecutiveDays = 0;
+        LocalDate current = null;
+        boolean has7DayStreak = false;
+        for (LocalDate date : uniqueDates) {
+            if (current == null) {
+                current = date;
+                consecutiveDays = 1;
+            } else {
+                if (date.equals(current.minusDays(1))) {
+                    consecutiveDays++;
+                    current = date;
+                } else if (!date.equals(current)) {
+                    consecutiveDays = 1;
+                    current = date;
+                }
+            }
+            if (consecutiveDays >= 7) {
+                has7DayStreak = true;
+                break;
+            }
+        }
+        if (has7DayStreak) {
+            awardBadgeIfEligible(user, "7-Day Streak", "You logged activities for 7 consecutive days!", "CONSECUTIVE_DAYS >= 7");
         }
 
-        // 3. Eco Warrior: GOALS_COMPLETED >= 3
+        // 2. First Goal Achieved
         long completedGoals = goals.stream()
                 .filter(g -> g.getStatus() == GoalStatus.COMPLETED)
                 .count();
-        if (completedGoals >= 3) {
-            awardBadgeIfEligible(user, "Eco Warrior", "You successfully completed 3 carbon reduction goals!");
+        if (completedGoals >= 1) {
+            awardBadgeIfEligible(user, "First Goal Achieved", "You completed your first carbon reduction goal!", "GOALS_COMPLETED >= 1");
         }
 
-        // 4. Carbon Reducer (triggered during goal updates/summaries - evaluated here too)
-        // If they have completed at least one goal with 20% reduction target
-        boolean hasHighReductionGoal = goals.stream()
-                .anyMatch(g -> g.getStatus() == GoalStatus.COMPLETED && g.getTargetReductionPercentage() >= 20.0);
-        if (hasHighReductionGoal) {
-            awardBadgeIfEligible(user, "Carbon Reducer", "You achieved a goal with a carbon reduction of 20% or more!");
+        // 3. Eco Saver 10kg / 25kg / 50kg
+        double totalSaved = 0.0;
+        for (Goal g : goals) {
+            if (g.getStatus() == GoalStatus.COMPLETED) {
+                LocalDate start = g.getStartDate();
+                LocalDate target = g.getTargetDate();
+                long days = java.time.temporal.ChronoUnit.DAYS.between(start, target) + 1;
+                
+                LocalDate baselineStart = start.minusDays(30);
+                List<ActivityLog> baselineLogs = activityLogRepository.findByUserIdAndLogDateBetween(user.getId(), baselineStart, start.minusDays(1));
+                double dailyBaseline = baselineLogs.isEmpty() ? 25.0 : (baselineLogs.stream().mapToDouble(ActivityLog::getCarbonEmission).sum() / 30.0);
+                
+                List<ActivityLog> activeLogs = activityLogRepository.findByUserIdAndLogDateBetween(user.getId(), start, target);
+                double totalActive = activeLogs.stream().mapToDouble(ActivityLog::getCarbonEmission).sum();
+                
+                double saved = (dailyBaseline * days) - totalActive;
+                if (saved > 0) {
+                    totalSaved += saved;
+                }
+            }
+        }
+
+        if (totalSaved >= 10.0) {
+            awardBadgeIfEligible(user, "Eco Saver 10kg", "You saved 10 kg of carbon emissions!", "CARBON_SAVED >= 10");
+        }
+        if (totalSaved >= 25.0) {
+            awardBadgeIfEligible(user, "Eco Saver 25kg", "You saved 25 kg of carbon emissions!", "CARBON_SAVED >= 25");
+        }
+        if (totalSaved >= 50.0) {
+            awardBadgeIfEligible(user, "Eco Saver 50kg", "You saved 50 kg of carbon emissions!", "CARBON_SAVED >= 50");
         }
     }
 
-    private void awardBadgeIfEligible(User user, String badgeName, String message) {
-        badgeRepository.findByBadgeName(badgeName).ifPresent(badge -> {
-            if (!userBadgeRepository.existsByUserIdAndBadgeId(user.getId(), badge.getId())) {
-                UserBadge userBadge = UserBadge.builder()
-                        .user(user)
-                        .badge(badge)
-                        .build();
-                userBadgeRepository.save(userBadge);
-
-                // Send Achievement Notification
-                notificationService.createNotification(
-                        user,
-                        "Badge Earned: " + badgeName,
-                        message,
-                        NotificationType.ACHIEVEMENT
-                );
-
-                // Audit log
-                auditLogService.log(
-                        user,
-                        "AWARD_BADGE",
-                        "Badge",
-                        badge.getId(),
-                        "Awarded badge: " + badgeName
-                );
-            }
+    private void awardBadgeIfEligible(User user, String badgeName, String message, String criteria) {
+        Badge badge = badgeRepository.findByBadgeName(badgeName).orElseGet(() -> {
+            Badge newBadge = Badge.builder()
+                    .badgeName(badgeName)
+                    .description(message)
+                    .criteria(criteria)
+                    .build();
+            return badgeRepository.save(newBadge);
         });
+
+        if (!userBadgeRepository.existsByUserIdAndBadgeId(user.getId(), badge.getId())) {
+            UserBadge userBadge = UserBadge.builder()
+                    .user(user)
+                    .badge(badge)
+                    .build();
+            userBadgeRepository.save(userBadge);
+
+            // Send Achievement Notification
+            notificationService.createNotification(
+                    user,
+                    "Badge Earned: " + badgeName,
+                    message,
+                    NotificationType.ACHIEVEMENT
+            );
+
+            // Audit log
+            auditLogService.log(
+                    user,
+                    "AWARD_BADGE",
+                    "Badge",
+                    badge.getId(),
+                    "Awarded badge: " + badgeName
+            );
+        }
+    }
+
+    @Autowired
+    private UserRepository userRepository;
+
+    // Scheduled badge evaluation daily at 3 AM
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 3 * * *")
+    @Transactional
+    public void dailyBadgeEvaluation() {
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            try {
+                checkAndAwardBadges(user);
+            } catch (Exception e) {
+                System.err.println("Daily badge evaluation failed for user " + user.getId() + ": " + e.getMessage());
+            }
+        }
     }
 }

@@ -84,17 +84,47 @@ public class UserCarbonSummaryService {
         summaryRepository.save(summary);
     }
 
-    // Run scheduled aggregation weekly (e.g. Sunday midnight)
-    @Scheduled(cron = "0 0 0 * * SUN")
+    // Run scheduled aggregation daily (e.g. at 1 AM)
+    @Scheduled(cron = "0 0 1 * * *")
     @Transactional
-    public void runWeeklyScheduledAggregation() {
+    public void dailyUpdateSummaries() {
         LocalDate today = LocalDate.now();
         List<User> users = userRepository.findAll();
         for (User user : users) {
             try {
                 updateSummaryForUserAndDate(user, today);
             } catch (Exception e) {
-                System.err.println("Scheduled aggregation failed for user " + user.getId() + ": " + e.getMessage());
+                System.err.println("Daily summary update failed for user " + user.getId() + ": " + e.getMessage());
+            }
+        }
+    }
+
+    // Run scheduled aggregation weekly (e.g. Sunday 2 AM)
+    @Scheduled(cron = "0 0 2 * * SUN")
+    @Transactional
+    public void weeklyRecalculateTotals() {
+        LocalDate lastWeek = LocalDate.now().minusWeeks(1);
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            try {
+                updateSummaryForUserAndDate(user, lastWeek);
+            } catch (Exception e) {
+                System.err.println("Weekly summary recalculation failed for user " + user.getId() + ": " + e.getMessage());
+            }
+        }
+    }
+
+    // Run scheduled aggregation monthly (e.g. 1st of month at 3 AM)
+    @Scheduled(cron = "0 0 3 1 * *")
+    @Transactional
+    public void monthlyGenerateHistoricalSummaries() {
+        LocalDate lastMonth = LocalDate.now().minusMonths(1);
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            try {
+                updateSummaryForUserAndDate(user, lastMonth);
+            } catch (Exception e) {
+                System.err.println("Monthly historical summary generation failed for user " + user.getId() + ": " + e.getMessage());
             }
         }
     }

@@ -49,8 +49,8 @@ class AuthServiceTest {
         RegisterRequest request = new RegisterRequest();
         request.setFullName("Jane Doe");
         request.setEmail("jane@example.com");
-        request.setPassword("securePass123");
-        request.setConfirmPassword("securePass123");
+        request.setPassword("SecurePass@123");
+        request.setConfirmPassword("SecurePass@123");
         request.setMobileNumber("+1223344");
 
         when(userRepository.existsByEmail(anyString())).thenReturn(false);
@@ -80,8 +80,8 @@ class AuthServiceTest {
     void testRegisterUser_DuplicateEmail() {
         RegisterRequest request = new RegisterRequest();
         request.setEmail("duplicate@example.com");
-        request.setPassword("pass");
-        request.setConfirmPassword("pass");
+        request.setPassword("SecurePass@123");
+        request.setConfirmPassword("SecurePass@123");
 
         when(userRepository.existsByEmail("duplicate@example.com")).thenReturn(true);
 
@@ -93,8 +93,8 @@ class AuthServiceTest {
     void testRegisterUser_PasswordsDoNotMatch() {
         RegisterRequest request = new RegisterRequest();
         request.setEmail("new@example.com");
-        request.setPassword("pass1");
-        request.setConfirmPassword("pass2");
+        request.setPassword("SecurePass@123");
+        request.setConfirmPassword("DifferentPass@123");
 
         when(userRepository.existsByEmail("new@example.com")).thenReturn(false);
 

@@ -39,6 +39,9 @@ class EmissionCalculationTest {
     @Mock
     private AuditLogService auditLogService;
 
+    @Mock
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
+
     private User testUser;
 
     @BeforeEach

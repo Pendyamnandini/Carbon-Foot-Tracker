@@ -24,6 +24,9 @@ public class GoalService {
     private NotificationService notificationService;
 
     @Autowired
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
+
+    @Autowired
     private AuditLogService auditLogService;
 
     public List<Goal> getGoalsForUser(User user) {
@@ -46,6 +49,9 @@ public class GoalService {
                 .startDate(start)
                 .targetDate(target)
                 .currentProgress(0.0)
+                .expectedProgress(0.0)
+                .variance(0.0)
+                .trackStatus("ON_TRACK")
                 .status(GoalStatus.ACTIVE)
                 .build();
 
@@ -135,6 +141,31 @@ public class GoalService {
 
         goal.setCurrentProgress(progressPercentage);
 
+        // Calculate expected progress, variance, and track status
+        long totalGoalDays = ChronoUnit.DAYS.between(start, target) + 1;
+        long elapsedDays = ChronoUnit.DAYS.between(start, today) + 1;
+        if (elapsedDays <= 0) elapsedDays = 1;
+        if (totalGoalDays <= 0) totalGoalDays = 1;
+
+        double expectedProgress = ((double) elapsedDays / totalGoalDays) * 100.0;
+        expectedProgress = Math.min(100.0, Math.max(0.0, expectedProgress));
+        double variance = progressPercentage - expectedProgress;
+
+        String trackStatus = "ON_TRACK";
+        if (variance < -15.0) {
+            trackStatus = "BEHIND_SCHEDULE";
+        } else if (variance >= 10.0) {
+            trackStatus = "AHEAD_OF_SCHEDULE";
+        }
+
+        String oldTrackStatus = goal.getTrackStatus();
+        goal.setExpectedProgress(expectedProgress);
+        goal.setVariance(variance);
+        goal.setTrackStatus(trackStatus);
+
+        // Publish GoalProgressEvent
+        eventPublisher.publishEvent(new com.carbontracker.event.GoalProgressEvent(this, goal));
+
         // 4. Update status
         if (progressPercentage >= 100.0) {
             goal.setStatus(GoalStatus.COMPLETED);
@@ -148,6 +179,9 @@ public class GoalService {
                     NotificationType.SUCCESS
             );
             auditLogService.log(user, "GOAL_COMPLETED", "Goal", goal.getId(), "Achieved goal: " + goal.getGoalTitle());
+
+            // Publish GoalCompletedEvent
+            eventPublisher.publishEvent(new com.carbontracker.event.GoalCompletedEvent(this, user));
         } else if (today.isAfter(target)) {
             goal.setStatus(GoalStatus.FAILED);
             goalRepository.save(goal);
@@ -161,6 +195,42 @@ public class GoalService {
             auditLogService.log(user, "GOAL_FAILED", "Goal", goal.getId(), "Failed goal: " + goal.getGoalTitle());
         } else {
             goalRepository.save(goal);
+
+            // Send tracking warnings/encouragements on status changes
+            if (!trackStatus.equals(oldTrackStatus)) {
+                if ("BEHIND_SCHEDULE".equals(trackStatus)) {
+                    notificationService.createNotification(
+                            user,
+                            "Goal Warning: Behind Schedule ⚠️",
+                            "Your goal '" + goal.getGoalTitle() + "' is behind schedule. Make some eco adjustments to get back on track!",
+                            NotificationType.WARNING
+                    );
+                } else if ("AHEAD_OF_SCHEDULE".equals(trackStatus)) {
+                    notificationService.createNotification(
+                            user,
+                            "Goal Update: Ahead of Schedule! 🚀",
+                            "Great work! You are ahead of schedule for your goal: " + goal.getGoalTitle(),
+                            NotificationType.SUCCESS
+                    );
+                }
+            }
+        }
+    }
+
+    @Autowired
+    private com.carbontracker.repository.UserRepository userRepository;
+
+    // Scheduled weekly goal recalculation Sunday at 5 AM
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 5 * * SUN")
+    @Transactional
+    public void weeklyGoalRecalculation() {
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            try {
+                recalculateGoalsForUser(user);
+            } catch (Exception e) {
+                System.err.println("Weekly goal recalculation failed for user " + user.getId() + ": " + e.getMessage());
+            }
         }
     }
 }

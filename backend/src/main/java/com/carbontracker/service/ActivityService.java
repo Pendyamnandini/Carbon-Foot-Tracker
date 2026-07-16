@@ -29,9 +29,13 @@ public class ActivityService {
     private BadgeService badgeService;
 
     @Autowired
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
+
+    @Autowired
     private AuditLogService auditLogService;
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "analytics", allEntries = true)
     public ActivityLog logActivity(ActivityLogRequest request, User user) {
         if (request.getQuantity() < 0) {
             throw new IllegalArgumentException("Quantity cannot be negative");
@@ -68,6 +72,7 @@ public class ActivityService {
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "analytics", allEntries = true)
     public ActivityLog updateActivityLog(Long id, ActivityLogRequest request, User user) {
         ActivityLog existingLog = activityLogRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Activity log not found"));
@@ -106,6 +111,7 @@ public class ActivityService {
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "analytics", allEntries = true)
     public void deleteActivityLog(Long id, User user) {
         ActivityLog existingLog = activityLogRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Activity log not found"));
@@ -142,7 +148,7 @@ public class ActivityService {
         // Recalculate Active Goals progress
         goalService.recalculateGoalsForUser(user);
 
-        // Evaluate and award Badges
-        badgeService.checkAndAwardBadges(user);
+        // Publish ActivityLoggedEvent to decouple and check badges
+        eventPublisher.publishEvent(new com.carbontracker.event.ActivityLoggedEvent(this, user));
     }
 }
