@@ -11,6 +11,7 @@ CarbonTracker is a high-fidelity, interactive, and responsive web application de
 - **OTP Password Recovery**: Otp-based password reset flow integrated directly with **Gmail SMTP Outgoing Mail** to deliver codes to real email inboxes.
 - **Persistent Data Store**: Local file-based H2 database persistence (no data lost on server restarts).
 - **Strong Password Policy**: Enforced complexity requirements on registration (minimum 8 characters, alphanumeric, and at least one special character).
+- **Password Visibility Toggles**: Interactive eye icons on Login, Register, and Reset Password forms to show/hide typed input.
 
 ### 🎨 High-Fidelity Glassmorphism UX/UI
 - **Aesthetic Theme System**: Curved translucent glass containers, backdrop blur filters, and dynamic radial-mesh background gradients that morph when toggling between **Light Mode** and **Dark Mode**.
