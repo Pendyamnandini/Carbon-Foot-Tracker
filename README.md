@@ -64,19 +64,21 @@ spring:
 ---
 
 ### Step 2: Run the Spring Boot Backend
-1. Open a terminal and navigate to the backend folder:
+1. Open a terminal inside the project root folder.
+2. Navigate to the `backend` folder:
    ```cmd
    cd backend
    ```
-2. Build and package the backend:
+   *(Note: If your terminal prompt already ends with `\carbon-tracker\backend`, skip this step.)*
+3. Build and package the backend using the local Maven executable:
    ```cmd
-   mvn clean package -DskipTests
+   ..\..\apache-maven-3.9.6\bin\mvn clean package -DskipTests
    ```
-3. Run the Spring Boot application:
+4. Run the Spring Boot application:
    ```cmd
-   mvn spring-boot:run
+   ..\..\apache-maven-3.9.6\bin\mvn spring-boot:run
    ```
-The backend server will start running on **`http://localhost:8080`**.
+The backend server will start running on **`http://localhost:8080`** using the persistent file database.
 
 ---
 
