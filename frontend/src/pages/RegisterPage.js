@@ -17,6 +17,24 @@ const RegisterPage = () => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const validatePassword = (pwd) => {
+    const minLength = 8;
+    const hasLetter = /[a-zA-Z]/.test(pwd);
+    const hasNumber = /[0-9]/.test(pwd);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
+    
+    if (pwd.length < minLength) {
+      return "Password must be at least 8 characters long.";
+    }
+    if (!hasLetter || !hasNumber) {
+      return "Password must be alphanumeric (contain both letters and numbers).";
+    }
+    if (!hasSpecial) {
+      return "Password must contain at least one special character (e.g. @, #, $, %, etc.).";
+    }
+    return null;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -24,6 +42,12 @@ const RegisterPage = () => {
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
+      return;
+    }
+
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
       return;
     }
 

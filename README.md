@@ -96,15 +96,3 @@ The backend server will start running on **`http://localhost:8080`** using the p
    npm start
    ```
 The frontend will compile and open automatically in your browser at **`http://localhost:3000`** (or `http://localhost:3001`).
-
----
-
-## 🔑 Seed Credentials
-
-### 👥 Standard User (Create in UI or re-register)
-- **Email**: `nandu.pendyam@gmail.com`
-- **Password**: `Password@123`
-
-### 🛠️ Platform Administrator
-- **Email**: `admin@carbontracker.com`
-- **Password**: `Admin@123`

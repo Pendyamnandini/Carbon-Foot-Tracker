@@ -48,6 +48,14 @@ public class AuthService {
             throw new IllegalArgumentException("Passwords do not match");
         }
 
+        String password = request.getPassword();
+        if (password.length() < 8 || 
+            !password.matches(".*[a-zA-Z].*") || 
+            !password.matches(".*[0-9].*") || 
+            !password.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) {
+            throw new IllegalArgumentException("Password is too weak. It must be at least 8 characters, alphanumeric, and contain a special character.");
+        }
+
         User user = User.builder()
                 .fullName(request.getFullName())
                 .email(request.getEmail())
