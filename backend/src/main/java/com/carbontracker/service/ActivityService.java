@@ -23,6 +23,9 @@ public class ActivityService {
     private UserCarbonSummaryService summaryService;
 
     @Autowired
+    private AnalyticsService analyticsService;
+
+    @Autowired
     private GoalService goalService;
 
     @Autowired
@@ -64,6 +67,7 @@ public class ActivityService {
 
         // Audit logging
         auditLogService.log(user, "CREATE_ACTIVITY", "ActivityLog", savedLog.getId(), "Logged " + request.getActivityType() + ": " + carbonEmission + " kg CO2");
+        auditLogService.logActivity(user, "CREATE", "Activity Log Creation", "Logged " + request.getActivityType() + ": " + carbonEmission + " kg CO2", "Dashboard", null, null);
 
         // Sync summaries and check achievements
         syncUserMetrics(user, request.getLogDate());
@@ -104,6 +108,7 @@ public class ActivityService {
         ActivityLog updatedLog = activityLogRepository.save(existingLog);
 
         auditLogService.log(user, "UPDATE_ACTIVITY", "ActivityLog", updatedLog.getId(), "Updated activity: " + carbonEmission + " kg CO2");
+        auditLogService.logActivity(user, "UPDATE", "Activity Log Update", "Updated activity to " + request.getActivityType() + ": " + carbonEmission + " kg CO2", "Dashboard", null, null);
 
         syncUserMetrics(user, request.getLogDate());
 
@@ -123,6 +128,7 @@ public class ActivityService {
         activityLogRepository.delete(existingLog);
 
         auditLogService.log(user, "DELETE_ACTIVITY", "ActivityLog", id, "Deleted activity of category " + existingLog.getCategory());
+        auditLogService.logActivity(user, "DELETE", "Activity Log Deletion", "Deleted activity of category " + existingLog.getCategory(), "Dashboard", null, null);
 
         syncUserMetrics(user, existingLog.getLogDate());
     }
@@ -144,6 +150,7 @@ public class ActivityService {
     private void syncUserMetrics(User user, java.time.LocalDate date) {
         // Update the aggregated weekly carbon summaries
         summaryService.updateSummaryForUserAndDate(user, date);
+        analyticsService.updateSummariesForUserAndDate(user, date);
 
         // Recalculate Active Goals progress
         goalService.recalculateGoalsForUser(user);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Grid, Card, CardContent, Typography, Box, Alert, CircularProgress, Stack, Tooltip, LinearProgress, TextField } from '@mui/material';
-import { ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, CartesianGrid, Legend, Tooltip as ChartTooltip, BarChart, Bar } from 'recharts';
+import { Grid, Card, CardContent, Typography, Box, Alert, CircularProgress, Stack, Tooltip, LinearProgress, TextField, Tabs, Tab, Button, Divider, Chip, Avatar, MenuItem, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import { ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, CartesianGrid, Legend, Tooltip as ChartTooltip, BarChart, Bar, LineChart, Line } from 'recharts';
 import api from '../api';
 import Co2Icon from '@mui/icons-material/Co2';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
@@ -11,116 +11,87 @@ import ElectricBoltIcon from '@mui/icons-material/ElectricBolt';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import LocalMallIcon from '@mui/icons-material/LocalMall';
 import CategoryIcon from '@mui/icons-material/Category';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import DownloadIcon from '@mui/icons-material/Download';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import SpeedIcon from '@mui/icons-material/Speed';
+import HistoryIcon from '@mui/icons-material/History';
+import QueryStatsIcon from '@mui/icons-material/QueryStats';
 
 const Dashboard = () => {
+  const [tabValue, setTabValue] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
-  const [categoryData, setCategoryData] = useState([]);
-  const [weeklyData, setWeeklyData] = useState([]);
-  const [monthlyData, setMonthlyData] = useState([]);
-  const [allLogs, setAllLogs] = useState([]);
-  const [selectedDate, setSelectedDate] = useState('');
-  
-  const [stats, setStats] = useState({
-    monthlyFootprint: 0,
-    weeklyFootprint: 0,
-    goalProgress: 0,
-    rank: 'N/A'
+
+  // Date Range Filtering States
+  const [rangePreset, setRangePreset] = useState('last-30');
+  const [startDate, setStartDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 30);
+    return d.toISOString().slice(0, 10);
   });
+  const [endDate, setEndDate] = useState(() => new Date().toISOString().slice(0, 10));
 
-  const COLORS = ['#10b981', '#06b6d4', '#fbbf24', '#f87171']; // Emerald, Cyan, Amber, Rose
+  // Data States
+  const [dailyAnalytics, setDailyAnalytics] = useState(null);
+  const [weeklyAnalytics, setWeeklyAnalytics] = useState(null);
+  const [monthlyAnalytics, setMonthlyAnalytics] = useState(null);
+  const [categoryBreakdown, setCategoryBreakdown] = useState([]);
+  const [trends, setTrends] = useState(null);
+  const [benchmarking, setBenchmarking] = useState(null);
+  const [recommendations, setRecommendations] = useState(null);
+  const [dateRangeSummary, setDateRangeSummary] = useState(null);
+  const [recentActivities, setRecentActivities] = useState(null);
+  const [goalProgress, setGoalProgress] = useState(0);
 
-  const fetchDashboardData = async () => {
+  const COLORS = ['#10b981', '#06b6d4', '#fbbf24', '#f87171'];
+
+  const fetchDashboardData = async (start = startDate, end = endDate) => {
     try {
       setLoading(true);
       setError('');
 
-      // 1. Fetch category emissions
-      const categoryRes = await api.get('/api/analytics/category');
-      if (categoryRes.data.success) {
-        const catMap = categoryRes.data.data;
-        const formattedCat = Object.keys(catMap).map(key => ({
-          name: key,
-          value: parseFloat(catMap[key].toFixed(2))
-        })).filter(c => c.value > 0);
-        setCategoryData(formattedCat);
-      }
+      const [
+        dailyRes,
+        weeklyRes,
+        monthlyRes,
+        categoryRes,
+        trendsRes,
+        benchmarkingRes,
+        recsRes,
+        goalsRes,
+        rangeRes,
+        recentRes
+      ] = await Promise.all([
+        api.get(`/api/v1/analytics/daily?startDate=${start}&endDate=${end}`),
+        api.get(`/api/v1/analytics/weekly`),
+        api.get('/api/v1/analytics/monthly'),
+        api.get(`/api/v1/analytics/category-breakdown?startDate=${start}&endDate=${end}`),
+        api.get(`/api/v1/analytics/trends?startDate=${start}&endDate=${end}`),
+        api.get('/api/v1/benchmarking'),
+        api.get('/api/v1/recommendations/personalized'),
+        api.get('/api/goals'),
+        api.get(`/api/v1/analytics/date-range?startDate=${start}&endDate=${end}`),
+        api.get('/api/v1/user/recent-activities')
+      ]);
 
-      // 2. Fetch weekly trend logs
-      const weeklyRes = await api.get('/api/analytics/weekly');
-      if (weeklyRes.data.success) {
-        const list = weeklyRes.data.data;
-        const formattedWeekly = list.map(item => ({
-          name: `Wk ${item.weekNumber}`,
-          Emissions: parseFloat(item.overallTotal.toFixed(2))
-        }));
-        setWeeklyData(formattedWeekly);
-      }
+      if (dailyRes.data.success) setDailyAnalytics(dailyRes.data.data);
+      if (weeklyRes.data.success) setWeeklyAnalytics(weeklyRes.data.data);
+      if (monthlyRes.data.success) setMonthlyAnalytics(monthlyRes.data.data);
+      if (categoryRes.data.success) setCategoryBreakdown(categoryRes.data.data);
+      if (trendsRes.data.success) setTrends(trendsRes.data.data);
+      if (benchmarkingRes.data.success) setBenchmarking(benchmarkingRes.data.data);
+      if (recsRes.data.success) setRecommendations(recsRes.data.data);
+      if (rangeRes.data.success) setDateRangeSummary(rangeRes.data.data);
+      if (recentRes.data.success) setRecentActivities(recentRes.data.data);
 
-      // 3. Fetch monthly logs
-      const monthlyRes = await api.get('/api/analytics/monthly');
-      if (monthlyRes.data.success) {
-        const map = monthlyRes.data.data;
-        const formattedMonthly = Object.keys(map).map(key => ({
-          name: key,
-          Emissions: parseFloat(map[key].toFixed(2))
-        }));
-        setMonthlyData(formattedMonthly);
-      }
-
-      // 4. Fetch Goals and calculate average progress
-      const goalsRes = await api.get('/api/goals');
-      let avgProgress = 0;
       if (goalsRes.data.success) {
         const activeGoals = goalsRes.data.data.filter(g => g.status === 'ACTIVE');
         if (activeGoals.length > 0) {
           const sum = activeGoals.reduce((acc, g) => acc + g.currentProgress, 0);
-          avgProgress = sum / activeGoals.length;
+          setGoalProgress(sum / activeGoals.length);
         }
       }
-
-      // 5. Fetch Leaderboard and find user rank
-      const leaderboardRes = await api.get('/api/leaderboard');
-      let userRank = 'N/A';
-      let currentMonthFootprint = 0;
-      let currentWeeklyFootprint = 0;
-      if (leaderboardRes.data.success) {
-        const list = leaderboardRes.data.data;
-        const userSaved = JSON.parse(localStorage.getItem('user'));
-        const userEntry = list.find(entry => entry.userId === userSaved?.id);
-        if (userEntry) {
-          userRank = `#${userEntry.rankPosition}`;
-          currentMonthFootprint = userEntry.carbonEmission;
-        }
-      }
-
-      // Calculate current week footprint from weekly summary
-      const currentWeekNumber = getWeekNumber(new Date());
-      const currentYear = new Date().getFullYear();
-      const currentWeekSummary = weeklyRes.data.data.find(w => w.weekNumber === currentWeekNumber && w.year === currentYear);
-      if (currentWeekSummary) {
-        currentWeeklyFootprint = currentWeekSummary.overallTotal;
-      }
-
-      // 6. Fetch all logs for daily breakdown
-      const logsRes = await api.get('/api/activities');
-      if (logsRes.data.success) {
-        const logsList = logsRes.data.data;
-        setAllLogs(logsList);
-        // Set default selected date to the most recent log's date, if any
-        if (logsList.length > 0) {
-          const sortedLogs = [...logsList].sort((a, b) => b.logDate.localeCompare(a.logDate));
-          setSelectedDate(sortedLogs[0].logDate);
-        }
-      }
-
-      setStats({
-        monthlyFootprint: currentMonthFootprint,
-        weeklyFootprint: currentWeeklyFootprint,
-        goalProgress: avgProgress,
-        rank: userRank
-      });
 
     } catch (err) {
       setError('Could not retrieve analytics data.');
@@ -129,17 +100,62 @@ const Dashboard = () => {
     }
   };
 
-  const getWeekNumber = (d) => {
-    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
-    var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
-    var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
-    return weekNo;
+  useEffect(() => {
+    fetchDashboardData(startDate, endDate);
+  }, []);
+
+  const handlePresetChange = (preset) => {
+    setRangePreset(preset);
+    let start = new Date();
+    let end = new Date();
+    
+    if (preset === 'today') {
+      // Start/end is today
+    } else if (preset === 'yesterday') {
+      start.setDate(start.getDate() - 1);
+      end.setDate(end.getDate() - 1);
+    } else if (preset === 'last-7') {
+      start.setDate(start.getDate() - 7);
+    } else if (preset === 'last-30') {
+      start.setDate(start.getDate() - 30);
+    } else if (preset === 'this-month') {
+      start.setDate(1);
+    } else if (preset === 'prev-month') {
+      start.setMonth(start.getMonth() - 1);
+      start.setDate(1);
+      end.setMonth(end.getMonth() - 1);
+      end.setDate(new Date(end.getFullYear(), end.getMonth() + 1, 0).getDate());
+    }
+
+    const startStr = start.toISOString().slice(0, 10);
+    const endStr = end.toISOString().slice(0, 10);
+    setStartDate(startStr);
+    setEndDate(endStr);
+    fetchDashboardData(startStr, endStr);
   };
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
+  const handleCustomDateSubmit = (e) => {
+    e.preventDefault();
+    setRangePreset('custom');
+    fetchDashboardData(startDate, endDate);
+  };
+
+  const handleDownload = async (format) => {
+    try {
+      const response = await api.get(`/api/v1/exports/user?format=${format}`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `carbon_footprint_report_${new Date().toISOString().slice(0,10)}.${format}`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      console.error('Failed to export user report', err);
+    }
+  };
 
   if (loading) {
     return (
@@ -164,47 +180,126 @@ const Dashboard = () => {
     }
   };
 
-  const dailyMap = {};
-  allLogs.forEach(log => {
-    dailyMap[log.logDate] = (dailyMap[log.logDate] || 0) + log.carbonEmission;
-  });
-  const dailyChartData = Object.keys(dailyMap)
-    .sort()
-    .slice(-7)
-    .map(date => ({
-      date,
-      name: new Date(date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
-      Emissions: parseFloat(dailyMap[date].toFixed(2))
-    }));
+  const dailyChartData = dailyAnalytics?.history?.map(item => ({
+    name: new Date(item.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+    Emissions: item.overallTotal
+  })) || [];
 
-  const selectedLogs = allLogs.filter(log => log.logDate === selectedDate);
+  const weeklyChartData = weeklyAnalytics?.trend?.map(item => ({
+    name: item.weekLabel,
+    Emissions: item.emissions
+  })) || [];
+
+  const monthlyChartData = monthlyAnalytics?.trend?.map(item => ({
+    name: item.monthLabel,
+    Emissions: item.emissions
+  })) || [];
+
+  // Period Sustainability Score
+  const sustainabilityScore = dateRangeSummary ? Math.round(dateRangeSummary.sustainabilityScore) : 75;
 
   return (
     <Box p={3}>
-      <Typography variant="h4" fontWeight={800} gutterBottom sx={{ mb: 4 }}>
-        Sustainability Dashboard
-      </Typography>
+      {/* Header and Export actions */}
+      <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2} sx={{ mb: 4 }}>
+        <Box>
+          <Typography variant="h4" fontWeight={800} gutterBottom>
+            Carbon Footprint Analytics
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Advanced real-time tracking, benchmarking comparisons, and personalized sustainability tips.
+          </Typography>
+        </Box>
+        <Stack direction="row" spacing={1.5}>
+          <Button 
+            variant="outlined" 
+            color="primary" 
+            startIcon={<DownloadIcon />} 
+            onClick={() => handleDownload('csv')}
+          >
+            Export CSV
+          </Button>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            startIcon={<DownloadIcon />} 
+            onClick={() => handleDownload('pdf')}
+          >
+            Export PDF
+          </Button>
+        </Stack>
+      </Box>
 
       {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
-      {/* KPI Cards */}
+      {/* Date-Range Filter Selectors */}
+      <Card sx={{ mb: 4, p: 2.5, background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <Grid container spacing={3} alignItems="center">
+          <Grid item xs={12} md={4}>
+            <TextField
+              select
+              fullWidth
+              label="Select Date Range Filter"
+              value={rangePreset}
+              onChange={(e) => handlePresetChange(e.target.value)}
+            >
+              <MenuItem value="today">Today</MenuItem>
+              <MenuItem value="yesterday">Yesterday</MenuItem>
+              <MenuItem value="last-7">Last 7 Days</MenuItem>
+              <MenuItem value="last-30">Last 30 Days</MenuItem>
+              <MenuItem value="this-month">This Month</MenuItem>
+              <MenuItem value="prev-month">Previous Month</MenuItem>
+              <MenuItem value="custom">Custom Date Range</MenuItem>
+            </TextField>
+          </Grid>
+          <Grid item xs={12} md={8}>
+            <form onSubmit={handleCustomDateSubmit}>
+              <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" gap={1.5}>
+                <TextField
+                  type="date"
+                  label="From"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                />
+                <TextField
+                  type="date"
+                  label="To"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                />
+                <Button type="submit" variant="contained" color="secondary" size="large">
+                  Search
+                </Button>
+              </Stack>
+            </form>
+          </Grid>
+        </Grid>
+      </Card>
+
+      {/* Core KPI cards for the filtered period */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
+        {/* Date Range Emissions Card */}
         <Grid item xs={12} sm={6} md={3}>
-          <Card className="glass-card-hover" sx={{ position: 'relative', overflow: 'hidden' }}>
+          <Card className="glass-card-hover">
             <CardContent>
               <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Box>
                   <Typography variant="body2" color="text.secondary" fontWeight={600}>
-                    Current Month Footprint
+                    Period Emissions
                   </Typography>
                   <Typography variant="h4" fontWeight={800} sx={{ mt: 1 }}>
-                    {stats.monthlyFootprint.toFixed(1)} <Typography variant="caption" sx={{ fontWeight: 500 }}>kg CO2</Typography>
+                    {dateRangeSummary?.totalEmissions.toFixed(1)} <Typography variant="caption" sx={{ fontWeight: 500 }}>kg</Typography>
                   </Typography>
-                  <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1, fontWeight: 500 }}>
-                    Logged this month
-                  </Typography>
+                  <Chip 
+                    label={dateRangeSummary?.percentageChange >= 0 ? `+${dateRangeSummary?.percentageChange.toFixed(0)}% vs previous` : `${dateRangeSummary?.percentageChange.toFixed(0)}% vs previous`}
+                    size="small"
+                    color={dateRangeSummary?.trend === 'IMPROVING' ? "success" : dateRangeSummary?.trend === 'INCREASING' ? "error" : "default"}
+                    sx={{ mt: 1, fontWeight: 700, height: 20 }}
+                  />
                 </Box>
-                <Avatar sx={{ bgcolor: 'rgba(248, 113, 113, 0.1)', color: 'error.main', width: 44, height: 44 }}>
+                <Avatar sx={{ bgcolor: 'rgba(6, 182, 212, 0.1)', color: 'secondary.main', width: 44, height: 44 }}>
                   <Co2Icon />
                 </Avatar>
               </Stack>
@@ -212,22 +307,23 @@ const Dashboard = () => {
           </Card>
         </Grid>
 
+        {/* Daily Average Card */}
         <Grid item xs={12} sm={6} md={3}>
           <Card className="glass-card-hover">
             <CardContent>
               <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Box>
                   <Typography variant="body2" color="text.secondary" fontWeight={600}>
-                    Weekly Footprint
+                    Daily Average
                   </Typography>
                   <Typography variant="h4" fontWeight={800} sx={{ mt: 1 }}>
-                    {stats.weeklyFootprint.toFixed(1)} <Typography variant="caption" sx={{ fontWeight: 500 }}>kg CO2</Typography>
+                    {dateRangeSummary?.averageDailyEmissions.toFixed(1)} <Typography variant="caption" sx={{ fontWeight: 500 }}>kg</Typography>
                   </Typography>
-                  <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1, fontWeight: 500 }}>
-                    Active week tracking
+                  <Typography variant="caption" color="text.secondary">
+                    Total {dateRangeSummary?.activityCount} logs tracked
                   </Typography>
                 </Box>
-                <Avatar sx={{ bgcolor: 'rgba(6, 182, 212, 0.1)', color: 'secondary.main', width: 44, height: 44 }}>
+                <Avatar sx={{ bgcolor: 'rgba(251, 191, 36, 0.1)', color: 'warning.main', width: 44, height: 44 }}>
                   <CalendarMonthIcon />
                 </Avatar>
               </Stack>
@@ -235,300 +331,563 @@ const Dashboard = () => {
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card className="glass-card-hover">
-            <CardContent>
-              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
-                <Box>
-                  <Typography variant="body2" color="text.secondary" fontWeight={600}>
-                    Goal Progress (Avg)
-                  </Typography>
-                  <Typography variant="h4" fontWeight={800} sx={{ mt: 0.5 }}>
-                    {stats.goalProgress.toFixed(0)}%
-                  </Typography>
-                </Box>
-                <Avatar sx={{ bgcolor: 'rgba(16, 185, 129, 0.1)', color: 'primary.main', width: 44, height: 44 }}>
-                  <FlagIcon />
-                </Avatar>
-              </Stack>
-              <LinearProgress 
-                variant="determinate" 
-                value={stats.goalProgress} 
-                sx={{ height: 6, borderRadius: 3, bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }} 
-                color="primary" 
-              />
-            </CardContent>
-          </Card>
-        </Grid>
-
+        {/* High / Low Days */}
         <Grid item xs={12} sm={6} md={3}>
           <Card className="glass-card-hover">
             <CardContent>
               <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Box>
                   <Typography variant="body2" color="text.secondary" fontWeight={600}>
-                    Leaderboard Rank
+                    Peak/Min Days
                   </Typography>
-                  <Typography variant="h4" fontWeight={800} sx={{ mt: 1 }}>
-                    {stats.rank}
+                  <Typography variant="subtitle2" fontWeight={800} sx={{ mt: 1 }}>
+                    Max: {dateRangeSummary?.highestEmissionValue.toFixed(1)} kg
                   </Typography>
-                  <Typography variant="caption" color="success.main" display="block" sx={{ mt: 1, fontWeight: 700 }}>
-                    Active Challenger
+                  <Typography variant="caption" color="error.main" display="block">
+                    {dateRangeSummary?.highestEmissionDay !== "N/A" ? new Date(dateRangeSummary.highestEmissionDay).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : "N/A"}
+                  </Typography>
+                  <Typography variant="subtitle2" fontWeight={800} sx={{ mt: 0.5 }}>
+                    Min: {dateRangeSummary?.lowestEmissionValue.toFixed(1)} kg
                   </Typography>
                 </Box>
-                <Avatar sx={{ bgcolor: 'rgba(251, 191, 36, 0.1)', color: 'warning.main', width: 44, height: 44 }}>
-                  <EmojiEventsIcon />
+                <Avatar sx={{ bgcolor: 'rgba(248, 113, 113, 0.1)', color: 'error.main', width: 44, height: 44 }}>
+                  <TrendingUpIcon />
                 </Avatar>
               </Stack>
             </CardContent>
           </Card>
         </Grid>
+
+        {/* Sustainability Score */}
+        <Grid item xs={12} sm={6} md={3}>
+          <Card className="glass-card-hover">
+            <CardContent>
+              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+                <Box>
+                  <Typography variant="body2" color="text.secondary" fontWeight={600}>
+                    Period Eco Score
+                  </Typography>
+                  <Typography variant="h4" fontWeight={800} sx={{ mt: 0.5 }}>
+                    {sustainabilityScore}/100
+                  </Typography>
+                  <Typography variant="caption" color="success.main" fontWeight={700}>
+                    Percentile standing: {benchmarking?.percentileRanking.toFixed(0)}%
+                  </Typography>
+                </Box>
+                <Avatar sx={{ bgcolor: 'rgba(16, 185, 129, 0.1)', color: 'primary.main', width: 44, height: 44 }}>
+                  <EmojiEventsIcon />
+                </Avatar>
+              </Stack>
+              <LinearProgress 
+                variant="determinate" 
+                value={sustainabilityScore} 
+                sx={{ height: 6, borderRadius: 3 }} 
+                color="primary" 
+              />
+            </CardContent>
+          </Card>
+        </Grid>
       </Grid>
 
-      {/* Charts Grid */}
-      <Grid container spacing={3}>
-        {/* Category Breakdown (Pie) */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{ p: 2 }}>
-            <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
-              Category Emissions Distribution
-            </Typography>
-            {categoryData.length === 0 ? (
-              <Box height={300} display="flex" justifyContent="center" alignItems="center">
-                <Typography color="text.secondary">No activity logs recorded yet.</Typography>
-              </Box>
-            ) : (
-              <Box height={300}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={categoryData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={90}
-                      paddingAngle={5}
-                      dataKey="value"
-                    >
-                      {categoryData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <ChartTooltip 
-                      contentStyle={{ background: '#1f2937', borderColor: '#374151', borderRadius: 8 }}
-                      itemStyle={{ color: '#fff' }}
-                    />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </Box>
-            )}
-          </Card>
+      {/* Main Tabs */}
+      <Tabs 
+        value={tabValue} 
+        onChange={(e, nv) => setTabValue(nv)} 
+        sx={{ borderBottom: '1px solid', borderColor: 'divider', mb: 4 }}
+        indicatorColor="primary"
+        textColor="primary"
+      >
+        <Tab label="Emissions Trends" />
+        <Tab label="Category Breakdown" />
+        <Tab label="Personalized Recommendations" />
+        <Tab label="Benchmarking & Insights" />
+        <Tab label="Recent Activity History" />
+      </Tabs>
+
+      {/* Tab 1: Emissions Trends */}
+      {tabValue === 0 && (
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <Card sx={{ p: 2 }}>
+              <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
+                Daily Emissions Trend (Selected Period)
+              </Typography>
+              {dailyChartData.length === 0 ? (
+                <Box height={300} display="flex" justifyContent="center" alignItems="center">
+                  <Typography color="text.secondary">No activities logged in this range.</Typography>
+                </Box>
+              ) : (
+                <Box height={300}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={dailyChartData}>
+                      <defs>
+                        <linearGradient id="colorDaily" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0.2}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                      <XAxis dataKey="name" stroke="#9ca3af" />
+                      <YAxis stroke="#9ca3af" />
+                      <ChartTooltip 
+                        contentStyle={{ background: '#1f2937', borderColor: '#374151', borderRadius: 8 }}
+                        itemStyle={{ color: '#fff' }}
+                      />
+                      <Bar dataKey="Emissions" fill="url(#colorDaily)" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </Box>
+              )}
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <Card sx={{ p: 2 }}>
+              <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
+                Weekly Emissions Trend (All Time)
+              </Typography>
+              {weeklyChartData.length === 0 ? (
+                <Box height={300} display="flex" justifyContent="center" alignItems="center">
+                  <Typography color="text.secondary">No summaries generated.</Typography>
+                </Box>
+              ) : (
+                <Box height={300}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={weeklyChartData}>
+                      <defs>
+                        <linearGradient id="colorWeekly" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#10b981" stopOpacity={0.0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                      <XAxis dataKey="name" stroke="#9ca3af" />
+                      <YAxis stroke="#9ca3af" />
+                      <ChartTooltip 
+                        contentStyle={{ background: '#1f2937', borderColor: '#374151', borderRadius: 8 }}
+                        itemStyle={{ color: '#fff' }}
+                      />
+                      <Area type="monotone" dataKey="Emissions" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorWeekly)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </Box>
+              )}
+            </Card>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Card sx={{ p: 2 }}>
+              <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
+                Monthly Carbon Footprint Trend (All Time)
+              </Typography>
+              {monthlyChartData.length === 0 ? (
+                <Box height={300} display="flex" justifyContent="center" alignItems="center">
+                  <Typography color="text.secondary">No monthly summaries generated.</Typography>
+                </Box>
+              ) : (
+                <Box height={300}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={monthlyChartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                      <XAxis dataKey="name" stroke="#9ca3af" />
+                      <YAxis stroke="#9ca3af" />
+                      <ChartTooltip 
+                        contentStyle={{ background: '#1f2937', borderColor: '#374151', borderRadius: 8 }}
+                        itemStyle={{ color: '#fff' }}
+                      />
+                      <Legend />
+                      <Line type="monotone" dataKey="Emissions" stroke="#e879f9" strokeWidth={3} activeDot={{ r: 8 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </Box>
+              )}
+            </Card>
+          </Grid>
         </Grid>
+      )}
 
-        {/* Weekly Trend (Line) */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{ p: 2 }}>
-            <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
-              Weekly Carbon Trend
-            </Typography>
-            {weeklyData.length === 0 ? (
-              <Box height={300} display="flex" justifyContent="center" alignItems="center">
-                <Typography color="text.secondary">Insufficient data for weekly tracking.</Typography>
-              </Box>
-            ) : (
-              <Box height={300}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={weeklyData}>
-                    <defs>
-                      <linearGradient id="colorWeekly" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                    <XAxis dataKey="name" stroke="#9ca3af" />
-                    <YAxis stroke="#9ca3af" />
-                    <ChartTooltip 
-                      contentStyle={{ background: '#1f2937', borderColor: '#374151', borderRadius: 8 }}
-                      itemStyle={{ color: '#fff' }}
-                    />
-                    <Legend />
-                    <Area type="monotone" dataKey="Emissions" stroke="#06b6d4" strokeWidth={3} fillOpacity={1} fill="url(#colorWeekly)" activeDot={{ r: 8 }} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </Box>
-            )}
-          </Card>
-        </Grid>
-
-        {/* Monthly Comparison (Bar) */}
-        <Grid item xs={12}>
-          <Card sx={{ p: 2 }}>
-            <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
-              Monthly Comparison
-            </Typography>
-            {monthlyData.length === 0 ? (
-              <Box height={300} display="flex" justifyContent="center" alignItems="center">
-                <Typography color="text.secondary">No monthly logging data available.</Typography>
-              </Box>
-            ) : (
-              <Box height={300}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={monthlyData}>
-                    <defs>
-                      <linearGradient id="colorMonthly" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0.3}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                    <XAxis dataKey="name" stroke="#9ca3af" />
-                    <YAxis stroke="#9ca3af" />
-                    <ChartTooltip 
-                      contentStyle={{ background: '#1f2937', borderColor: '#374151', borderRadius: 8 }}
-                      itemStyle={{ color: '#fff' }}
-                    />
-                    <Legend />
-                    <Bar dataKey="Emissions" fill="url(#colorMonthly)" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </Box>
-            )}
-          </Card>
-        </Grid>
-
-        {/* Day-to-Day Records & Historical Inspector */}
-        <Grid item xs={12}>
-          <Card sx={{ p: 3 }}>
-            <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2} sx={{ mb: 3 }}>
-              <Box>
-                <Typography variant="h6" fontWeight={700}>
-                  🔍 Day-to-Day Logs Inspector
-                </Typography>
-                <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                  Click on any day in the chart below to inspect that day's specific logged details.
-                </Typography>
-              </Box>
-              <TextField
-                type="date"
-                label="Selected Date"
-                size="small"
-                InputLabelProps={{ shrink: true }}
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                sx={{ width: 220 }}
-              />
-            </Box>
-
-            {dailyChartData.length === 0 ? (
-              <Box height={200} display="flex" justifyContent="center" alignItems="center">
-                <Typography color="text.secondary">Log activities to view day-to-day charts.</Typography>
-              </Box>
-            ) : (
-              <Grid container spacing={4}>
-                {/* Daily Chart */}
-                <Grid item xs={12} md={7}>
-                  <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 2 }} color="text.secondary">
-                    Daily Emissions Trend (Last 7 Active Days)
-                  </Typography>
-                  <Box height={250}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart 
-                        data={dailyChartData}
-                        onClick={(state) => {
-                          if (state && state.activePayload && state.activePayload.length > 0) {
-                            const clickedDate = state.activePayload[0].payload.date;
-                            setSelectedDate(clickedDate);
-                          }
-                        }}
-                        style={{ cursor: 'pointer' }}
+      {/* Tab 2: Category Breakdown */}
+      {tabValue === 1 && (
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <Card sx={{ p: 2 }}>
+              <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
+                Donut Emission Breakdown (Selected Period)
+              </Typography>
+              {categoryBreakdown.length === 0 || categoryBreakdown.every(c => c.emissionValue === 0) ? (
+                <Box height={300} display="flex" justifyContent="center" alignItems="center">
+                  <Typography color="text.secondary">No activities logged in this range.</Typography>
+                </Box>
+              ) : (
+                <Box height={300}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={categoryBreakdown.filter(c => c.emissionValue > 0)}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={90}
+                        paddingAngle={5}
+                        dataKey="emissionValue"
+                        nameKey="category"
                       >
-                        <defs>
-                          <linearGradient id="colorDailyChart" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.8}/>
-                            <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0.2}/>
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                        <XAxis dataKey="name" stroke="#9ca3af" />
-                        <YAxis stroke="#9ca3af" />
-                        <ChartTooltip 
-                          contentStyle={{ background: '#1f2937', borderColor: '#374151', borderRadius: 8 }}
-                          itemStyle={{ color: '#fff' }}
-                        />
-                        <Bar dataKey="Emissions" fill="url(#colorDailyChart)" radius={[4, 4, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </Box>
-                </Grid>
+                        {categoryBreakdown.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <ChartTooltip 
+                        contentStyle={{ background: '#1f2937', borderColor: '#374151', borderRadius: 8 }}
+                        itemStyle={{ color: '#fff' }}
+                      />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </Box>
+              )}
+            </Card>
+          </Grid>
 
-                {/* Day Details */}
-                <Grid item xs={12} md={5}>
-                  <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 2 }} color="text.secondary">
-                    Logged Activities on {selectedDate ? new Date(selectedDate).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : 'Selected Day'}
-                  </Typography>
+          <Grid item xs={12} md={6}>
+            <Card sx={{ p: 2 }}>
+              <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
+                Category Emissions Contribution (Selected Period)
+              </Typography>
+              {categoryBreakdown.length === 0 ? (
+                <Box height={300} display="flex" justifyContent="center" alignItems="center">
+                  <Typography color="text.secondary">No activities logged in this range.</Typography>
+                </Box>
+              ) : (
+                <Box height={300}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={categoryBreakdown}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                      <XAxis dataKey="category" stroke="#9ca3af" />
+                      <YAxis stroke="#9ca3af" />
+                      <ChartTooltip 
+                        contentStyle={{ background: '#1f2937', borderColor: '#374151', borderRadius: 8 }}
+                        itemStyle={{ color: '#fff' }}
+                      />
+                      <Bar dataKey="emissionValue" fill="#06b6d4" radius={[4, 4, 0, 0]}>
+                        {categoryBreakdown.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </Box>
+              )}
+            </Card>
+          </Grid>
 
-                  {selectedLogs.length === 0 ? (
-                    <Box sx={{ p: 4, textAlign: 'center', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 2 }}>
-                      <Typography color="text.secondary" variant="body2">No activities recorded on this day.</Typography>
+          <Grid item xs={12}>
+            <Card sx={{ p: 2 }}>
+              <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 2 }}>
+                Emissions Details List (Selected Period)
+              </Typography>
+              <Stack spacing={1.5}>
+                {categoryBreakdown.map((cat, i) => {
+                  const details = getCategoryDetails(cat.category);
+                  return (
+                    <Box key={cat.category} display="flex" justifyContent="space-between" alignItems="center" p={2} sx={{ bgcolor: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 2 }}>
+                      <Box display="flex" alignItems="center" gap={1.5}>
+                        <Avatar sx={{ bgcolor: details.bg, color: details.color, width: 36, height: 36 }}>
+                          {details.icon}
+                        </Avatar>
+                        <Box>
+                          <Typography variant="subtitle2" fontWeight={700}>{cat.category}</Typography>
+                          <Typography variant="caption" color="text.secondary">{cat.percentageContribution.toFixed(1)}% of overall emissions</Typography>
+                        </Box>
+                      </Box>
+                      <Typography variant="subtitle2" fontWeight={800} color={details.color}>
+                        {cat.emissionValue.toFixed(1)} kg CO₂
+                      </Typography>
                     </Box>
+                  );
+                })}
+              </Stack>
+            </Card>
+          </Grid>
+        </Grid>
+      )}
+
+      {/* Tab 3: Personalized Recommendations */}
+      {tabValue === 2 && (
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={4}>
+            <Card sx={{ p: 3, height: '100%' }}>
+              <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
+                Activity Insights (Last 30 Days)
+              </Typography>
+
+              <Stack spacing={3}>
+                <Box>
+                  <Typography variant="body2" color="text.secondary" fontWeight={600}>Highest Contributor Category</Typography>
+                  <Typography variant="h5" fontWeight={800} color="error.main" mt={0.5}>
+                    {recommendations?.highestCategory || 'N/A'}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="body2" color="text.secondary" fontWeight={600}>Most Logged Activity</Typography>
+                  <Typography variant="h5" fontWeight={800} color="warning.main" mt={0.5}>
+                    {recommendations?.mostFrequentActivity || 'None'}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="body2" color="text.secondary" fontWeight={600} mb={1}>Highest Footprint Activities</Typography>
+                  {recommendations?.topActivities?.length === 0 ? (
+                    <Typography color="text.secondary" variant="body2">No activities logged recently.</Typography>
                   ) : (
-                    <Stack spacing={1.5} sx={{ maxHeight: 250, overflowY: 'auto', pr: 1 }}>
-                      {selectedLogs.map((log) => {
-                        const catDetails = getCategoryDetails(log.category);
-                        return (
-                          <Card 
-                            key={log.id} 
-                            variant="outlined" 
-                            sx={{ 
-                              p: 1.5, 
-                              display: 'flex', 
-                              justifyContent: 'space-between', 
-                              alignItems: 'center',
-                              borderColor: 'rgba(255,255,255,0.05)',
-                              background: 'rgba(255,255,255,0.01)'
-                            }}
-                          >
-                            <Box display="flex" alignItems="center" gap={1.5}>
-                              <Avatar sx={{ bgcolor: catDetails.bg, color: catDetails.color, width: 32, height: 32 }}>
-                                {React.cloneElement(catDetails.icon, { fontSize: 'small' })}
-                              </Avatar>
-                              <Box>
-                                <Typography variant="body2" fontWeight={700}>{log.activityType}</Typography>
-                                <Typography variant="caption" color="text.secondary">{log.quantity} {log.unit}</Typography>
-                              </Box>
-                            </Box>
-                            <Typography variant="body2" fontWeight={800} color="primary.main">
-                              +{log.carbonEmission.toFixed(2)} kg
-                            </Typography>
-                          </Card>
-                        );
-                      })}
+                    <Stack spacing={1.5}>
+                      {recommendations?.topActivities?.map((act, i) => (
+                        <Box key={i} display="flex" justifyContent="space-between" p={1} sx={{ borderLeft: '3px solid', borderColor: COLORS[i % COLORS.length], pl: 1.5, bgcolor: 'rgba(255,255,255,0.01)' }}>
+                          <Typography variant="body2" fontWeight={700}>{act.activityType}</Typography>
+                          <Typography variant="body2" fontWeight={800} color="text.secondary">{act.emission.toFixed(1)} kg</Typography>
+                        </Box>
+                      ))}
                     </Stack>
                   )}
-                </Grid>
-              </Grid>
-            )}
-          </Card>
+                </Box>
+              </Stack>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} md={8}>
+            <Card sx={{ p: 3, height: '100%' }}>
+              <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
+                💡 Actionable Eco-Recommendations
+              </Typography>
+              
+              {recommendations?.recommendations?.length === 0 ? (
+                <Box p={4} textAlign="center">
+                  <Typography color="text.secondary">Log more activities to generate personalized reduction recommendations.</Typography>
+                </Box>
+              ) : (
+                <Stack spacing={2}>
+                  {recommendations?.recommendations?.map((tip, idx) => {
+                    const catDetails = getCategoryDetails(tip.category);
+                    return (
+                      <Card key={idx} variant="outlined" sx={{ p: 2, borderColor: 'rgba(255,255,255,0.05)', bgcolor: 'rgba(255,255,255,0.01)' }}>
+                        <Stack direction="row" justifyContent="space-between" alignItems="flex-start" flexWrap="wrap" gap={1.5}>
+                          <Box display="flex" gap={1.5}>
+                            <Avatar sx={{ bgcolor: catDetails.bg, color: catDetails.color, width: 36, height: 36 }}>
+                              {catDetails.icon}
+                            </Avatar>
+                            <Box>
+                              <Typography variant="body2" fontWeight={700} mb={0.5}>{tip.action}</Typography>
+                              <Typography variant="caption" color="success.main" display="block" fontWeight={700}>{tip.estimatedSavings}</Typography>
+                            </Box>
+                          </Box>
+                          <Stack direction="row" spacing={1}>
+                            <Chip label={`Difficulty: ${tip.difficulty}`} size="small" variant="outlined" sx={{ fontWeight: 600 }} />
+                            <Chip label={`Impact: ${tip.impact}`} size="small" color={tip.impact === 'High' ? 'error' : tip.impact === 'Medium' ? 'warning' : 'primary'} sx={{ fontWeight: 700 }} />
+                          </Stack>
+                        </Stack>
+                      </Card>
+                    );
+                  })}
+                </Stack>
+              )}
+            </Card>
+          </Grid>
         </Grid>
-      </Grid>
+      )}
+
+      {/* Tab 4: Benchmarking & Insights */}
+      {tabValue === 3 && (
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <Card sx={{ p: 3, height: '100%' }}>
+              <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
+                Platform Benchmarking Comparison
+              </Typography>
+              
+              <Alert severity="info" sx={{ mb: 4, fontWeight: 600 }}>
+                {benchmarking?.comparisonInsight}
+              </Alert>
+
+              <Stack spacing={2.5}>
+                <Box>
+                  <Typography variant="body2" color="text.secondary" mb={0.5}>Your Footprint (Current Month)</Typography>
+                  <LinearProgress variant="determinate" value={Math.min(100, (benchmarking?.yourEmissions / (benchmarking?.platformAverage || 1)) * 50)} color="secondary" sx={{ height: 10, borderRadius: 5 }} />
+                  <Box display="flex" justifyContent="space-between" mt={0.5}>
+                    <Typography variant="caption" fontWeight={700}>{benchmarking?.yourEmissions.toFixed(1)} kg CO₂</Typography>
+                    <Typography variant="caption" color="text.secondary">Goal target: {benchmarking?.platformAverage.toFixed(1)} kg avg</Typography>
+                  </Box>
+                </Box>
+
+                <Box>
+                  <Typography variant="body2" color="text.secondary" mb={0.5}>Platform Average</Typography>
+                  <LinearProgress variant="determinate" value={50} color="inherit" sx={{ height: 10, borderRadius: 5, color: 'action.disabled' }} />
+                  <Typography variant="caption" fontWeight={700} display="block" mt={0.5}>{benchmarking?.platformAverage.toFixed(1)} kg CO₂</Typography>
+                </Box>
+
+                {benchmarking?.organizationAverage && (
+                  <Box>
+                    <Typography variant="body2" color="text.secondary" mb={0.5}>Organization Average</Typography>
+                    <LinearProgress variant="determinate" value={Math.min(100, (benchmarking?.organizationAverage / (benchmarking?.platformAverage || 1)) * 50)} color="primary" sx={{ height: 10, borderRadius: 5 }} />
+                    <Typography variant="caption" fontWeight={700} display="block" mt={0.5}>{benchmarking?.organizationAverage.toFixed(1)} kg CO₂ ({benchmarking?.organizationDifferencePercentage >= 0 ? `+${benchmarking?.organizationDifferencePercentage.toFixed(0)}%` : `${benchmarking?.organizationDifferencePercentage.toFixed(0)}%`})</Typography>
+                  </Box>
+                )}
+
+                <Box>
+                  <Typography variant="body2" color="text.secondary" mb={0.5}>Cohort Average (Similar Users)</Typography>
+                  <LinearProgress variant="determinate" value={Math.min(100, (benchmarking?.similarUsersAverage / (benchmarking?.platformAverage || 1)) * 50)} color="warning" sx={{ height: 10, borderRadius: 5 }} />
+                  <Typography variant="caption" fontWeight={700} display="block" mt={0.5}>{benchmarking?.similarUsersAverage.toFixed(1)} kg CO₂ ({benchmarking?.similarUsersDifferencePercentage >= 0 ? `+${benchmarking?.similarUsersDifferencePercentage.toFixed(0)}%` : `${benchmarking?.similarUsersDifferencePercentage.toFixed(0)}%`})</Typography>
+                </Box>
+              </Stack>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <Card sx={{ p: 3, height: '100%' }}>
+              <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
+                📈 Trend Indicators & Insights
+              </Typography>
+              
+              <Stack direction="row" spacing={2} sx={{ mb: 4 }} flexWrap="wrap" gap={1.5}>
+                <Box textAlign="center" p={2} sx={{ flexGrow: 1, border: '1px solid rgba(255,255,255,0.05)', borderRadius: 2, bgcolor: 'rgba(255,255,255,0.01)' }}>
+                  <Typography variant="body2" color="text.secondary">Daily Trend</Typography>
+                  <Chip label={trends?.dailyTrend || 'STABLE'} color={trends?.dailyTrend === 'IMPROVING' ? 'success' : trends?.dailyTrend === 'INCREASING' ? 'error' : 'primary'} sx={{ mt: 1, fontWeight: 700 }} />
+                </Box>
+                <Box textAlign="center" p={2} sx={{ flexGrow: 1, border: '1px solid rgba(255,255,255,0.05)', borderRadius: 2, bgcolor: 'rgba(255,255,255,0.01)' }}>
+                  <Typography variant="body2" color="text.secondary">Weekly Trend</Typography>
+                  <Chip label={trends?.weeklyTrend || 'STABLE'} color={trends?.weeklyTrend === 'IMPROVING' ? 'success' : trends?.weeklyTrend === 'INCREASING' ? 'error' : 'primary'} sx={{ mt: 1, fontWeight: 700 }} />
+                </Box>
+                <Box textAlign="center" p={2} sx={{ flexGrow: 1, border: '1px solid rgba(255,255,255,0.05)', borderRadius: 2, bgcolor: 'rgba(255,255,255,0.01)' }}>
+                  <Typography variant="body2" color="text.secondary">Monthly Trend</Typography>
+                  <Chip label={trends?.monthlyTrend || 'STABLE'} color={trends?.monthlyTrend === 'IMPROVING' ? 'success' : trends?.monthlyTrend === 'INCREASING' ? 'error' : 'primary'} sx={{ mt: 1, fontWeight: 700 }} />
+                </Box>
+              </Stack>
+
+              <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>
+                Analytical Notes:
+              </Typography>
+              {trends?.insights?.length === 0 ? (
+                <Typography color="text.secondary" variant="body2">No trend observations logged yet.</Typography>
+              ) : (
+                <Stack spacing={1.5}>
+                  {trends?.insights?.map((ins, i) => (
+                    <Box key={i} display="flex" alignItems="flex-start" gap={1.5}>
+                      <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: 'primary.main', mt: 1, flexShrink: 0 }} />
+                      <Typography variant="body2" fontWeight={500}>{ins}</Typography>
+                    </Box>
+                  ))}
+                </Stack>
+              )}
+            </Card>
+          </Grid>
+        </Grid>
+      )}
+
+      {/* Tab 5: Recent Activity History */}
+      {tabValue === 4 && (
+        <Grid container spacing={3}>
+          {/* Quick Session Stats */}
+          <Grid item xs={12} md={4}>
+            <Card sx={{ p: 3, height: '100%' }}>
+              <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
+                Activity Summary
+              </Typography>
+
+              <Stack spacing={3}>
+                <Box display="flex" alignItems="center" gap={1.5}>
+                  <Avatar sx={{ bgcolor: 'rgba(6, 182, 212, 0.1)', color: 'secondary.main' }}>
+                    <SpeedIcon />
+                  </Avatar>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" fontWeight={600}>LAST LOGIN TIME</Typography>
+                    <Typography variant="body2" fontWeight={700}>
+                      {recentActivities?.lastLoginTime ? new Date(recentActivities.lastLoginTime).toLocaleString() : 'N/A'}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <Box display="flex" alignItems="center" gap={1.5}>
+                  <Avatar sx={{ bgcolor: 'rgba(16, 185, 129, 0.1)', color: 'primary.main' }}>
+                    <QueryStatsIcon />
+                  </Avatar>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" fontWeight={600}>LAST ACTIVE TIME</Typography>
+                    <Typography variant="body2" fontWeight={700}>
+                      {recentActivities?.lastActiveTime ? new Date(recentActivities.lastActiveTime).toLocaleString() : 'N/A'}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <Divider />
+
+                <Box>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600} display="block">LAST SEARCHED ANALYTICS</Typography>
+                  <Typography variant="body2" fontWeight={700} mt={0.5}>{recentActivities?.lastSearchedAnalytics}</Typography>
+                </Box>
+
+                <Box>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600} display="block">LAST DOWNLOADED REPORT</Typography>
+                  <Typography variant="body2" fontWeight={700} mt={0.5}>{recentActivities?.lastDownloadedReport}</Typography>
+                </Box>
+
+                <Box>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600} display="block">LAST VIEWED RECOMMENDATION</Typography>
+                  <Typography variant="body2" fontWeight={700} mt={0.5}>{recentActivities?.lastViewedRecommendation}</Typography>
+                </Box>
+              </Stack>
+            </Card>
+          </Grid>
+
+          {/* Last 10 Interactions Table */}
+          <Grid item xs={12} md={8}>
+            <Card sx={{ p: 3, height: '100%' }}>
+              <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 2 }}>
+                Recent Activities (Last 10 Actions)
+              </Typography>
+              <TableContainer component={Paper} variant="outlined" sx={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+                <Table size="small">
+                  <TableHead sx={{ bgcolor: 'rgba(255,255,255,0.01)' }}>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 700 }}>Activity Name</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Date & Time</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Description</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {recentActivities?.last10Activities?.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={3} align="center">No activities recorded yet.</TableCell>
+                      </TableRow>
+                    ) : (
+                      recentActivities?.last10Activities?.map((act) => (
+                        <TableRow key={act.id}>
+                          <TableCell>
+                            <Chip 
+                              label={act.activityName} 
+                              size="small" 
+                              color={
+                                act.activityType === 'LOGIN' ? 'success' :
+                                act.activityType === 'SEARCH' ? 'secondary' :
+                                act.activityType === 'DOWNLOAD' ? 'warning' : 'default'
+                              }
+                              sx={{ fontWeight: 700 }}
+                            />
+                          </TableCell>
+                          <TableCell sx={{ fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
+                            {new Date(act.createdAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </TableCell>
+                          <TableCell sx={{ fontSize: '0.8rem', color: 'text.secondary' }}>
+                            {act.activityDescription}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Card>
+          </Grid>
+        </Grid>
+      )}
     </Box>
   );
 };
-
-const Avatar = ({ children, sx }) => (
-  <Box sx={{
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 48,
-    height: 48,
-    borderRadius: '50%',
-    ...sx
-  }}>
-    {children}
-  </Box>
-);
 
 export default Dashboard;

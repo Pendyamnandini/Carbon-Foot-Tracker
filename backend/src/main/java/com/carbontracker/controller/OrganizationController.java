@@ -22,6 +22,9 @@ public class OrganizationController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private com.carbontracker.service.AuditLogService auditLogService;
+
     private User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email)
@@ -32,6 +35,7 @@ public class OrganizationController {
     public ResponseEntity<ApiResponse<Organization>> createOrganization(@Valid @RequestBody OrganizationRequest request) {
         User creator = getCurrentUser();
         Organization org = organizationService.createOrganization(request, creator);
+        auditLogService.logActivity(creator, "CREATE", "Organization Created", "Created organization " + org.getOrganizationName(), "Organization Dashboard", null, null);
         return ResponseEntity.ok(ApiResponse.success("Organization created successfully", org));
     }
 
@@ -48,6 +52,7 @@ public class OrganizationController {
             @Valid @RequestBody OrganizationUserRequest request) {
         User orgAdmin = getCurrentUser();
         OrganizationUser employee = organizationService.addEmployee(orgId, request, orgAdmin);
+        auditLogService.logActivity(orgAdmin, "CREATE", "Employee Added", "Added employee " + request.getEmail() + " to organization", "Organization Dashboard", null, null);
         return ResponseEntity.ok(ApiResponse.success("Employee added successfully", employee));
     }
 
@@ -66,6 +71,7 @@ public class OrganizationController {
             @RequestParam int year) {
         User orgAdmin = getCurrentUser();
         OrganizationReport report = organizationService.generateReport(orgId, month, year, orgAdmin);
+        auditLogService.logActivity(orgAdmin, "CREATE", "Organization Report Created", "Generated aggregated report for " + month + "/" + year, "Organization Dashboard", null, null);
         return ResponseEntity.ok(ApiResponse.success("Report generated successfully", report));
     }
 
@@ -75,5 +81,29 @@ public class OrganizationController {
         User user = getCurrentUser();
         List<OrganizationReport> reports = organizationService.getReports(orgId, user);
         return ResponseEntity.ok(ApiResponse.success(reports));
+    }
+
+    @GetMapping("/{orgId}/employee-trends")
+    public ResponseEntity<ApiResponse<List<EmployeeTrendResponse>>> getEmployeeTrends(
+            @PathVariable Long orgId) {
+        User admin = getCurrentUser();
+        List<EmployeeTrendResponse> trends = organizationService.getEmployeeTrends(orgId, admin);
+        return ResponseEntity.ok(ApiResponse.success(trends));
+    }
+
+    @GetMapping("/{orgId}/department-performance")
+    public ResponseEntity<ApiResponse<List<DepartmentPerformanceResponse>>> getDepartmentPerformance(
+            @PathVariable Long orgId) {
+        User admin = getCurrentUser();
+        List<DepartmentPerformanceResponse> performance = organizationService.getDepartmentPerformance(orgId, admin);
+        return ResponseEntity.ok(ApiResponse.success(performance));
+    }
+
+    @GetMapping("/{orgId}/team-rankings")
+    public ResponseEntity<ApiResponse<List<TeamRankingResponse>>> getTeamRankings(
+            @PathVariable Long orgId) {
+        User admin = getCurrentUser();
+        List<TeamRankingResponse> rankings = organizationService.getTeamRankings(orgId, admin);
+        return ResponseEntity.ok(ApiResponse.success(rankings));
     }
 }

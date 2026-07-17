@@ -59,6 +59,7 @@ public class GoalService {
 
         // Audit log
         auditLogService.log(user, "CREATE_GOAL", "Goal", savedGoal.getId(), "Created goal: " + title);
+        auditLogService.logActivity(user, "CREATE", "Goal Creation", "Created goal: " + title, "Goals", null, null);
 
         // Send Notification
         notificationService.createNotification(
@@ -84,6 +85,7 @@ public class GoalService {
 
         goalRepository.delete(goal);
         auditLogService.log(user, "DELETE_GOAL", "Goal", id, "Deleted goal: " + goal.getGoalTitle());
+        auditLogService.logActivity(user, "DELETE", "Goal Deletion", "Deleted goal: " + goal.getGoalTitle(), "Goals", null, null);
     }
 
     @Transactional
@@ -179,6 +181,7 @@ public class GoalService {
                     NotificationType.SUCCESS
             );
             auditLogService.log(user, "GOAL_COMPLETED", "Goal", goal.getId(), "Achieved goal: " + goal.getGoalTitle());
+            auditLogService.logActivity(user, "UPDATE", "Goal Completion", "Completed goal: " + goal.getGoalTitle(), "Goals", null, null);
 
             // Publish GoalCompletedEvent
             eventPublisher.publishEvent(new com.carbontracker.event.GoalCompletedEvent(this, user));
@@ -193,6 +196,7 @@ public class GoalService {
                     NotificationType.WARNING
             );
             auditLogService.log(user, "GOAL_FAILED", "Goal", goal.getId(), "Failed goal: " + goal.getGoalTitle());
+            auditLogService.logActivity(user, "UPDATE", "Goal Period Ended", "Goal period ended: " + goal.getGoalTitle(), "Goals", null, null);
         } else {
             goalRepository.save(goal);
 

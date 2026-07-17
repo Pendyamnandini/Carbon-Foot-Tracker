@@ -35,6 +35,7 @@ public class ProfileController {
     public ResponseEntity<ApiResponse<List<UserBadge>>> getMyBadges() {
         User user = getCurrentUser();
         List<UserBadge> badges = badgeService.getUserBadges(user);
+        auditLogService.logActivity(user, "VIEW", "View Badges", "Viewed badges tab in profile", "Profile", null, null);
         return ResponseEntity.ok(ApiResponse.success(badges));
     }
 
@@ -68,6 +69,7 @@ public class ProfileController {
         User updatedUser = userRepository.save(user);
 
         auditLogService.log(user, "UPDATE_PROFILE", "User", user.getId(), "Updated profile details");
+        auditLogService.logActivity(user, "UPDATE", "Profile Updates", "Updated profile details", "Profile", null, null);
 
         return ResponseEntity.ok(ApiResponse.success("Profile updated successfully", mapToResponse(updatedUser)));
     }
@@ -81,6 +83,7 @@ public class ProfileController {
         userRepository.save(user);
 
         auditLogService.log(user, "UPLOAD_PROFILE_IMAGE", "UploadedFile", uploadedFile.getId(), "Uploaded profile image: " + uploadedFile.getFileName());
+        auditLogService.logActivity(user, "UPDATE", "Profile Image Upload", "Uploaded profile image", "Profile", null, null);
 
         return ResponseEntity.ok(ApiResponse.success("Profile image uploaded successfully", uploadedFile.getFileUrl()));
     }

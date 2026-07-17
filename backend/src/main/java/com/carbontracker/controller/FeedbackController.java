@@ -23,6 +23,9 @@ public class FeedbackController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private com.carbontracker.service.AuditLogService auditLogService;
+
     private User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email)
@@ -33,6 +36,7 @@ public class FeedbackController {
     public ResponseEntity<ApiResponse<Feedback>> submitFeedback(@Valid @RequestBody FeedbackRequest request) {
         User user = getCurrentUser();
         Feedback feedback = feedbackService.submitFeedback(request, user);
+        auditLogService.logActivity(user, "CREATE", "Feedback Submission", "Submitted query: " + request.getFeedbackText(), "Support", null, null);
         return ResponseEntity.ok(ApiResponse.success("Feedback submitted successfully", feedback));
     }
 

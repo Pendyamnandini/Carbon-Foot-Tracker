@@ -143,6 +143,7 @@ public class BadgeService {
                     badge.getId(),
                     "Awarded badge: " + badgeName
             );
+            auditLogService.logActivity(user, "CREATE", "Badge Earned", "Earned badge: " + badgeName, "Profile", null, null);
         }
     }
 

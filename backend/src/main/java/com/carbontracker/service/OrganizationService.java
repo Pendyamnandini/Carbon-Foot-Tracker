@@ -11,6 +11,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Comparator;
 
 @Service
 public class OrganizationService {
@@ -35,6 +38,12 @@ public class OrganizationService {
 
     @Autowired
     private AuditLogService auditLogService;
+
+    @Autowired
+    private GoalRepository goalRepository;
+
+    @Autowired
+    private UserBadgeRepository userBadgeRepository;
 
     @Transactional
     public Organization createOrganization(OrganizationRequest request, User creator) {
@@ -180,5 +189,119 @@ public class OrganizationService {
         if (user.getRole() == Role.ADMIN) return; // Platform admin is wildcard
         organizationUserRepository.findByOrganizationIdAndUserId(orgId, user.getId())
                 .orElseThrow(() -> new IllegalArgumentException("User is not associated with this organization"));
+    }
+
+    public List<com.carbontracker.dto.EmployeeTrendResponse> getEmployeeTrends(Long orgId, User admin) {
+        validateOrgAdmin(orgId, admin);
+        List<OrganizationUser> members = organizationUserRepository.findByOrganizationId(orgId);
+        LocalDate today = LocalDate.now();
+        List<com.carbontracker.dto.EmployeeTrendResponse> list = new java.util.ArrayList<>();
+        for (OrganizationUser member : members) {
+            List<com.carbontracker.dto.AdminDashboardV1Response.TimeValue> trend = new java.util.ArrayList<>();
+            for (int i = 5; i >= 0; i--) {
+                LocalDate start = today.withDayOfMonth(1).minusMonths(i);
+                LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
+                double sum = activityLogRepository.findByUserIdAndLogDateBetween(member.getUser().getId(), start, end).stream()
+                        .mapToDouble(ActivityLog::getCarbonEmission).sum();
+                String label = start.getMonth().name().substring(0, 3) + " " + start.getYear();
+                trend.add(new com.carbontracker.dto.AdminDashboardV1Response.TimeValue(label, Math.round(sum * 10.0)/10.0));
+            }
+            list.add(com.carbontracker.dto.EmployeeTrendResponse.builder()
+                    .employeeId(member.getUser().getId())
+                    .employeeName(member.getUser().getFullName())
+                    .emissionsOverTime(trend)
+                    .build());
+        }
+        return list;
+    }
+
+    public List<com.carbontracker.dto.DepartmentPerformanceResponse> getDepartmentPerformance(Long orgId, User admin) {
+        validateOrgAdmin(orgId, admin);
+        List<OrganizationUser> members = organizationUserRepository.findByOrganizationId(orgId);
+        
+        Map<String, List<User>> deptMap = new java.util.HashMap<>();
+        String[] depts = {"Sales", "Engineering", "Marketing", "HR", "Operations"};
+        for (OrganizationUser m : members) {
+            String dept = depts[(int)(m.getUser().getId() % depts.length)];
+            deptMap.computeIfAbsent(dept, k -> new java.util.ArrayList<>()).add(m.getUser());
+        }
+
+        List<com.carbontracker.dto.DepartmentPerformanceResponse> response = new java.util.ArrayList<>();
+        LocalDate today = LocalDate.now();
+        LocalDate startOfMonth = today.withDayOfMonth(1);
+        LocalDate endOfMonth = today.withDayOfMonth(today.lengthOfMonth());
+
+        for (Map.Entry<String, List<User>> entry : deptMap.entrySet()) {
+            String deptName = entry.getKey();
+            List<User> users = entry.getValue();
+            double total = 0.0;
+            for (User u : users) {
+                total += activityLogRepository.findByUserIdAndLogDateBetween(u.getId(), startOfMonth, endOfMonth).stream()
+                        .mapToDouble(ActivityLog::getCarbonEmission).sum();
+            }
+            double avg = users.isEmpty() ? 0.0 : total / users.size();
+            response.add(com.carbontracker.dto.DepartmentPerformanceResponse.builder()
+                    .departmentName(deptName)
+                    .employeeCount(users.size())
+                    .totalEmissions(Math.round(total * 10.0)/10.0)
+                    .averageEmissions(Math.round(avg * 10.0)/10.0)
+                    .build());
+        }
+        return response;
+    }
+
+    public List<com.carbontracker.dto.TeamRankingResponse> getTeamRankings(Long orgId, User admin) {
+        validateOrgAdmin(orgId, admin);
+        List<OrganizationUser> members = organizationUserRepository.findByOrganizationId(orgId);
+        LocalDate today = LocalDate.now();
+        LocalDate startOfMonth = today.withDayOfMonth(1);
+        LocalDate endOfMonth = today.withDayOfMonth(today.lengthOfMonth());
+
+        List<com.carbontracker.dto.TeamRankingResponse> list = new java.util.ArrayList<>();
+        String[] depts = {"Sales", "Engineering", "Marketing", "HR", "Operations"};
+
+        List<User> allUsers = userRepository.findAll();
+        double totalPlat = 0.0;
+        int activePlat = 0;
+        for (User u : allUsers) {
+            double em = activityLogRepository.findByUserIdAndLogDateBetween(u.getId(), startOfMonth, endOfMonth).stream()
+                    .mapToDouble(ActivityLog::getCarbonEmission).sum();
+            if (em > 0) {
+                totalPlat += em;
+                activePlat++;
+            }
+        }
+        double platAvg = activePlat == 0 ? 0.0 : totalPlat / activePlat;
+
+        List<UserBadge> allUserBadges = userBadgeRepository.findAll();
+        List<Goal> allGoals = goalRepository.findAll();
+
+        for (OrganizationUser m : members) {
+            double em = activityLogRepository.findByUserIdAndLogDateBetween(m.getUser().getId(), startOfMonth, endOfMonth).stream()
+                    .mapToDouble(ActivityLog::getCarbonEmission).sum();
+            String dept = depts[(int)(m.getUser().getId() % depts.length)];
+
+            long badgesCount = allUserBadges.stream().filter(ub -> ub.getUser().getId().equals(m.getUser().getId())).count();
+            long compGoals = allGoals.stream().filter(g -> g.getUser().getId().equals(m.getUser().getId()) && g.getStatus() == GoalStatus.COMPLETED).count();
+
+            double score = 50.0 + (badgesCount * 10.0) + (compGoals * 15.0);
+            if (platAvg > 0) {
+                score -= (em / platAvg) * 20.0;
+            }
+            score = Math.max(0.0, Math.min(100.0, score));
+
+            list.add(com.carbontracker.dto.TeamRankingResponse.builder()
+                    .employeeName(m.getUser().getFullName())
+                    .department(dept)
+                    .emissions(Math.round(em * 10.0)/10.0)
+                    .sustainabilityScore(Math.round(score * 10.0)/10.0)
+                    .build());
+        }
+
+        list.sort(Comparator.comparingDouble(com.carbontracker.dto.TeamRankingResponse::getEmissions));
+        for (int i = 0; i < list.size(); i++) {
+            list.get(i).setRank(i + 1);
+        }
+        return list;
     }
 }

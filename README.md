@@ -18,17 +18,23 @@ CarbonTracker is a high-fidelity, interactive, and responsive web application de
 - **Ambient Glowing Orbs**: Soft floating Emerald and Cyan background depth orbs.
 - **Color-Coded Sidebar Navigation**: Fully custom colored items that dynamically adjust their selection bar and highlight backdrops to match their brand icons on click.
 
-### 📊 Sustainability Analytics
-- **Dynamic Leaderboard**: Podium ranks (1st, 2nd, 3rd) framed with colored outlines and gold/silver/bronze medallions. Earned badges displayed as premium achievements.
-- **Eco Insights Engine**: Actionable, category-based personalized recommendations based on logged activity profiles.
+### 📊 Advanced Date-Range Analytics & Long-Term Data Retention
+- **Date Range Filters**: Select ranges such as *Today*, *Yesterday*, *Last 7 Days*, *Last 30 Days*, *This Month*, *Previous Month*, or specify *Custom Start/End Dates*.
+- **Historical Summaries**: Automatic database-level summaries stored in `daily_carbon_summary`, `weekly_carbon_summary`, and `monthly_carbon_summary` tables.
+- **Detailed Aggregations Widget**: View total emissions, daily average footprint, total logs, min/max day values, and eco score trends over the selected period.
 - **Dashboard Interactive Charts**:
   - Weekly area emission graphs with cyan gradients.
   - Monthly bar comparison charts.
   - Category emissions distribution pie charts.
+  - Clickable Daily Emissions bar chart to load specific logged daily activities.
 
-### 🔍 Day-to-Day Activity Inspector
-- **Daily Historical Filtering**: Filter logs by a specific date on the *Log Activities* page, complete with a day-to-day total emissions banner.
-- **Dashboard Logs Inspector**: A clickable Daily Emissions bar chart. Clicking on any day instantly loads a detailed card showing exactly what activities were logged on that specific day.
+### 🔍 User Activity History & Session Auditing Trail
+- **Real-Time Activity Audit Logs**: Securely records login/logout times, profile changes, activity logs CRUD actions, badge awards, report downloads, support ticket submissions, and organizational administrative actions.
+- **Device & Client Context**: Stores client IP addresses and User-Agent device headers automatically.
+- **Personal Audit Log Profile Tab**: Dedicated tab under Profile displaying range-filtered and paginated personal logs.
+- **Administrative Monitoring Dashboards**:
+  - Track logins and user activity trends.
+  - Review aggregated analytics stats (most active users, most visited pages, most downloaded report types).
 
 ---
 
