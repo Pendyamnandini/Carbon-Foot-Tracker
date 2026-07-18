@@ -14,6 +14,7 @@ CarbonTracker is a high-fidelity, interactive, and responsive web application de
 - **Password Visibility Toggles**: Interactive eye icons on Login, Register, and Reset Password forms to show/hide typed input.
 
 ### 🎨 High-Fidelity Glassmorphism UX/UI
+- **Landing Page Theme Switcher**: Floating light/dark mode switch icon on the landing page, allowing users to toggle between modes before signing in.
 - **Aesthetic Theme System**: Curved translucent glass containers, backdrop blur filters, and dynamic radial-mesh background gradients that morph when toggling between **Light Mode** and **Dark Mode**.
 - **Ambient Glowing Orbs**: Soft floating Emerald and Cyan background depth orbs.
 - **Color-Coded Sidebar Navigation**: Fully custom colored items that dynamically adjust their selection bar and highlight backdrops to match their brand icons on click.

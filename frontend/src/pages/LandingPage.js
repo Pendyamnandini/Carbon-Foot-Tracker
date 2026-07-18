@@ -1,15 +1,28 @@
-import React from 'react';
-import { Box, Typography, Button, Container, Grid, Card, CardContent, Stack } from '@mui/material';
+import React, { useContext } from 'react';
+import { Box, Typography, Button, Container, Grid, Card, CardContent, Stack, IconButton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import TravelExploreIcon from '@mui/icons-material/TravelExplore';
 import Co2Icon from '@mui/icons-material/Co2';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import { useTheme } from '@mui/material/styles';
+import { ColorModeContext } from '../App';
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const colorMode = useContext(ColorModeContext);
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', pt: 8 }}>
+    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', pt: 8, position: 'relative' }}>
+      {/* Floating Theme Toggle */}
+      <Box sx={{ position: 'absolute', top: 20, right: 20, zIndex: 10 }}>
+        <IconButton onClick={colorMode.toggleColorMode} color="inherit" size="large">
+          {theme.palette.mode === 'dark' ? <LightModeIcon sx={{ color: '#fbbf24' }} /> : <DarkModeIcon sx={{ color: '#1f2937' }} />}
+        </IconButton>
+      </Box>
+
       <Container maxWidth="lg">
         {/* Hero Section */}
         <Grid container spacing={4} alignItems="center" sx={{ mb: 10, mt: 4 }}>
