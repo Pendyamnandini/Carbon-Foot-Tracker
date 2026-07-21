@@ -18,12 +18,17 @@ CarbonTracker is a high-fidelity, interactive, and responsive web application de
 - **Landing Page Theme Switcher**: Floating light/dark mode switch icon on the landing page and portal app, allowing users to toggle between modes before or after signing in.
 - **Color-Coded Sidebar Navigation**: Fully custom colored menu items with active state highlighting for standard users and administrators.
 
-### 📊 Dedicated Category Analytics Module & Business Intelligence
-- **Category-Specific Deep Dives**: Dedicated tabs for *Transport*, *Electricity*, *Food*, and *Shopping* analytics.
-- **Dynamic Date Filtering**: Instant preset filtering (*Today*, *Yesterday*, *Last 7 Days*, *Last 30 Days*, *This Month*, *Last Month*, *This Year*) and custom date pickers.
+### 📊 Dedicated Category Analytics Module & Business Intelligence (`/analytics`)
+- **Filter Bar Category Dropdown**: Integrated Category selection dropdown right between *Date Range Preset* and *Start Date* in the primary filter bar for seamless single-category filtering.
+- **Category-Specific Deep Dives**: Selectable category cards and dropdown options for *Transport Analytics*, *Electricity Analytics*, *Food Analytics*, and *Shopping Analytics*.
+- **Dynamic Category-Filtered Charts**:
+  - **Daily Emissions Line Chart**: Dynamically plots day-by-day emissions for the selected category.
+  - **Weekly Breakdown Area Chart**: Displays 7-day aggregated trends for the selected category.
+  - **Monthly Breakdown Bar Chart**: Displays monthly totals for the selected category.
+  - **System Category Donut Chart**: Visualizes overall percentage contribution across all categories.
 - **Predictive Trajectory & Savings Engine**: Calculate potential monthly/annual CO₂ reductions, next-month emission forecasts, and recommendation impact ratings (Difficulty & Impact level).
 - **GitHub-Style Activity Heatmap & Journey Timeline**: Interactive daily activity logging matrix and chronological sustainability milestone timeline.
-- **Audit-Ready Export Center**: Download raw data and compliance reports in CSV and PDF formats.
+- **Audit-Ready Export Center**: Download raw data and compliance reports in CSV format with category filters applied.
 
 ### ✉️ Automated Email Reward & Goal Status Alert System
 - **Goal Completion Emails**: Automated congratulatory emails ("🎉 Congratulations! Goal Achieved") delivered on reaching 100% target reduction.
