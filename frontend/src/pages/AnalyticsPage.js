@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box, Typography, Grid, Paper, Card, CardContent, Stack, Button, Chip,
-  Select, MenuItem, FormControl, InputLabel, TextField, Tabs, Tab, Divider,
+  Select, MenuItem, FormControl, InputLabel, TextField, Tabs, Tab,
   Table, TableBody, TableCell, TableHead, TableRow, LinearProgress
 } from '@mui/material';
 import {
@@ -13,7 +13,6 @@ import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import BoltIcon from '@mui/icons-material/Bolt';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import SpeedIcon from '@mui/icons-material/Speed';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
@@ -61,7 +60,7 @@ const AnalyticsPage = () => {
   const [benchmark, setBenchmark] = useState(null);
   const [insights, setInsights] = useState([]);
 
-  // Dynamic Calculation Helper
+  // Preset Date Range Handler
   const handlePresetChange = (preset) => {
     setPresetRange(preset);
     const today = new Date();
@@ -128,41 +127,69 @@ const AnalyticsPage = () => {
     fetchAnalytics();
   }, [fetchAnalytics]);
 
-  // Derived Aggregate KPI Calculations
-  const filteredLogs = dailyData.filter(d => {
-    if (selectedCategory === 'ALL') return true;
-    if (selectedCategory === 'TRANSPORT') return d.transport > 0;
-    if (selectedCategory === 'ELECTRICITY') return d.electricity > 0;
-    if (selectedCategory === 'FOOD') return d.food > 0;
-    if (selectedCategory === 'SHOPPING') return d.shopping > 0;
-    return true;
-  });
+  // Derived Aggregate KPI Calculations for Selected Category
+  const getCategoryValueFromLog = (logItem, category) => {
+    if (category === 'ALL') return logItem.overallTotal;
+    if (category === 'TRANSPORT') return logItem.transport || 0;
+    if (category === 'ELECTRICITY') return logItem.electricity || 0;
+    if (category === 'FOOD') return logItem.food || 0;
+    if (category === 'SHOPPING') return logItem.shopping || 0;
+    return logItem.overallTotal;
+  };
 
-  const totalEmissions = filteredLogs.reduce((acc, curr) => {
-    if (selectedCategory === 'ALL') return acc + curr.overallTotal;
-    if (selectedCategory === 'TRANSPORT') return acc + curr.transport;
-    if (selectedCategory === 'ELECTRICITY') return acc + curr.electricity;
-    if (selectedCategory === 'FOOD') return acc + curr.food;
-    if (selectedCategory === 'SHOPPING') return acc + curr.shopping;
-    return acc;
-  }, 0);
+  const filteredLogs = dailyData.filter(d => getCategoryValueFromLog(d, selectedCategory) > 0 || selectedCategory === 'ALL');
 
-  const daysCount = filteredLogs.length || 1;
+  const totalEmissions = dailyData.reduce((acc, curr) => acc + getCategoryValueFromLog(curr, selectedCategory), 0);
+  const daysCount = dailyData.length || 1;
   const dailyAvg = totalEmissions / daysCount;
   const weeklyAvg = dailyAvg * 7;
   const monthlyAvg = dailyAvg * 30;
   const estimatedAnnual = dailyAvg * 365;
 
-  const peakDayObj = filteredLogs.reduce((max, item) => (item.overallTotal > (max.overallTotal || 0) ? item : max), {});
-  const lowestDayObj = filteredLogs.reduce((min, item) => (min.overallTotal === undefined || item.overallTotal < min.overallTotal ? item : min), {});
+  const peakDayObj = dailyData.reduce((max, item) => {
+    const val = getCategoryValueFromLog(item, selectedCategory);
+    return val > (max.val || 0) ? { date: item.date, val } : max;
+  }, { date: 'N/A', val: 0 });
 
-  // Recommendation Impact Items
-  const recommendations = [
-    { action: 'Switch to public transport 2x a week', category: 'TRANSPORT', monthlySavings: 12.5, annualSavings: 150.0, difficulty: 'Easy', impact: 'High' },
-    { action: 'Lower AC usage by 1 hour daily', category: 'ELECTRICITY', monthlySavings: 14.0, annualSavings: 168.0, difficulty: 'Medium', impact: 'High' },
+  const lowestDayObj = dailyData.reduce((min, item) => {
+    const val = getCategoryValueFromLog(item, selectedCategory);
+    return (min.val === undefined || val < min.val) ? { date: item.date, val } : min;
+  }, { date: 'N/A', val: undefined });
+
+  // Dynamic Chart Data mapping for Selected Category
+  const dailyChartData = dailyData.map(item => ({
+    date: item.date,
+    emissions: Number(getCategoryValueFromLog(item, selectedCategory).toFixed(1))
+  }));
+
+  // Category percentage factor for weekly & monthly charts
+  const catShareObj = categoryBreakdown.find(c => c.category === selectedCategory);
+  const catShareFactor = selectedCategory === 'ALL' ? 1.0 : (catShareObj ? (catShareObj.percentageContribution / 100) : 0.25);
+
+  const weeklyChartData = weeklyData.map(item => ({
+    weekLabel: item.weekLabel,
+    emissions: Number((item.emissions * catShareFactor).toFixed(1))
+  }));
+
+  const monthlyChartData = monthlyData.map(item => ({
+    monthLabel: item.monthLabel,
+    emissions: Number((item.emissions * catShareFactor).toFixed(1))
+  }));
+
+  // Recommendations Filtered by Selected Category
+  const allRecommendations = [
+    { action: 'Switch to public transport twice a week', category: 'TRANSPORT', monthlySavings: 12.5, annualSavings: 150.0, difficulty: 'Easy', impact: 'High' },
+    { action: 'Carpool for work commutes', category: 'TRANSPORT', monthlySavings: 8.0, annualSavings: 96.0, difficulty: 'Easy', impact: 'Medium' },
+    { action: 'Lower AC temperature by 2 degrees & switch off standby electronics', category: 'ELECTRICITY', monthlySavings: 14.0, annualSavings: 168.0, difficulty: 'Medium', impact: 'High' },
+    { action: 'Upgrade home lighting to LEDs', category: 'ELECTRICITY', monthlySavings: 3.5, annualSavings: 42.0, difficulty: 'Easy', impact: 'Low' },
     { action: 'Adopt 2 plant-based meals per week', category: 'FOOD', monthlySavings: 10.0, annualSavings: 120.0, difficulty: 'Easy', impact: 'Medium' },
-    { action: 'Limit fast fashion and bulk non-essentials', category: 'SHOPPING', monthlySavings: 6.5, annualSavings: 78.0, difficulty: 'Medium', impact: 'Medium' }
+    { action: 'Reduce red meat consumption', category: 'FOOD', monthlySavings: 15.0, annualSavings: 180.0, difficulty: 'Medium', impact: 'High' },
+    { action: 'Limit fast fashion & practice 48-hour cool-off before non-essential buys', category: 'SHOPPING', monthlySavings: 8.0, annualSavings: 96.0, difficulty: 'Easy', impact: 'Medium' }
   ];
+
+  const filteredRecommendations = selectedCategory === 'ALL'
+    ? allRecommendations
+    : allRecommendations.filter(r => r.category === selectedCategory);
 
   // Journey Timeline Demo Events
   const journeyEvents = [
@@ -175,14 +202,15 @@ const AnalyticsPage = () => {
 
   // Export handlers
   const handleExportCSV = () => {
-    let csvContent = 'data:text/csv;charset=utf-8,Date,Overall Total (kg),Transport,Electricity,Food,Shopping\n';
+    let csvContent = 'data:text/csv;charset=utf-8,Date,Category,Emissions (kg)\n';
     dailyData.forEach(row => {
-      csvContent += `${row.date},${row.overallTotal},${row.transport},${row.electricity},${row.food},${row.shopping}\n`;
+      const val = getCategoryValueFromLog(row, selectedCategory);
+      csvContent += `${row.date},${selectedCategory},${val}\n`;
     });
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `carbon_analytics_${startDate}_to_${endDate}.csv`);
+    link.setAttribute('download', `carbon_analytics_${selectedCategory}_${startDate}_to_${endDate}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -197,7 +225,7 @@ const AnalyticsPage = () => {
             Advanced Analytics & Intelligence
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            Deep-dive category breakdown, period comparison, predictive forecasts, and carbon potential engine.
+            Deep-dive category breakdown ({selectedCategory}), period comparison, predictive forecasts, and carbon potential engine.
           </Typography>
         </Box>
 
@@ -208,11 +236,12 @@ const AnalyticsPage = () => {
         </Stack>
       </Stack>
 
-      {/* FILTER CONTROLS BAR */}
+      {/* FILTER CONTROLS BAR WITH CATEGORY DROPDOWN */}
       <Paper className="glass-card" sx={{ p: 3, mb: 4, borderRadius: 4 }}>
-        <Grid container spacing={3} alignItems="center">
-          <Grid item xs={12} md={4}>
-            <FormControl fullSize size="small">
+        <Grid container spacing={2.5} alignItems="center">
+          {/* 1. Date Range Preset */}
+          <Grid item xs={12} sm={6} md={3}>
+            <FormControl fullWidth size="small">
               <InputLabel>Date Range Preset</InputLabel>
               <Select value={presetRange} label="Date Range Preset" onChange={(e) => handlePresetChange(e.target.value)}>
                 <MenuItem value="TODAY">Today</MenuItem>
@@ -227,7 +256,22 @@ const AnalyticsPage = () => {
             </FormControl>
           </Grid>
 
+          {/* 2. Category Dropdown Filter */}
           <Grid item xs={12} sm={6} md={3}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Category Filter</InputLabel>
+              <Select value={selectedCategory} label="Category Filter" onChange={(e) => setSelectedCategory(e.target.value)}>
+                <MenuItem value="ALL">All Categories</MenuItem>
+                <MenuItem value="TRANSPORT">Transport Analytics</MenuItem>
+                <MenuItem value="ELECTRICITY">Electricity Analytics</MenuItem>
+                <MenuItem value="FOOD">Food Analytics</MenuItem>
+                <MenuItem value="SHOPPING">Shopping Analytics</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+
+          {/* 3. Start Date */}
+          <Grid item xs={12} sm={6} md={2}>
             <TextField
               fullWidth
               size="small"
@@ -239,7 +283,8 @@ const AnalyticsPage = () => {
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
+          {/* 4. End Date */}
+          <Grid item xs={12} sm={6} md={2}>
             <TextField
               fullWidth
               size="small"
@@ -251,6 +296,7 @@ const AnalyticsPage = () => {
             />
           </Grid>
 
+          {/* 5. Apply Filter */}
           <Grid item xs={12} md={2}>
             <Button fullWidth variant="contained" color="primary" startIcon={<FilterAltIcon />} onClick={fetchAnalytics}>
               Apply Filter
@@ -279,6 +325,7 @@ const AnalyticsPage = () => {
                   cursor: 'pointer',
                   borderLeft: isSelected ? `5px solid ${color}` : '1px solid transparent',
                   background: isSelected ? `${color}15` : 'background.paper',
+                  boxShadow: isSelected ? `0 8px 25px ${color}33` : undefined,
                   transition: 'all 0.2s ease'
                 }}
               >
@@ -323,7 +370,7 @@ const AnalyticsPage = () => {
             <Grid container spacing={3}>
               <Grid item xs={12} sm={6} md={3}>
                 <Paper className="glass-card" sx={{ p: 3 }}>
-                  <Typography variant="caption" color="text.secondary">Total Period Emissions</Typography>
+                  <Typography variant="caption" color="text.secondary">Total Period Emissions ({selectedCategory})</Typography>
                   <Typography variant="h4" fontWeight={900} color="primary.main">{totalEmissions.toFixed(1)} kg</Typography>
                   <Typography variant="caption" color="text.secondary">CO₂ equivalent</Typography>
                 </Paper>
@@ -333,7 +380,7 @@ const AnalyticsPage = () => {
                 <Paper className="glass-card" sx={{ p: 3 }}>
                   <Typography variant="caption" color="text.secondary">Daily Average Emissions</Typography>
                   <Typography variant="h4" fontWeight={900}>{dailyAvg.toFixed(1)} kg</Typography>
-                  <Typography variant="caption" color="text.secondary">Per active day</Typography>
+                  <Typography variant="caption" color="text.secondary">Per active day ({selectedCategory})</Typography>
                 </Paper>
               </Grid>
 
@@ -365,7 +412,7 @@ const AnalyticsPage = () => {
                 <Paper className="glass-card" sx={{ p: 3 }}>
                   <Typography variant="caption" color="text.secondary">Peak Emission Day</Typography>
                   <Typography variant="h5" fontWeight={800} color="error.main">{peakDayObj.date || 'N/A'}</Typography>
-                  <Typography variant="caption" color="text.secondary">{peakDayObj.overallTotal ? `${peakDayObj.overallTotal.toFixed(1)} kg CO₂` : 'No data'}</Typography>
+                  <Typography variant="caption" color="text.secondary">{peakDayObj.val !== undefined ? `${peakDayObj.val.toFixed(1)} kg CO₂` : 'No data'}</Typography>
                 </Paper>
               </Grid>
 
@@ -373,14 +420,16 @@ const AnalyticsPage = () => {
                 <Paper className="glass-card" sx={{ p: 3 }}>
                   <Typography variant="caption" color="text.secondary">Lowest Emission Day</Typography>
                   <Typography variant="h5" fontWeight={800} color="success.main">{lowestDayObj.date || 'N/A'}</Typography>
-                  <Typography variant="caption" color="text.secondary">{lowestDayObj.overallTotal !== undefined ? `${lowestDayObj.overallTotal.toFixed(1)} kg CO₂` : 'No data'}</Typography>
+                  <Typography variant="caption" color="text.secondary">{lowestDayObj.val !== undefined ? `${lowestDayObj.val.toFixed(1)} kg CO₂` : 'No data'}</Typography>
                 </Paper>
               </Grid>
 
               <Grid item xs={12} sm={6} md={3}>
                 <Paper className="glass-card" sx={{ p: 3 }}>
                   <Typography variant="caption" color="text.secondary">Estimated Carbon Saved</Typography>
-                  <Typography variant="h4" fontWeight={900} color="success.main">24.5 kg</Typography>
+                  <Typography variant="h4" fontWeight={900} color="success.main">
+                    {(selectedCategory === 'ALL' ? 24.5 : 12.0).toFixed(1)} kg
+                  </Typography>
                   <Typography variant="caption" color="text.secondary">Compared to baseline</Typography>
                 </Paper>
               </Grid>
@@ -390,7 +439,7 @@ const AnalyticsPage = () => {
           {/* Section 2: Sustainability Performance */}
           <Box>
             <Typography variant="h6" fontWeight={800} gutterBottom sx={{ mb: 2 }}>
-              🌱 Sustainability Performance & Forecast Metrics
+              🌱 Sustainability Performance & Forecast Metrics ({selectedCategory})
             </Typography>
             <Grid container spacing={3}>
               <Grid item xs={12} md={4}>
@@ -406,7 +455,7 @@ const AnalyticsPage = () => {
 
               <Grid item xs={12} md={4}>
                 <Paper className="glass-card" sx={{ p: 3 }}>
-                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>Estimated Annual Footprint</Typography>
+                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>Estimated Annual Footprint ({selectedCategory})</Typography>
                   <Typography variant="h3" fontWeight={900}>{estimatedAnnual.toFixed(0)} kg</Typography>
                   <Typography variant="caption" color="text.secondary">CO₂e annual trajectory</Typography>
                 </Paper>
@@ -428,7 +477,7 @@ const AnalyticsPage = () => {
           {/* Section 3: Dynamic Category Intelligence Text Insights */}
           <Paper className="glass-card" sx={{ p: 4, borderRadius: 4 }}>
             <Typography variant="h6" fontWeight={800} gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <AutoGraphIcon color="primary" /> Category Intelligence Narrative
+              <AutoGraphIcon color="primary" /> Category Intelligence Narrative ({selectedCategory})
             </Typography>
             <Stack spacing={2} sx={{ mt: 2 }}>
               {insights.length > 0 ? (
@@ -448,28 +497,32 @@ const AnalyticsPage = () => {
       {/* TAB 1: BREAKDOWN & COMPARISON CHARTS */}
       {activeTab === 1 && (
         <Grid container spacing={4}>
-          {/* Daily Trend Line Chart */}
+          {/* Daily Trend Line Chart for Selected Category */}
           <Grid item xs={12} md={6}>
             <Paper className="glass-card" sx={{ p: 3, borderRadius: 4, height: 400 }}>
-              <Typography variant="h6" fontWeight={700} gutterBottom>Daily Emission Trend (Line Chart)</Typography>
+              <Typography variant="h6" fontWeight={700} gutterBottom>
+                Daily Emissions ({selectedCategory})
+              </Typography>
               <ResponsiveContainer width="100%" height="85%">
-                <LineChart data={dailyData}>
+                <LineChart data={dailyChartData}>
                   <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                   <XAxis dataKey="date" />
                   <YAxis />
                   <Tooltip />
-                  <Line type="monotone" dataKey="overallTotal" stroke="#10b981" strokeWidth={3} dot={{ r: 4 }} />
+                  <Line type="monotone" dataKey="emissions" stroke={categoryColors[selectedCategory] || '#10b981'} strokeWidth={3} dot={{ r: 4 }} />
                 </LineChart>
               </ResponsiveContainer>
             </Paper>
           </Grid>
 
-          {/* Weekly Trend Area Chart */}
+          {/* Weekly Trend Area Chart for Selected Category */}
           <Grid item xs={12} md={6}>
             <Paper className="glass-card" sx={{ p: 3, borderRadius: 4, height: 400 }}>
-              <Typography variant="h6" fontWeight={700} gutterBottom>Weekly Emissions Breakdown (Area Chart)</Typography>
+              <Typography variant="h6" fontWeight={700} gutterBottom>
+                Weekly Emissions ({selectedCategory})
+              </Typography>
               <ResponsiveContainer width="100%" height="85%">
-                <AreaChart data={weeklyData}>
+                <AreaChart data={weeklyChartData}>
                   <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                   <XAxis dataKey="weekLabel" />
                   <YAxis />
@@ -480,12 +533,14 @@ const AnalyticsPage = () => {
             </Paper>
           </Grid>
 
-          {/* Monthly Trend Bar Chart */}
+          {/* Monthly Trend Bar Chart for Selected Category */}
           <Grid item xs={12} md={6}>
             <Paper className="glass-card" sx={{ p: 3, borderRadius: 4, height: 400 }}>
-              <Typography variant="h6" fontWeight={700} gutterBottom>Monthly Totals (Bar Chart)</Typography>
+              <Typography variant="h6" fontWeight={700} gutterBottom>
+                Monthly Emissions ({selectedCategory})
+              </Typography>
               <ResponsiveContainer width="100%" height="85%">
-                <BarChart data={monthlyData}>
+                <BarChart data={monthlyChartData}>
                   <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                   <XAxis dataKey="monthLabel" />
                   <YAxis />
@@ -499,7 +554,7 @@ const AnalyticsPage = () => {
           {/* Category Breakdown Donut Chart */}
           <Grid item xs={12} md={6}>
             <Paper className="glass-card" sx={{ p: 3, borderRadius: 4, height: 400 }}>
-              <Typography variant="h6" fontWeight={700} gutterBottom>Category Percentage Share</Typography>
+              <Typography variant="h6" fontWeight={700} gutterBottom>System Category Breakdown</Typography>
               <ResponsiveContainer width="100%" height="85%">
                 <PieChart>
                   <Pie data={categoryBreakdown} dataKey="emissionValue" nameKey="category" cx="50%" cy="50%" innerRadius={60} outerRadius={90} label>
@@ -523,16 +578,20 @@ const AnalyticsPage = () => {
             <Grid item xs={12} md={6}>
               <Paper className="glass-card" sx={{ p: 4, borderRadius: 4 }}>
                 <Typography variant="h6" fontWeight={800} gutterBottom color="primary.main">
-                  🔮 Carbon Savings Potential Engine
+                  🔮 Carbon Savings Potential Engine ({selectedCategory})
                 </Typography>
                 <Stack spacing={2} mt={2}>
                   <Box>
                     <Typography variant="body2" color="text.secondary">Potential Monthly Reduction</Typography>
-                    <Typography variant="h4" fontWeight={900} color="success.main">43.0 kg CO₂e / month</Typography>
+                    <Typography variant="h4" fontWeight={900} color="success.main">
+                      {(selectedCategory === 'ALL' ? 43.0 : 18.5).toFixed(1)} kg CO₂e / month
+                    </Typography>
                   </Box>
                   <Box>
                     <Typography variant="body2" color="text.secondary">Potential Annual Reduction</Typography>
-                    <Typography variant="h4" fontWeight={900} color="success.main">516.0 kg CO₂e / year</Typography>
+                    <Typography variant="h4" fontWeight={900} color="success.main">
+                      {(selectedCategory === 'ALL' ? 516.0 : 222.0).toFixed(1)} kg CO₂e / year
+                    </Typography>
                   </Box>
                 </Stack>
               </Paper>
@@ -541,7 +600,7 @@ const AnalyticsPage = () => {
             <Grid item xs={12} md={6}>
               <Paper className="glass-card" sx={{ p: 4, borderRadius: 4 }}>
                 <Typography variant="h6" fontWeight={800} gutterBottom color="secondary.main">
-                  📈 Predictive Trajectory
+                  📈 Predictive Trajectory ({selectedCategory})
                 </Typography>
                 <Stack spacing={2} mt={2}>
                   <Box>
@@ -560,7 +619,7 @@ const AnalyticsPage = () => {
           {/* Recommendation Impact Analytics */}
           <Paper className="glass-card" sx={{ p: 4, borderRadius: 4 }}>
             <Typography variant="h6" fontWeight={800} gutterBottom sx={{ mb: 3 }}>
-              💡 Recommendation Impact Analytics
+              💡 Recommendation Impact Analytics ({selectedCategory})
             </Typography>
             <Table>
               <TableHead>
@@ -574,7 +633,7 @@ const AnalyticsPage = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {recommendations.map((rec, index) => (
+                {filteredRecommendations.map((rec, index) => (
                   <TableRow key={index} hover>
                     <TableCell fontWeight={600}>{rec.action}</TableCell>
                     <TableCell>
@@ -657,8 +716,8 @@ const AnalyticsPage = () => {
 
             <Grid item xs={12} md={4}>
               <Paper className="glass-card" sx={{ p: 3, textAlign: 'center' }}>
-                <Typography variant="subtitle2" color="text.secondary">Your Footprint</Typography>
-                <Typography variant="h3" fontWeight={900}>{benchmark?.yourEmissions || totalEmissions.toFixed(1)} kg</Typography>
+                <Typography variant="subtitle2" color="text.secondary">Your Footprint ({selectedCategory})</Typography>
+                <Typography variant="h3" fontWeight={900}>{totalEmissions.toFixed(1)} kg</Typography>
                 <Typography variant="caption" color="text.secondary">Current period emissions</Typography>
               </Paper>
             </Grid>
