@@ -28,7 +28,7 @@ CarbonTracker is a high-fidelity, interactive, and responsive web application de
   - **System Category Donut Chart**: Visualizes overall percentage contribution across all categories.
 - **Predictive Trajectory & Savings Engine**: Calculate potential monthly/annual CO₂ reductions, next-month emission forecasts, and recommendation impact ratings (Difficulty & Impact level).
 - **GitHub-Style Activity Heatmap & Journey Timeline**: Interactive daily activity logging matrix and chronological sustainability milestone timeline.
-- **Audit-Ready Export Center**: Download raw data and compliance reports in CSV format with category filters applied.
+- **Audit-Ready PDF Export Center**: Download official carbon footprint summary reports in PDF format with active category and date-range filters applied.
 
 ### ✉️ Automated Email Reward & Goal Status Alert System
 - **Goal Completion Emails**: Automated congratulatory emails ("🎉 Congratulations! Goal Achieved") delivered on reaching 100% target reduction.
