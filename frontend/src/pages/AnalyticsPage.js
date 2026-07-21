@@ -200,20 +200,22 @@ const AnalyticsPage = () => {
     { title: 'Goal Completed: Eco Saver 10kg', date: '2026-02-01', desc: 'Reduced 10 kg CO₂e verified carbon savings', icon: <TrendingDownIcon color="primary" /> }
   ];
 
-  // Export handlers
-  const handleExportCSV = () => {
-    let csvContent = 'data:text/csv;charset=utf-8,Date,Category,Emissions (kg)\n';
-    dailyData.forEach(row => {
-      const val = getCategoryValueFromLog(row, selectedCategory);
-      csvContent += `${row.date},${selectedCategory},${val}\n`;
-    });
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `carbon_analytics_${selectedCategory}_${startDate}_to_${endDate}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  // Export PDF handler
+  const handleDownloadPDF = async () => {
+    try {
+      const response = await api.get('/api/v1/exports/user?format=pdf', {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `carbon_analytics_report_${selectedCategory}_${new Date().toISOString().slice(0, 10)}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      console.error('Failed to export PDF report', err);
+    }
   };
 
   return (
@@ -230,8 +232,8 @@ const AnalyticsPage = () => {
         </Box>
 
         <Stack direction="row" spacing={1.5} flexWrap="wrap">
-          <Button variant="outlined" color="inherit" startIcon={<DownloadIcon />} onClick={handleExportCSV}>
-            Export CSV
+          <Button variant="contained" color="secondary" startIcon={<DownloadIcon />} onClick={handleDownloadPDF}>
+            Download PDF
           </Button>
         </Stack>
       </Stack>
