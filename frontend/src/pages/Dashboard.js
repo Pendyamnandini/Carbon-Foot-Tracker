@@ -290,10 +290,10 @@ const Dashboard = () => {
                     Period Emissions
                   </Typography>
                   <Typography variant="h4" fontWeight={800} sx={{ mt: 1 }}>
-                    {dateRangeSummary?.totalEmissions.toFixed(1)} <Typography variant="caption" sx={{ fontWeight: 500 }}>kg</Typography>
+                    {(dateRangeSummary?.totalEmissions ?? 0).toFixed(1)} <Typography variant="caption" sx={{ fontWeight: 500 }}>kg</Typography>
                   </Typography>
                   <Chip 
-                    label={dateRangeSummary?.percentageChange >= 0 ? `+${dateRangeSummary?.percentageChange.toFixed(0)}% vs previous` : `${dateRangeSummary?.percentageChange.toFixed(0)}% vs previous`}
+                    label={(dateRangeSummary?.percentageChange ?? 0) >= 0 ? `+${(dateRangeSummary?.percentageChange ?? 0).toFixed(0)}% vs previous` : `${(dateRangeSummary?.percentageChange ?? 0).toFixed(0)}% vs previous`}
                     size="small"
                     color={dateRangeSummary?.trend === 'IMPROVING' ? "success" : dateRangeSummary?.trend === 'INCREASING' ? "error" : "default"}
                     sx={{ mt: 1, fontWeight: 700, height: 20 }}
@@ -317,10 +317,10 @@ const Dashboard = () => {
                     Daily Average
                   </Typography>
                   <Typography variant="h4" fontWeight={800} sx={{ mt: 1 }}>
-                    {dateRangeSummary?.averageDailyEmissions.toFixed(1)} <Typography variant="caption" sx={{ fontWeight: 500 }}>kg</Typography>
+                    {(dateRangeSummary?.averageDailyEmissions ?? 0).toFixed(1)} <Typography variant="caption" sx={{ fontWeight: 500 }}>kg</Typography>
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    Total {dateRangeSummary?.activityCount} logs tracked
+                    Total {dateRangeSummary?.activityCount ?? 0} logs tracked
                   </Typography>
                 </Box>
                 <Avatar sx={{ bgcolor: 'rgba(251, 191, 36, 0.1)', color: 'warning.main', width: 44, height: 44 }}>
@@ -341,13 +341,13 @@ const Dashboard = () => {
                     Peak/Min Days
                   </Typography>
                   <Typography variant="subtitle2" fontWeight={800} sx={{ mt: 1 }}>
-                    Max: {dateRangeSummary?.highestEmissionValue.toFixed(1)} kg
+                    Max: {(dateRangeSummary?.highestEmissionValue ?? 0).toFixed(1)} kg
                   </Typography>
                   <Typography variant="caption" color="error.main" display="block">
-                    {dateRangeSummary?.highestEmissionDay !== "N/A" ? new Date(dateRangeSummary.highestEmissionDay).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : "N/A"}
+                    {dateRangeSummary?.highestEmissionDay && dateRangeSummary.highestEmissionDay !== "N/A" ? new Date(dateRangeSummary.highestEmissionDay).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : "N/A"}
                   </Typography>
                   <Typography variant="subtitle2" fontWeight={800} sx={{ mt: 0.5 }}>
-                    Min: {dateRangeSummary?.lowestEmissionValue.toFixed(1)} kg
+                    Min: {(dateRangeSummary?.lowestEmissionValue ?? 0).toFixed(1)} kg
                   </Typography>
                 </Box>
                 <Avatar sx={{ bgcolor: 'rgba(248, 113, 113, 0.1)', color: 'error.main', width: 44, height: 44 }}>
