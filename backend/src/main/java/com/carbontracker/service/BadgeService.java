@@ -30,6 +30,9 @@ public class BadgeService {
     @Autowired
     private AuditLogService auditLogService;
 
+    @Autowired
+    private EmailService emailService;
+
     public List<UserBadge> getUserBadges(User user) {
         return userBadgeRepository.findByUserId(user.getId());
     }
@@ -127,13 +130,14 @@ public class BadgeService {
                     .build();
             userBadgeRepository.save(userBadge);
 
-            // Send Achievement Notification
+            // Send Achievement Notification & Email
             notificationService.createNotification(
                     user,
                     "Badge Earned: " + badgeName,
                     message,
                     NotificationType.ACHIEVEMENT
             );
+            emailService.sendMilestoneAchievementEmail(user.getEmail(), badgeName, message);
 
             // Audit log
             auditLogService.log(

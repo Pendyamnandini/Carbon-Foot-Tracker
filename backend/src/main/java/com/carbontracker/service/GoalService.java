@@ -29,6 +29,9 @@ public class GoalService {
     @Autowired
     private AuditLogService auditLogService;
 
+    @Autowired
+    private EmailService emailService;
+
     public List<Goal> getGoalsForUser(User user) {
         return goalRepository.findByUserId(user.getId());
     }
@@ -173,13 +176,14 @@ public class GoalService {
             goal.setStatus(GoalStatus.COMPLETED);
             goalRepository.save(goal);
 
-            // Send notification
+            // Send notification & email
             notificationService.createNotification(
                     user,
                     "Goal Achieved! \uD83C\uDFC6",
                     "Congratulations! You completed your sustainability goal: " + goal.getGoalTitle(),
                     NotificationType.SUCCESS
             );
+            emailService.sendGoalAchievementEmail(user.getEmail(), goal.getGoalTitle());
             auditLogService.log(user, "GOAL_COMPLETED", "Goal", goal.getId(), "Achieved goal: " + goal.getGoalTitle());
             auditLogService.logActivity(user, "UPDATE", "Goal Completion", "Completed goal: " + goal.getGoalTitle(), "Goals", null, null);
 
@@ -209,6 +213,7 @@ public class GoalService {
                             "Your goal '" + goal.getGoalTitle() + "' is behind schedule. Make some eco adjustments to get back on track!",
                             NotificationType.WARNING
                     );
+                    emailService.sendGoalStatusAlertEmail(user.getEmail(), goal.getGoalTitle(), false);
                 } else if ("AHEAD_OF_SCHEDULE".equals(trackStatus)) {
                     notificationService.createNotification(
                             user,
@@ -216,6 +221,7 @@ public class GoalService {
                             "Great work! You are ahead of schedule for your goal: " + goal.getGoalTitle(),
                             NotificationType.SUCCESS
                     );
+                    emailService.sendGoalStatusAlertEmail(user.getEmail(), goal.getGoalTitle(), true);
                 }
             }
         }

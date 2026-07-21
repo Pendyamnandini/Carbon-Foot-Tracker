@@ -18,6 +18,7 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 
 // User Pages
 import Dashboard from './pages/Dashboard';
+import AnalyticsPage from './pages/AnalyticsPage';
 import Profile from './pages/Profile';
 import ActivityLogging from './pages/ActivityLogging';
 import Goals from './pages/Goals';
@@ -101,6 +102,11 @@ const AppContent = () => {
           <Route path="/dashboard" element={
             <ProtectedRoute allowedRoles={['USER', 'ORG_ADMIN', 'ORG_USER']}>
               <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/analytics" element={
+            <ProtectedRoute allowedRoles={['USER', 'ORG_ADMIN', 'ORG_USER']}>
+              <AnalyticsPage />
             </ProtectedRoute>
           } />
           <Route path="/profile" element={

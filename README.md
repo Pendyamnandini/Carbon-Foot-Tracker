@@ -13,14 +13,22 @@ CarbonTracker is a high-fidelity, interactive, and responsive web application de
 - **Strong Password Policy**: Enforced complexity requirements on registration (minimum 8 characters, alphanumeric, and at least one special character).
 - **Password Visibility Toggles**: Interactive eye icons on Login, Register, and Reset Password forms to show/hide typed input.
 
-### 🎨 High-Fidelity Glassmorphism UX/UI
-- **Landing Page Theme Switcher**: Floating light/dark mode switch icon on the landing page, allowing users to toggle between modes before signing in.
-- **Aesthetic Theme System**: Curved translucent glass containers, backdrop blur filters, and dynamic radial-mesh background gradients that morph when toggling between **Light Mode** and **Dark Mode**.
-- **Ambient Glowing Orbs**: Soft floating Emerald and Cyan background depth orbs.
-- **Color-Coded Sidebar Navigation**: Fully custom colored items that dynamically adjust their selection bar and highlight backdrops to match their brand icons on click.
+### 🎨 High-Fidelity Glassmorphism UX/UI & SaaS Landing Page
+- **Modern SaaS Landing Page**: Redesigned hero section with mission statement, animated counters (*1.2M+ kg Emissions Tracked*, *28.4K+ Active Users*, *14.2K+ Goals Achieved*, *382.5K kg Carbon Saved*), impact breakdown, testimonials, and call-to-action banner.
+- **Landing Page Theme Switcher**: Floating light/dark mode switch icon on the landing page and portal app, allowing users to toggle between modes before or after signing in.
+- **Color-Coded Sidebar Navigation**: Fully custom colored menu items with active state highlighting for standard users and administrators.
 
-### 📊 Advanced Date-Range Analytics & Long-Term Data Retention
-- **Date Range Filters**: Select ranges such as *Today*, *Yesterday*, *Last 7 Days*, *Last 30 Days*, *This Month*, *Previous Month*, or specify *Custom Start/End Dates*.
+### 📊 Dedicated Category Analytics Module & Business Intelligence
+- **Category-Specific Deep Dives**: Dedicated tabs for *Transport*, *Electricity*, *Food*, and *Shopping* analytics.
+- **Dynamic Date Filtering**: Instant preset filtering (*Today*, *Yesterday*, *Last 7 Days*, *Last 30 Days*, *This Month*, *Last Month*, *This Year*) and custom date pickers.
+- **Predictive Trajectory & Savings Engine**: Calculate potential monthly/annual CO₂ reductions, next-month emission forecasts, and recommendation impact ratings (Difficulty & Impact level).
+- **GitHub-Style Activity Heatmap & Journey Timeline**: Interactive daily activity logging matrix and chronological sustainability milestone timeline.
+- **Audit-Ready Export Center**: Download raw data and compliance reports in CSV and PDF formats.
+
+### ✉️ Automated Email Reward & Goal Status Alert System
+- **Goal Completion Emails**: Automated congratulatory emails ("🎉 Congratulations! Goal Achieved") delivered on reaching 100% target reduction.
+- **Milestone Badge Emails**: Instant notification emails ("🏆 Milestone Reached") when unlocking badges (*7-Day Streak*, *Eco Saver 10kg/25kg/50kg*).
+- **Goal Status Warnings**: Automated alerts for targets *Behind Schedule* ("⚠ Goal Needs Attention") or *Ahead of Schedule* ("🚀 Great Progress!").
 - **Historical Summaries**: Automatic database-level summaries stored in `daily_carbon_summary`, `weekly_carbon_summary`, and `monthly_carbon_summary` tables.
 - **Detailed Aggregations Widget**: View total emissions, daily average footprint, total logs, min/max day values, and eco score trends over the selected period.
 - **Dashboard Interactive Charts**:

@@ -13,6 +13,11 @@ import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import RateReviewIcon from '@mui/icons-material/RateReview';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import BusinessIcon from '@mui/icons-material/Business';
+import AnalyticsIcon from '@mui/icons-material/Analytics';
+import SpeedIcon from '@mui/icons-material/Speed';
+import EqualizerIcon from '@mui/icons-material/Equalizer';
+import HistoryIcon from '@mui/icons-material/History';
+import SettingsIcon from '@mui/icons-material/Settings';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -33,25 +38,30 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
   if (isAdmin) {
     menuItems.push(
       { text: 'Admin Dashboard', icon: <AdminPanelSettingsIcon />, path: '/admin', color: '#10b981' },
-      { text: 'User Management', icon: <PeopleIcon />, path: '/admin/users', color: '#0ea5e9' },
+      { text: 'User Analytics', icon: <PeopleIcon />, path: '/admin/users', color: '#0ea5e9' },
+      { text: 'Platform Analytics', icon: <AssessmentIcon />, path: '/admin/reports', color: '#8b5cf6' },
       { text: 'Emission Factors', icon: <SettingsSuggestIcon />, path: '/admin/emission-factors', color: '#fbbf24' },
-      { text: 'User Feedback', icon: <RateReviewIcon />, path: '/admin/feedbacks', color: '#f43f5e' },
-      { text: 'Platform Reports', icon: <AssessmentIcon />, path: '/admin/reports', color: '#8b5cf6' }
+      { text: 'Feedback Management', icon: <RateReviewIcon />, path: '/admin/feedbacks', color: '#f43f5e' },
+      { text: 'Organization Analytics', icon: <BusinessIcon />, path: '/organization', color: '#14b8a6' }
     );
   } else {
     // User or Org User
     menuItems.push(
       { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard', color: '#0ea5e9' },
-      { text: 'Log Activities', icon: <AddCircleIcon />, path: '/activities/log', color: '#10b981' },
-      { text: 'Goals Tracker', icon: <AssignmentIcon />, path: '/goals', color: '#8b5cf6' },
-      { text: 'Insights & Tips', icon: <LightbulbIcon />, path: '/recommendations', color: '#fbbf24' },
+      { text: 'Analytics', icon: <AnalyticsIcon />, path: '/analytics', color: '#10b981' },
+      { text: 'Activity Logs', icon: <AddCircleIcon />, path: '/activities/log', color: '#3b82f6' },
+      { text: 'Goals', icon: <AssignmentIcon />, path: '/goals', color: '#8b5cf6' },
+      { text: 'Recommendations', icon: <LightbulbIcon />, path: '/recommendations', color: '#fbbf24' },
+      { text: 'Sustainability Score', icon: <SpeedIcon />, path: '/analytics?tab=score', color: '#ec4899' },
+      { text: 'Benchmarking', icon: <EqualizerIcon />, path: '/analytics?tab=benchmarking', color: '#14b8a6' },
       { text: 'Leaderboard', icon: <LeaderboardIcon />, path: '/leaderboard', color: '#f43f5e' },
-      { text: 'Profile Settings', icon: <PersonIcon />, path: '/profile', color: '#06b6d4' },
-      { text: 'Submit Feedback', icon: <FeedbackIcon />, path: '/feedback', color: '#6366f1' }
+      { text: 'Reports', icon: <HistoryIcon />, path: '/analytics?tab=exports', color: '#6366f1' },
+      { text: 'Profile', icon: <PersonIcon />, path: '/profile', color: '#06b6d4' },
+      { text: 'Settings', icon: <SettingsIcon />, path: '/profile?tab=settings', color: '#64748b' }
     );
 
     if (isOrg) {
-      menuItems.push({ text: 'Organization Info', icon: <BusinessIcon />, path: '/organization', color: '#14b8a6' });
+      menuItems.push({ text: 'Organization Analytics', icon: <BusinessIcon />, path: '/organization', color: '#14b8a6' });
     } else {
       menuItems.push({ text: 'Join/Create Org', icon: <BusinessIcon />, path: '/organization', color: '#14b8a6' });
     }

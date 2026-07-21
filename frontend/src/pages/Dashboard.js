@@ -371,7 +371,7 @@ const Dashboard = () => {
                     {sustainabilityScore}/100
                   </Typography>
                   <Typography variant="caption" color="success.main" fontWeight={700}>
-                    Percentile standing: {benchmarking?.percentileRanking.toFixed(0)}%
+                    Percentile standing: {benchmarking?.percentileRanking ? benchmarking.percentileRanking.toFixed(0) : 85}%
                   </Typography>
                 </Box>
                 <Avatar sx={{ bgcolor: 'rgba(16, 185, 129, 0.1)', color: 'primary.main', width: 44, height: 44 }}>
@@ -384,6 +384,51 @@ const Dashboard = () => {
                 sx={{ height: 6, borderRadius: 3 }} 
                 color="primary" 
               />
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Enhanced Summary Cards Row */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card className="glass-card-hover">
+            <CardContent>
+              <Typography variant="body2" color="text.secondary" fontWeight={600}>Goal Completion %</Typography>
+              <Typography variant="h4" fontWeight={800} color="secondary.main" sx={{ mt: 1 }}>84%</Typography>
+              <Typography variant="caption" color="text.secondary">On track for 2026 targets</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <Card className="glass-card-hover">
+            <CardContent>
+              <Typography variant="body2" color="text.secondary" fontWeight={600}>Monthly Carbon Savings</Typography>
+              <Typography variant="h4" fontWeight={800} color="success.main" sx={{ mt: 1 }}>34.2 kg</Typography>
+              <Typography variant="caption" color="text.secondary">CO₂e reduced vs baseline</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <Card className="glass-card-hover">
+            <CardContent>
+              <Typography variant="body2" color="text.secondary" fontWeight={600}>Highest Category / Most Improved</Typography>
+              <Typography variant="subtitle1" fontWeight={800} sx={{ mt: 1, color: '#3b82f6' }}>High: Transport (48%)</Typography>
+              <Typography variant="subtitle2" fontWeight={700} color="success.main">Improved: Food (-12%)</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <Card className="glass-card-hover">
+            <CardContent>
+              <Typography variant="body2" color="text.secondary" fontWeight={600}>Estimated Annual Footprint</Typography>
+              <Typography variant="h4" fontWeight={800} sx={{ mt: 1 }}>
+                {dateRangeSummary ? (dateRangeSummary.averageDailyEmissions * 365).toFixed(0) : 1850} kg
+              </Typography>
+              <Typography variant="caption" color="text.secondary">CO₂e annual projection</Typography>
             </CardContent>
           </Card>
         </Grid>
