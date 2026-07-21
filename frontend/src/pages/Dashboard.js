@@ -51,18 +51,7 @@ const Dashboard = () => {
       setLoading(true);
       setError('');
 
-      const [
-        dailyRes,
-        weeklyRes,
-        monthlyRes,
-        categoryRes,
-        trendsRes,
-        benchmarkingRes,
-        recsRes,
-        goalsRes,
-        rangeRes,
-        recentRes
-      ] = await Promise.all([
+      const results = await Promise.allSettled([
         api.get(`/api/v1/analytics/daily?startDate=${start}&endDate=${end}`),
         api.get(`/api/v1/analytics/weekly`),
         api.get('/api/v1/analytics/monthly'),
@@ -75,18 +64,31 @@ const Dashboard = () => {
         api.get('/api/v1/user/recent-activities')
       ]);
 
-      if (dailyRes.data.success) setDailyAnalytics(dailyRes.data.data);
-      if (weeklyRes.data.success) setWeeklyAnalytics(weeklyRes.data.data);
-      if (monthlyRes.data.success) setMonthlyAnalytics(monthlyRes.data.data);
-      if (categoryRes.data.success) setCategoryBreakdown(categoryRes.data.data);
-      if (trendsRes.data.success) setTrends(trendsRes.data.data);
-      if (benchmarkingRes.data.success) setBenchmarking(benchmarkingRes.data.data);
-      if (recsRes.data.success) setRecommendations(recsRes.data.data);
-      if (rangeRes.data.success) setDateRangeSummary(rangeRes.data.data);
-      if (recentRes.data.success) setRecentActivities(recentRes.data.data);
+      const [
+        dailyRes,
+        weeklyRes,
+        monthlyRes,
+        categoryRes,
+        trendsRes,
+        benchmarkingRes,
+        recsRes,
+        goalsRes,
+        rangeRes,
+        recentRes
+      ] = results;
 
-      if (goalsRes.data.success) {
-        const activeGoals = goalsRes.data.data.filter(g => g.status === 'ACTIVE');
+      if (dailyRes.status === 'fulfilled' && dailyRes.value?.data?.success) setDailyAnalytics(dailyRes.value.data.data);
+      if (weeklyRes.status === 'fulfilled' && weeklyRes.value?.data?.success) setWeeklyAnalytics(weeklyRes.value.data.data);
+      if (monthlyRes.status === 'fulfilled' && monthlyRes.value?.data?.success) setMonthlyAnalytics(monthlyRes.value.data.data);
+      if (categoryRes.status === 'fulfilled' && categoryRes.value?.data?.success) setCategoryBreakdown(categoryRes.value.data.data);
+      if (trendsRes.status === 'fulfilled' && trendsRes.value?.data?.success) setTrends(trendsRes.value.data.data);
+      if (benchmarkingRes.status === 'fulfilled' && benchmarkingRes.value?.data?.success) setBenchmarking(benchmarkingRes.value.data.data);
+      if (recsRes.status === 'fulfilled' && recsRes.value?.data?.success) setRecommendations(recsRes.value.data.data);
+      if (rangeRes.status === 'fulfilled' && rangeRes.value?.data?.success) setDateRangeSummary(rangeRes.value.data.data);
+      if (recentRes.status === 'fulfilled' && recentRes.value?.data?.success) setRecentActivities(recentRes.value.data.data);
+
+      if (goalsRes.status === 'fulfilled' && goalsRes.value?.data?.success) {
+        const activeGoals = goalsRes.value.data.data.filter(g => g.status === 'ACTIVE');
         if (activeGoals.length > 0) {
           const sum = activeGoals.reduce((acc, g) => acc + g.currentProgress, 0);
           setGoalProgress(sum / activeGoals.length);
@@ -94,7 +96,7 @@ const Dashboard = () => {
       }
 
     } catch (err) {
-      setError('Could not retrieve analytics data.');
+      console.error('Error fetching dashboard data:', err);
     } finally {
       setLoading(false);
     }
@@ -230,7 +232,19 @@ const Dashboard = () => {
         </Stack>
       </Box>
 
-      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+      {error && (
+        <Alert 
+          severity="warning" 
+          sx={{ mb: 3, borderRadius: 3 }}
+          action={
+            <Button color="inherit" size="small" onClick={() => window.location.href = '/login'}>
+              Sign In Again
+            </Button>
+          }
+        >
+          {error} Your session token may have expired. Please re-authenticate to load your live analytics data.
+        </Alert>
+      )}
 
       {/* Date-Range Filter Selectors */}
       <Card sx={{ mb: 4, p: 2.5, background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.05)' }}>
