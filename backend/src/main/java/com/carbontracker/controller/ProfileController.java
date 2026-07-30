@@ -11,6 +11,7 @@ import com.carbontracker.service.AuditLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
@@ -30,6 +31,33 @@ public class ProfileController {
 
     @Autowired
     private BadgeService badgeService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @PostMapping("/change-password")
+    public ResponseEntity<ApiResponse<String>> changePassword(@RequestBody ChangePasswordRequest request) {
+        User user = getCurrentUser();
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Incorrect old password");
+        }
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new IllegalArgumentException("Passwords do not match");
+        }
+
+        String password = request.getNewPassword();
+        if (password.length() < 8 || 
+            !password.matches(".*[a-zA-Z].*") || 
+            !password.matches(".*[0-9].*") || 
+            !password.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) {
+            throw new IllegalArgumentException("Password is too weak. It must be at least 8 characters, alphanumeric, and contain a special character.");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+        auditLogService.logActivity(user, "UPDATE", "Password Change", "Changed account password from settings", "Settings Page", null, null);
+        return ResponseEntity.ok(ApiResponse.success("Password changed successfully", null));
+    }
 
     @GetMapping("/badges")
     public ResponseEntity<ApiResponse<List<UserBadge>>> getMyBadges() {

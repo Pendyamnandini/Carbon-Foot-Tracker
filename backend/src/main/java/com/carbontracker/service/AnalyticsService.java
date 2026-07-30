@@ -27,6 +27,13 @@ public class AnalyticsService {
     @Autowired
     private ActivityLogRepository activityLogRepository;
 
+    @Autowired
+    @org.springframework.context.annotation.Lazy
+    private RecommendationService recommendationService;
+
+    @Autowired
+    private RecommendationRepository recommendationRepository;
+
     @Transactional
     public void updateSummariesForUserAndDate(User user, LocalDate date) {
         WeekFields weekFields = WeekFields.ISO;
@@ -45,8 +52,14 @@ public class AnalyticsService {
                 case SHOPPING -> dShop += log.getCarbonEmission();
             }
         }
+        double completedSavings = 0.0;
+        if (recommendationService != null) {
+            completedSavings = recommendationService.getCompletedMonthlySavings(user);
+        }
+        double dailySavings = completedSavings / 30.0;
         double dTotal = dTrans + dElect + dFood + dShop;
-        double dScore = Math.max(0.0, Math.min(100.0, 100.0 - (dTotal / 5.0) * 10.0));
+        double adjustedDTotal = Math.max(0.0, dTotal - dailySavings);
+        double dScore = Math.max(0.0, Math.min(100.0, 100.0 - (adjustedDTotal / 5.0) * 10.0));
 
         DailyCarbonSummary daily = dailyRepository.findByUserIdAndSummaryDate(user.getId(), date)
                 .orElse(DailyCarbonSummary.builder().user(user).summaryDate(date).build());
@@ -73,7 +86,8 @@ public class AnalyticsService {
             }
         }
         double wTotal = wTrans + wElect + wFood + wShop;
-        double wScore = Math.max(0.0, Math.min(100.0, 100.0 - (wTotal / 35.0) * 10.0));
+        double adjustedWTotal = Math.max(0.0, wTotal - dailySavings * 7.0);
+        double wScore = Math.max(0.0, Math.min(100.0, 100.0 - (adjustedWTotal / 35.0) * 10.0));
 
         WeeklyCarbonSummary weekly = weeklyRepository.findByUserIdAndWeekNumberAndYear(user.getId(), weekNumber, year)
                 .orElse(WeeklyCarbonSummary.builder().user(user).weekNumber(weekNumber).year(year).build());
@@ -100,7 +114,8 @@ public class AnalyticsService {
             }
         }
         double mTotal = mTrans + mElect + mFood + mShop;
-        double mScore = Math.max(0.0, Math.min(100.0, 100.0 - (mTotal / 150.0) * 10.0));
+        double adjustedMTotal = Math.max(0.0, mTotal - dailySavings * 30.0);
+        double mScore = Math.max(0.0, Math.min(100.0, 100.0 - (adjustedMTotal / 150.0) * 10.0));
 
         MonthlyCarbonSummary monthly = monthlyRepository.findByUserIdAndMonthAndYear(user.getId(), month, year)
                 .orElse(MonthlyCarbonSummary.builder().user(user).month(month).year(year).build());

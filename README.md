@@ -50,6 +50,17 @@ CarbonTracker is a high-fidelity, interactive, and responsive web application de
   - Track logins and user activity trends.
   - Review aggregated analytics stats (most active users, most visited pages, most downloaded report types).
 
+### 🎫 Support Ticket Management & Live Admin Chat Hub
+- **Eco-Support AI Diagnostics Pre-Check**: Custom troubleshoot diagnostic engine evaluating client environment (OS browser, speed) before ticket submission, offering immediate solutions.
+- **Multi-lingual Ticket Support**: Native translations in English, Hindi, Telugu, Spanish, and French for categories (Bug Report, SOS Issue, Voice Detection, OTP, Performance, etc.) and priority levels.
+- **Live Ticket Conversation Thread**: Real-time message exchange between users and support admins supporting Base64 image, PDF, and log file uploads.
+- **Unified Admin Support Dashboard**:
+  - **Summary Metrics**: Real-time counter widgets for Total, Open, Assigned, Resolved, Average Resolution times, and star satisfaction scores.
+  - **Analytics Visualization**: Recharts distribution plots for Categories and Priority allocations.
+  - **Action controls**: Dialog overlays to re-assign admins, merge duplicates, flag spam, and resolve tickets.
+  - **Audit Exports**: Quick buttons to export data to CSV, Excel spreadsheets, or print browser PDFs.
+- **Direct Mail Alerts**: Integrated Nodemailer triggers delivering automated notices to users upon ticket receipt and resolution.
+
 ---
 
 ## 🛠️ Tech Stack

@@ -1,0 +1,2 @@
+ALTER TABLE recommendations ADD COLUMN status VARCHAR(50) DEFAULT 'IN_PROGRESS';
+ALTER TABLE recommendations ADD COLUMN remind_at TIMESTAMP;

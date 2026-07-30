@@ -1,0 +1,1 @@
+[{'name': 'run_command', 'args': {'CommandLine': 'git diff frontend/src/pages/LandingPage.js', 'Cwd': 'C:\\Users\\Nandi\\.gemini\\antigravity\\scratch\\carbon-tracker', 'WaitMsBeforeAsync': 5000, 'toolAction': 'Checking differences in LandingPage.js', 'toolSummary': 'Checking git diff'}}]

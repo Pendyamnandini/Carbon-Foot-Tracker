@@ -16,6 +16,9 @@ public class NotificationService {
     @Autowired
     private NotificationRepository notificationRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     @Transactional
     public Notification createNotification(User user, String title, String message, NotificationType type) {
         Notification notification = Notification.builder()
@@ -25,7 +28,15 @@ public class NotificationService {
                 .type(type)
                 .isRead(false)
                 .build();
-        return notificationRepository.save(notification);
+        Notification savedNotification = notificationRepository.save(notification);
+        
+        try {
+            emailService.sendNotificationEmail(user.getEmail(), title, message);
+        } catch (Exception e) {
+            System.err.println("Failed to send notification email: " + e.getMessage());
+        }
+        
+        return savedNotification;
     }
 
     public List<Notification> getNotificationsForUser(User user) {
@@ -43,5 +54,16 @@ public class NotificationService {
 
         notification.setRead(true);
         return notificationRepository.save(notification);
+    }
+
+    @Transactional
+    public void markAllAsRead(User user) {
+        List<Notification> notifications = notificationRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
+        for (Notification n : notifications) {
+            if (!n.isRead()) {
+                n.setRead(true);
+            }
+        }
+        notificationRepository.saveAll(notifications);
     }
 }

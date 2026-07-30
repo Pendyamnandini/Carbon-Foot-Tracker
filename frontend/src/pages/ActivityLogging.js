@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Container, Card, CardContent, Typography, TextField, Button, Box, Alert, Stack, Grid, MenuItem, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -29,9 +30,20 @@ const CATEGORIES = {
 };
 
 const ActivityLogging = () => {
+  const location = useLocation();
   const [logs, setLogs] = useState([]);
   const [category, setCategory] = useState('TRANSPORT');
   const [activityType, setActivityType] = useState('Car Travel');
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const catParam = params.get('category');
+    if (catParam && CATEGORIES[catParam.toUpperCase()]) {
+      const cat = catParam.toUpperCase();
+      setCategory(cat);
+      setActivityType(CATEGORIES[cat].types[0]);
+    }
+  }, [location]);
   const [quantity, setQuantity] = useState('');
   const [logDate, setLogDate] = useState(new Date().toISOString().substring(0, 10));
 

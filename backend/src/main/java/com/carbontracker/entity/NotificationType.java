@@ -5,5 +5,10 @@ public enum NotificationType {
     SUCCESS,
     WARNING,
     ACHIEVEMENT,
-    SECURITY
+    SECURITY,
+    BADGE,
+    CERTIFICATE,
+    REWARD,
+    GOAL,
+    RECOMMENDATION
 }

@@ -17,6 +17,8 @@ const AdminDashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [resetting, setResetting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Admin Activity Tracking States
   const [activityStats, setActivityStats] = useState(null);
@@ -26,6 +28,12 @@ const AdminDashboard = () => {
   const [loginsPage, setLoginsPage] = useState(0);
   const [historyTotalPages, setHistoryTotalPages] = useState(1);
   const [loginsTotalPages, setLoginsTotalPages] = useState(1);
+
+  // Gamification admin states
+  const [adminBadges, setAdminBadges] = useState([]);
+  const [adminCertificates, setAdminCertificates] = useState([]);
+  const [adminAchievements, setAdminAchievements] = useState([]);
+  const [adminRewards, setAdminRewards] = useState([]);
 
   const fetchStats = async () => {
     try {
@@ -86,9 +94,53 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchGamificationData = async () => {
+    try {
+      const [badgesRes, certsRes, achsRes, rewardsRes] = await Promise.all([
+        api.get('/api/admin/badges'),
+        api.get('/api/admin/certificates'),
+        api.get('/api/admin/achievements'),
+        api.get('/api/admin/rewards')
+      ]);
+      if (badgesRes.data.success) setAdminBadges(badgesRes.data.data);
+      if (certsRes.data.success) setAdminCertificates(certsRes.data.data);
+      if (achsRes.data.success) setAdminAchievements(achsRes.data.data);
+      if (rewardsRes.data.success) setAdminRewards(rewardsRes.data.data);
+    } catch (err) {
+      console.error('Failed to load admin gamification metrics', err);
+    }
+  };
+
   useEffect(() => {
     fetchStats();
+    fetchGamificationData();
   }, []);
+
+  const handleResetDemoData = async () => {
+    if (!window.confirm("Are you sure you want to reset the platform database and regenerate a clean, realistic 90-day demo dataset? All current users, activities, goals, and achievements will be cleared and replaced with fresh, interconnected data.")) {
+      return;
+    }
+    try {
+      setResetting(true);
+      setError('');
+      setSuccessMessage('');
+      const res = await api.post('/api/auth/demo/reset');
+      if (res.data.success) {
+        setSuccessMessage('Demo dataset reset and regenerated successfully! Refreshing dashboard statistics...');
+        setTimeout(() => {
+          fetchStats();
+          fetchGamificationData();
+          setSuccessMessage('');
+        }, 3000);
+      } else {
+        setError(res.data.message || 'Failed to reset demo data.');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Error occurred while resetting demo data.');
+    } finally {
+      setResetting(false);
+    }
+  };
 
   const handleDownload = async (format) => {
     try {
@@ -149,7 +201,16 @@ const AdminDashboard = () => {
             Comprehensive platform health overview, user activities audits, and system-wide carbon emissions.
           </Typography>
         </Box>
-        <Stack direction="row" spacing={1.5}>
+        <Stack direction="row" spacing={1.5} flexWrap="wrap" gap={1}>
+          <Button 
+            variant="contained" 
+            color="warning" 
+            onClick={handleResetDemoData}
+            disabled={resetting}
+            startIcon={resetting ? <CircularProgress size={20} color="inherit" /> : <HistoryIcon />}
+          >
+            {resetting ? 'Resetting Demo Data...' : 'Reset & Seed Demo Data'}
+          </Button>
           <Button 
             variant="outlined" 
             color="primary" 
@@ -170,6 +231,7 @@ const AdminDashboard = () => {
       </Box>
 
       {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+      {successMessage && <Alert severity="success" sx={{ mb: 3 }}>{successMessage}</Alert>}
 
       {data && (
         <>
@@ -258,6 +320,7 @@ const AdminDashboard = () => {
             <Tab label="User Leaderboard rankings" />
             <Tab label="Goal & Badge Achievement details" />
             <Tab label="User Activities & Audits" />
+            <Tab label="Platform Gamification" />
           </Tabs>
 
           {/* Tab 1: Emission Analytics */}
@@ -715,6 +778,177 @@ const AdminDashboard = () => {
                       </Button>
                     </Stack>
                   </Box>
+                </Card>
+              </Grid>
+            </Grid>
+          )}
+
+          {tabValue === 5 && (
+            <Grid container spacing={3}>
+              {/* Badges Column */}
+              <Grid item xs={12} md={6}>
+                <Card sx={{ p: 3, mb: 3 }}>
+                  <Typography variant="h6" fontWeight={800} gutterBottom>
+                    Awarded User Badges
+                  </Typography>
+                  <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 300, borderColor: 'rgba(255,255,255,0.05)' }}>
+                    <Table size="small" stickyHeader>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell sx={{ fontWeight: 700 }}>User</TableCell>
+                          <TableCell sx={{ fontWeight: 700 }}>Badge</TableCell>
+                          <TableCell sx={{ fontWeight: 700 }}>Date</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {adminBadges.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={3} align="center">No badges awarded yet.</TableCell>
+                          </TableRow>
+                        ) : (
+                          adminBadges.map((ub) => (
+                            <TableRow key={ub.id}>
+                              <TableCell>
+                                <Typography variant="caption" fontWeight={750}>{ub.userFullName}</Typography>
+                                <Typography variant="caption" display="block" color="text.secondary">{ub.userEmail}</Typography>
+                              </TableCell>
+                              <TableCell>
+                                <Chip label={ub.badgeName} size="small" color="primary" sx={{ fontWeight: 800 }} />
+                              </TableCell>
+                              <TableCell sx={{ fontSize: '0.8rem' }}>
+                                {new Date(ub.awardedDate).toLocaleDateString()}
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Card>
+
+                <Card sx={{ p: 3 }}>
+                  <Typography variant="h6" fontWeight={800} gutterBottom>
+                    Issued Digital Certificates
+                  </Typography>
+                  <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 300, borderColor: 'rgba(255,255,255,0.05)' }}>
+                    <Table size="small" stickyHeader>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell sx={{ fontWeight: 700 }}>User</TableCell>
+                          <TableCell sx={{ fontWeight: 700 }}>Certificate Title</TableCell>
+                          <TableCell sx={{ fontWeight: 700 }}>Certificate ID</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {adminCertificates.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={3} align="center">No certificates generated yet.</TableCell>
+                          </TableRow>
+                        ) : (
+                          adminCertificates.map((cert) => (
+                            <TableRow key={cert.id}>
+                              <TableCell>
+                                <Typography variant="caption" fontWeight={750}>{cert.user?.fullName || 'N/A'}</Typography>
+                                <Typography variant="caption" display="block" color="text.secondary">{cert.user?.email || ''}</Typography>
+                              </TableCell>
+                              <TableCell sx={{ fontSize: '0.8rem', fontWeight: 700 }}>
+                                {cert.title}
+                              </TableCell>
+                              <TableCell sx={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>
+                                {cert.certificateId}
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Card>
+              </Grid>
+
+              {/* Achievements & Leaderboard Column */}
+              <Grid item xs={12} md={6}>
+                <Card sx={{ p: 3, mb: 3 }}>
+                  <Typography variant="h6" fontWeight={800} gutterBottom>
+                    Unlocked Milestone Achievements
+                  </Typography>
+                  <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 300, borderColor: 'rgba(255,255,255,0.05)' }}>
+                    <Table size="small" stickyHeader>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell sx={{ fontWeight: 700 }}>User</TableCell>
+                          <TableCell sx={{ fontWeight: 700 }}>Achievement</TableCell>
+                          <TableCell sx={{ fontWeight: 700 }} align="right">Points</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {adminAchievements.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={3} align="center">No achievements unlocked yet.</TableCell>
+                          </TableRow>
+                        ) : (
+                          adminAchievements.map((ach) => (
+                            <TableRow key={ach.id}>
+                              <TableCell>
+                                <Typography variant="caption" fontWeight={750}>{ach.user?.fullName || 'N/A'}</Typography>
+                                <Typography variant="caption" display="block" color="text.secondary">{ach.user?.email || ''}</Typography>
+                              </TableCell>
+                              <TableCell sx={{ fontSize: '0.8rem' }}>
+                                <Typography variant="body2" fontWeight={700}>{ach.title}</Typography>
+                                <Typography variant="caption" color="text.secondary">{ach.description}</Typography>
+                              </TableCell>
+                              <TableCell align="right" sx={{ fontWeight: 800, color: 'success.main' }}>
+                                +{ach.rewardPoints}
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Card>
+
+                <Card sx={{ p: 3 }}>
+                  <Typography variant="h6" fontWeight={800} gutterBottom>
+                    Global Rewards Leaderboard
+                  </Typography>
+                  <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 300, borderColor: 'rgba(255,255,255,0.05)' }}>
+                    <Table size="small" stickyHeader>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell sx={{ fontWeight: 700 }}>Rank</TableCell>
+                          <TableCell sx={{ fontWeight: 700 }}>User</TableCell>
+                          <TableCell sx={{ fontWeight: 700 }} align="right">Points</TableCell>
+                          <TableCell sx={{ fontWeight: 700 }} align="right">Level</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {adminRewards.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={4} align="center">No rewards leaderboard available.</TableCell>
+                          </TableRow>
+                        ) : (
+                          adminRewards.map((u, idx) => (
+                            <TableRow key={u.userId}>
+                              <TableCell sx={{ fontWeight: 800 }}>
+                                #{idx + 1}
+                              </TableCell>
+                              <TableCell>
+                                <Typography variant="caption" fontWeight={750}>{u.fullName}</Typography>
+                                <Typography variant="caption" display="block" color="text.secondary">{u.email}</Typography>
+                              </TableCell>
+                              <TableCell align="right" sx={{ fontWeight: 800, color: 'primary.main' }}>
+                                🪙 {u.rewardPoints}
+                              </TableCell>
+                              <TableCell align="right">
+                                <Chip label={`Lvl ${u.level}`} size="small" variant="outlined" sx={{ fontWeight: 800 }} />
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
                 </Card>
               </Grid>
             </Grid>

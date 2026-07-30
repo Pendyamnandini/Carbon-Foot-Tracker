@@ -31,4 +31,11 @@ public class Recommendation {
 
     @Column(name = "generated_at", nullable = false)
     private LocalDate generatedAt;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private String status = "IN_PROGRESS";
+
+    @Column(name = "remind_at")
+    private java.time.LocalDateTime remindAt;
 }

@@ -38,13 +38,21 @@ public class ExportV1Service {
     private OrganizationReportRepository organizationReportRepository;
 
     // --- USER REPORTS ---
-    public String generateUserCsv(User user) {
+    public String generateUserCsv(User user, LocalDate startDate, LocalDate endDate) {
         StringBuilder csv = new StringBuilder();
         csv.append("Carbon Tracker - Individual Footprint Report for ").append(user.getFullName()).append("\n");
+        if (startDate != null && endDate != null) {
+            csv.append("Period: ").append(startDate).append(" to ").append(endDate).append("\n");
+        }
         csv.append("Export Date: ").append(LocalDate.now()).append("\n\n");
         csv.append("Date,Category,Activity Type,Quantity,Unit,Emission Factor,Carbon Emission (kg)\n");
 
-        List<ActivityLog> logs = activityLogRepository.findByUserIdOrderByLogDateDesc(user.getId());
+        List<ActivityLog> logs;
+        if (startDate != null && endDate != null) {
+            logs = activityLogRepository.findByUserIdAndLogDateBetweenOrderByLogDateDesc(user.getId(), startDate, endDate);
+        } else {
+            logs = activityLogRepository.findByUserIdOrderByLogDateDesc(user.getId());
+        }
         for (ActivityLog log : logs) {
             csv.append(log.getLogDate()).append(",")
                     .append(log.getCategory().name()).append(",")
@@ -57,7 +65,7 @@ public class ExportV1Service {
         return csv.toString();
     }
 
-    public byte[] generateUserPdf(User user) {
+    public byte[] generateUserPdf(User user, LocalDate startDate, LocalDate endDate) {
         Document document = new Document(PageSize.A4, 36, 36, 36, 36);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
@@ -75,8 +83,9 @@ public class ExportV1Service {
             title.setAlignment(Element.ALIGN_CENTER);
             document.add(title);
 
+            String periodStr = (startDate != null && endDate != null) ? "\nPeriod: " + startDate + " to " + endDate : "";
             Paragraph subtitle = new Paragraph("Carbon Footprint Tracking & Analytical Breakdown\nUser: " + 
-                    user.getFullName() + " (" + user.getEmail() + ")\nGenerated on: " + LocalDate.now() + "\n\n", 
+                    user.getFullName() + " (" + user.getEmail() + ")\nGenerated on: " + LocalDate.now() + periodStr + "\n\n", 
                     FontFactory.getFont(FontFactory.HELVETICA, 10, java.awt.Color.GRAY));
             subtitle.setAlignment(Element.ALIGN_CENTER);
             document.add(subtitle);
@@ -87,9 +96,16 @@ public class ExportV1Service {
                     (user.getState() != null ? user.getState() + ", " : "") + (user.getCountry() != null ? user.getCountry() : "N/A"), bodyFont));
             document.add(new Paragraph("Role: " + user.getRole().name() + "\n\n", bodyFont));
 
-            // Summary metrics
-            List<CategoryBreakdownResponse> breakdown = analyticsV1Service.getCategoryBreakdown(user);
-            double total = breakdown.stream().mapToDouble(CategoryBreakdownResponse::getEmissionValue).sum();
+            // Query logs for the period
+            List<ActivityLog> logs;
+            if (startDate != null && endDate != null) {
+                logs = activityLogRepository.findByUserIdAndLogDateBetweenOrderByLogDateDesc(user.getId(), startDate, endDate);
+            } else {
+                logs = activityLogRepository.findByUserIdOrderByLogDateDesc(user.getId());
+            }
+
+            // Calculate category breakdown
+            double total = logs.stream().mapToDouble(ActivityLog::getCarbonEmission).sum();
             
             document.add(new Paragraph("Aggregated Emission Metrics:", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, java.awt.Color.DARK_GRAY)));
             document.add(new Paragraph("Total Carbon Emission: " + String.format("%.1f", total) + " kg CO₂\n\n", boldBodyFont));
@@ -114,10 +130,12 @@ public class ExportV1Service {
             cell3.setHorizontalAlignment(Element.ALIGN_CENTER);
             breakdownTable.addCell(cell3);
 
-            for (CategoryBreakdownResponse cat : breakdown) {
-                breakdownTable.addCell(new PdfPCell(new Phrase(cat.getCategory(), bodyFont)));
-                breakdownTable.addCell(new PdfPCell(new Phrase(String.format("%.1f", cat.getEmissionValue()), bodyFont)));
-                breakdownTable.addCell(new PdfPCell(new Phrase(String.format("%.1f", cat.getPercentageContribution()) + "%", bodyFont)));
+            for (Category cat : Category.values()) {
+                double catSum = logs.stream().filter(l -> l.getCategory() == cat).mapToDouble(ActivityLog::getCarbonEmission).sum();
+                double pct = total > 0 ? (catSum / total) * 100.0 : 0.0;
+                breakdownTable.addCell(new PdfPCell(new Phrase(cat.name(), bodyFont)));
+                breakdownTable.addCell(new PdfPCell(new Phrase(String.format("%.1f", catSum), bodyFont)));
+                breakdownTable.addCell(new PdfPCell(new Phrase(String.format("%.1f", pct) + "%", bodyFont)));
             }
             document.add(breakdownTable);
             document.add(new Paragraph("\n"));
@@ -138,7 +156,6 @@ public class ExportV1Service {
                 logTable.addCell(c);
             }
 
-            List<ActivityLog> logs = activityLogRepository.findByUserIdOrderByLogDateDesc(user.getId());
             for (ActivityLog log : logs) {
                 logTable.addCell(new PdfPCell(new Phrase(log.getLogDate().toString(), bodyFont)));
                 logTable.addCell(new PdfPCell(new Phrase(log.getCategory().name(), bodyFont)));

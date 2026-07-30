@@ -25,6 +25,7 @@ import Goals from './pages/Goals';
 import Recommendations from './pages/Recommendations';
 import Leaderboard from './pages/Leaderboard';
 import Feedback from './pages/Feedback';
+import SupportPage from './pages/SupportPage';
 import OrganizationDashboard from './pages/OrganizationDashboard';
 
 // Admin Pages
@@ -33,6 +34,8 @@ import UserManagement from './pages/UserManagement';
 import EmissionFactorManagement from './pages/EmissionFactorManagement';
 import FeedbackManagement from './pages/FeedbackManagement';
 import ReportsAnalytics from './pages/ReportsAnalytics';
+import AdminSupportDashboard from './pages/AdminSupportDashboard';
+
 
 export const ColorModeContext = createContext({ toggleColorMode: () => {} });
 
@@ -139,6 +142,11 @@ const AppContent = () => {
               <Feedback />
             </ProtectedRoute>
           } />
+          <Route path="/support" element={
+            <ProtectedRoute allowedRoles={['USER', 'ORG_ADMIN', 'ORG_USER']}>
+              <SupportPage />
+            </ProtectedRoute>
+          } />
           <Route path="/organization" element={
             <ProtectedRoute allowedRoles={['USER', 'ORG_ADMIN', 'ORG_USER']}>
               <OrganizationDashboard />
@@ -171,6 +179,12 @@ const AppContent = () => {
               <ReportsAnalytics />
             </ProtectedRoute>
           } />
+          <Route path="/admin/support" element={
+            <ProtectedRoute allowedRoles={['ADMIN']}>
+              <AdminSupportDashboard />
+            </ProtectedRoute>
+          } />
+
 
           {/* Catch-all */}
           <Route path="*" element={<Navigate to="/" replace />} />

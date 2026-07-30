@@ -33,6 +33,14 @@ public class BadgeService {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    @org.springframework.context.annotation.Lazy
+    private RecommendationService recommendationService;
+
+    @Autowired
+    @org.springframework.context.annotation.Lazy
+    private AchievementService achievementService;
+
     public List<UserBadge> getUserBadges(User user) {
         return userBadgeRepository.findByUserId(user.getId());
     }
@@ -81,7 +89,7 @@ public class BadgeService {
         }
 
         // 3. Eco Saver 10kg / 25kg / 50kg
-        double totalSaved = 0.0;
+        double totalSaved = recommendationService.getCompletedMonthlySavings(user);
         for (Goal g : goals) {
             if (g.getStatus() == GoalStatus.COMPLETED) {
                 LocalDate start = g.getStartDate();
@@ -115,10 +123,24 @@ public class BadgeService {
 
     private void awardBadgeIfEligible(User user, String badgeName, String message, String criteria) {
         Badge badge = badgeRepository.findByBadgeName(badgeName).orElseGet(() -> {
+            String category = "GENERAL";
+            String imageUrl = "/assets/badges/general.png";
+            if (badgeName.contains("Streak") || badgeName.contains("Consistency")) {
+                category = "CONSISTENCY";
+                imageUrl = "/assets/badges/streak.png";
+            } else if (badgeName.contains("Goal")) {
+                category = "GOAL";
+                imageUrl = "/assets/badges/goal.png";
+            } else if (badgeName.contains("Saver") || badgeName.contains("Champion")) {
+                category = "SAVINGS";
+                imageUrl = "/assets/badges/savings.png";
+            }
             Badge newBadge = Badge.builder()
                     .badgeName(badgeName)
                     .description(message)
                     .criteria(criteria)
+                    .category(category)
+                    .imageUrl(imageUrl)
                     .build();
             return badgeRepository.save(newBadge);
         });
@@ -130,24 +152,35 @@ public class BadgeService {
                     .build();
             userBadgeRepository.save(userBadge);
 
-            // Send Achievement Notification & Email
-            notificationService.createNotification(
-                    user,
-                    "Badge Earned: " + badgeName,
-                    message,
-                    NotificationType.ACHIEVEMENT
-            );
-            emailService.sendMilestoneAchievementEmail(user.getEmail(), badgeName, message);
+            // Award 20 points for badge
+            if (achievementService != null) {
+                achievementService.awardPoints(user, 20, "Unlocked Badge: " + badgeName);
+            }
+
+            // Send Badge Notification & Email
+            if (notificationService != null) {
+                notificationService.createNotification(
+                        user,
+                        "Badge Earned: " + badgeName + " 🏅",
+                        message,
+                        NotificationType.BADGE
+                );
+            }
+            if (emailService != null) {
+                emailService.sendMilestoneAchievementEmail(user.getEmail(), badgeName, message);
+            }
 
             // Audit log
-            auditLogService.log(
-                    user,
-                    "AWARD_BADGE",
-                    "Badge",
-                    badge.getId(),
-                    "Awarded badge: " + badgeName
-            );
-            auditLogService.logActivity(user, "CREATE", "Badge Earned", "Earned badge: " + badgeName, "Profile", null, null);
+            if (auditLogService != null) {
+                auditLogService.log(
+                        user,
+                        "AWARD_BADGE",
+                        "Badge",
+                        badge.getId(),
+                        "Awarded badge: " + badgeName
+                );
+                auditLogService.logActivity(user, "CREATE", "Badge Earned", "Earned badge: " + badgeName, "Profile", null, null);
+            }
         }
     }
 

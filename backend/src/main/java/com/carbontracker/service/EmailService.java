@@ -94,6 +94,19 @@ public class EmailService {
         sendGenericEmail(toEmail, subject, body);
     }
 
+    public void sendNotificationEmail(String toEmail, String title, String message) {
+        String subject = "🔔 Notification: " + title;
+        String body = "Dear User,\n\n" +
+                "You have received a new notification on Carbon Tracker:\n\n" +
+                "Title: " + title + "\n" +
+                "Details: " + message + "\n\n" +
+                "To view your notifications, please log in to the dashboard.\n\n" +
+                "Regards,\n" +
+                "Carbon Tracker Team";
+
+        sendGenericEmail(toEmail, subject, body);
+    }
+
     private void sendGenericEmail(String toEmail, String subject, String body) {
         if (mailSender != null) {
             try {

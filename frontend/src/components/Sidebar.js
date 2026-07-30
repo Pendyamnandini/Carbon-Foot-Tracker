@@ -18,6 +18,7 @@ import SpeedIcon from '@mui/icons-material/Speed';
 import EqualizerIcon from '@mui/icons-material/Equalizer';
 import HistoryIcon from '@mui/icons-material/History';
 import SettingsIcon from '@mui/icons-material/Settings';
+import HelpIcon from '@mui/icons-material/Help';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -42,6 +43,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
       { text: 'Platform Analytics', icon: <AssessmentIcon />, path: '/admin/reports', color: '#8b5cf6' },
       { text: 'Emission Factors', icon: <SettingsSuggestIcon />, path: '/admin/emission-factors', color: '#fbbf24' },
       { text: 'Feedback Management', icon: <RateReviewIcon />, path: '/admin/feedbacks', color: '#f43f5e' },
+      { text: 'Support Management', icon: <HelpIcon />, path: '/admin/support', color: '#10b981' },
       { text: 'Organization Analytics', icon: <BusinessIcon />, path: '/organization', color: '#14b8a6' }
     );
   } else {
@@ -57,7 +59,8 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
       { text: 'Leaderboard', icon: <LeaderboardIcon />, path: '/leaderboard', color: '#f43f5e' },
       { text: 'Reports', icon: <HistoryIcon />, path: '/analytics?tab=exports', color: '#6366f1' },
       { text: 'Profile', icon: <PersonIcon />, path: '/profile', color: '#06b6d4' },
-      { text: 'Settings', icon: <SettingsIcon />, path: '/profile?tab=settings', color: '#64748b' }
+      { text: 'Settings', icon: <SettingsIcon />, path: '/profile?tab=settings', color: '#64748b' },
+      { text: 'Support', icon: <HelpIcon />, path: '/support', color: '#10b981' }
     );
 
     if (isOrg) {

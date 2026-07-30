@@ -33,6 +33,10 @@ public class AnalyticsV1Controller {
     @Autowired
     private AuditLogService auditLogService;
 
+    public String getCurrentUserEmail() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
     private User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email)
@@ -40,164 +44,63 @@ public class AnalyticsV1Controller {
     }
 
     @GetMapping("/analytics/daily")
-    public ResponseEntity<ApiResponse<DailyAnalyticsResponse>> getDaily(
+    @org.springframework.cache.annotation.Cacheable(value = "analytics", key = "'v1_daily_' + #root.target.getCurrentUserEmail() + '_' + #date + '_' + #startDate + '_' + #endDate")
+    public ResponseEntity<ApiResponse<PeriodAnalyticsResponse>> getDaily(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        
         User user = getCurrentUser();
-        LocalDate end = endDate != null ? endDate : LocalDate.now();
-        LocalDate start = startDate != null ? startDate : end.minusDays(30);
-
-        if (startDate == null && endDate == null) {
+        
+        if (date == null && startDate == null && endDate == null) {
             auditLogService.logActivity(user, "VIEW", "Dashboard Visit", "Visited carbon emission dashboard", "Dashboard", null, null);
         }
 
-        List<DailyCarbonSummary> dailyList = analyticsService.getDailySummaries(user, start, end);
-
-        double todayEmissions = dailyList.stream()
-                .filter(d -> d.getSummaryDate().equals(LocalDate.now()))
-                .mapToDouble(DailyCarbonSummary::getOverallTotal)
-                .findFirst().orElse(0.0);
-
-        double yesterdayEmissions = dailyList.stream()
-                .filter(d -> d.getSummaryDate().equals(LocalDate.now().minusDays(1)))
-                .mapToDouble(DailyCarbonSummary::getOverallTotal)
-                .findFirst().orElse(0.0);
-
-        double diff = todayEmissions - yesterdayEmissions;
-        double pctChange = yesterdayEmissions > 0 ? (diff / yesterdayEmissions) * 100.0 : 0.0;
-
-        List<DailyAnalyticsResponse.DailyEmissionTrend> trend = dailyList.stream()
-                .map(d -> new DailyAnalyticsResponse.DailyEmissionTrend(d.getSummaryDate().toString(), d.getOverallTotal()))
-                .collect(Collectors.toList());
-
-        List<DailyAnalyticsResponse.DailySummaryItem> history = dailyList.stream()
-                .map(d -> DailyAnalyticsResponse.DailySummaryItem.builder()
-                        .date(d.getSummaryDate().toString())
-                        .overallTotal(d.getOverallTotal())
-                        .transport(d.getTransportTotal())
-                        .electricity(d.getElectricityTotal())
-                        .food(d.getFoodTotal())
-                        .shopping(d.getShoppingTotal())
-                        .activityCount(d.getActivityCount())
-                        .sustainabilityScore(d.getSustainabilityScore())
-                        .build())
-                .collect(Collectors.toList());
-
-        DailyAnalyticsResponse response = DailyAnalyticsResponse.builder()
-                .todayEmissions(todayEmissions)
-                .yesterdayEmissions(yesterdayEmissions)
-                .difference(diff)
-                .percentageChange(pctChange)
-                .trend(trend)
-                .history(history)
-                .build();
-
+        PeriodAnalyticsResponse response = analyticsV1Service.getPeriodAnalytics(user, "DAILY", date, null, null, null, startDate, endDate);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @GetMapping("/analytics/weekly")
-    public ResponseEntity<ApiResponse<WeeklyAnalyticsResponse>> getWeekly(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        
+    @org.springframework.cache.annotation.Cacheable(value = "analytics", key = "'v1_weekly_' + #root.target.getCurrentUserEmail() + '_' + #week + '_' + #year")
+    public ResponseEntity<ApiResponse<PeriodAnalyticsResponse>> getWeekly(
+            @RequestParam(required = false) Integer week,
+            @RequestParam(required = false) Integer year) {
         User user = getCurrentUser();
-        List<WeeklyCarbonSummary> weeklyList = analyticsService.getWeeklySummaries(user);
-
-        // Filter by date range if provided
-        if (startDate != null || endDate != null) {
-            // Weekly summaries don't map directly to single dates, but we can filter by year and week
-            // For simplicity, return all or perform active filtering
-        }
-
-        double curEm = weeklyList.isEmpty() ? 0.0 : weeklyList.get(0).getOverallTotal();
-        double prevEm = weeklyList.size() < 2 ? 0.0 : weeklyList.get(1).getOverallTotal();
-        double diff = curEm - prevEm;
-        double pctChange = prevEm > 0 ? (diff / prevEm) * 100.0 : 0.0;
-
-        List<WeeklyAnalyticsResponse.WeeklyEmissionTrend> trend = weeklyList.stream()
-                .map(w -> new WeeklyAnalyticsResponse.WeeklyEmissionTrend("W" + w.getWeekNumber() + " " + w.getYear(), w.getOverallTotal()))
-                .collect(Collectors.toList());
-
-        List<WeeklyAnalyticsResponse.WeeklySummaryItem> history = weeklyList.stream()
-                .map(w -> WeeklyAnalyticsResponse.WeeklySummaryItem.builder()
-                        .weekNumber(w.getWeekNumber())
-                        .year(w.getYear())
-                        .overallTotal(w.getOverallTotal())
-                        .transport(w.getTransportTotal())
-                        .electricity(w.getElectricityTotal())
-                        .food(w.getFoodTotal())
-                        .shopping(w.getShoppingTotal())
-                        .activityCount(w.getActivityCount())
-                        .sustainabilityScore(w.getSustainabilityScore())
-                        .build())
-                .collect(Collectors.toList());
-
-        WeeklyAnalyticsResponse response = WeeklyAnalyticsResponse.builder()
-                .currentWeekEmissions(curEm)
-                .previousWeekEmissions(prevEm)
-                .percentageChange(pctChange)
-                .trend(trend)
-                .history(history)
-                .build();
-
+        PeriodAnalyticsResponse response = analyticsV1Service.getPeriodAnalytics(user, "WEEKLY", null, week, null, year, null, null);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @GetMapping("/analytics/monthly")
-    public ResponseEntity<ApiResponse<MonthlyAnalyticsResponse>> getMonthly(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        
+    @org.springframework.cache.annotation.Cacheable(value = "analytics", key = "'v1_monthly_' + #root.target.getCurrentUserEmail() + '_' + #month + '_' + #year")
+    public ResponseEntity<ApiResponse<PeriodAnalyticsResponse>> getMonthly(
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer year) {
         User user = getCurrentUser();
-        List<MonthlyCarbonSummary> monthlyList = analyticsService.getMonthlySummaries(user);
+        PeriodAnalyticsResponse response = analyticsV1Service.getPeriodAnalytics(user, "MONTHLY", null, null, month, year, null, null);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
 
-        double curEm = monthlyList.isEmpty() ? 0.0 : monthlyList.get(0).getOverallTotal();
-        double prevEm = monthlyList.size() < 2 ? 0.0 : monthlyList.get(1).getOverallTotal();
-        double diff = curEm - prevEm;
-        double pctChange = prevEm > 0 ? (diff / prevEm) * 100.0 : 0.0;
-
-        List<MonthlyAnalyticsResponse.MonthlyEmissionTrend> trend = monthlyList.stream()
-                .map(m -> new MonthlyAnalyticsResponse.MonthlyEmissionTrend(m.getMonth() + "/" + m.getYear(), m.getOverallTotal()))
-                .collect(Collectors.toList());
-
-        List<MonthlyAnalyticsResponse.MonthlySummaryItem> history = monthlyList.stream()
-                .map(m -> MonthlyAnalyticsResponse.MonthlySummaryItem.builder()
-                        .month(m.getMonth())
-                        .year(m.getYear())
-                        .overallTotal(m.getOverallTotal())
-                        .transport(m.getTransportTotal())
-                        .electricity(m.getElectricityTotal())
-                        .food(m.getFoodTotal())
-                        .shopping(m.getShoppingTotal())
-                        .activityCount(m.getActivityCount())
-                        .sustainabilityScore(m.getSustainabilityScore())
-                        .build())
-                .collect(Collectors.toList());
-
-        MonthlyAnalyticsResponse response = MonthlyAnalyticsResponse.builder()
-                .currentMonthEmissions(curEm)
-                .previousMonthEmissions(prevEm)
-                .percentageChange(pctChange)
-                .trend(trend)
-                .history(history)
-                .build();
-
+    @GetMapping("/analytics/yearly")
+    @org.springframework.cache.annotation.Cacheable(value = "analytics", key = "'v1_yearly_' + #root.target.getCurrentUserEmail() + '_' + #year")
+    public ResponseEntity<ApiResponse<PeriodAnalyticsResponse>> getYearly(
+            @RequestParam(required = false) Integer year) {
+        User user = getCurrentUser();
+        PeriodAnalyticsResponse response = analyticsV1Service.getPeriodAnalytics(user, "YEARLY", null, null, null, year, null, null);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @GetMapping("/analytics/date-range")
-    public ResponseEntity<ApiResponse<DateRangeAnalyticsResponse>> getDateRange(
+    @org.springframework.cache.annotation.Cacheable(value = "analytics", key = "'v1_daterange_' + #root.target.getCurrentUserEmail() + '_' + #startDate + '_' + #endDate")
+    public ResponseEntity<ApiResponse<PeriodAnalyticsResponse>> getDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        
         User user = getCurrentUser();
         
         // Log search activity
         String meta = "{\"startDate\":\"" + startDate + "\",\"endDate\":\"" + endDate + "\"}";
         auditLogService.logActivity(user, "SEARCH", "Analytics Date Range", "Searched analytics from " + startDate + " to " + endDate, "Dashboard", meta, null);
 
-        return ResponseEntity.ok(ApiResponse.success(analyticsService.getDateRangeAnalytics(user, startDate, endDate)));
+        PeriodAnalyticsResponse response = analyticsV1Service.getPeriodAnalytics(user, "CUSTOM", null, null, null, null, startDate, endDate);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @GetMapping("/analytics/category-breakdown")

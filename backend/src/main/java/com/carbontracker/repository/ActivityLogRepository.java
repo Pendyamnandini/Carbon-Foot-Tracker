@@ -8,6 +8,7 @@ import java.util.List;
 public interface ActivityLogRepository extends JpaRepository<ActivityLog, Long> {
     List<ActivityLog> findByUserIdOrderByLogDateDesc(Long userId);
     List<ActivityLog> findByUserIdAndLogDateBetween(Long userId, LocalDate startDate, LocalDate endDate);
+    List<ActivityLog> findByUserIdAndLogDateBetweenOrderByLogDateDesc(Long userId, LocalDate startDate, LocalDate endDate);
 
     @org.springframework.data.jpa.repository.Query("SELECT CAST(l.logDate AS string) as groupKey, l.category as category, SUM(l.carbonEmission) as totalEmission " +
            "FROM ActivityLog l WHERE l.user.id = :userId " +

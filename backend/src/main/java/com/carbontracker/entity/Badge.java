@@ -22,4 +22,9 @@ public class Badge {
 
     @Column(nullable = false)
     private String criteria;
+
+    private String category;
+
+    @Column(name = "image_url")
+    private String imageUrl;
 }

@@ -32,6 +32,14 @@ public class GoalService {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    @org.springframework.context.annotation.Lazy
+    private RecommendationService recommendationService;
+
+    @Autowired
+    @org.springframework.context.annotation.Lazy
+    private AchievementService achievementService;
+
     public List<Goal> getGoalsForUser(User user) {
         return goalRepository.findByUserId(user.getId());
     }
@@ -74,6 +82,10 @@ public class GoalService {
 
         recalculateGoalProgress(savedGoal);
 
+        if (recommendationService != null) {
+            recommendationService.refreshRecommendations(user);
+        }
+
         return savedGoal;
     }
 
@@ -87,8 +99,14 @@ public class GoalService {
         }
 
         goalRepository.delete(goal);
-        auditLogService.log(user, "DELETE_GOAL", "Goal", id, "Deleted goal: " + goal.getGoalTitle());
-        auditLogService.logActivity(user, "DELETE", "Goal Deletion", "Deleted goal: " + goal.getGoalTitle(), "Goals", null, null);
+        if (auditLogService != null) {
+            auditLogService.log(user, "DELETE_GOAL", "Goal", id, "Deleted goal: " + goal.getGoalTitle());
+            auditLogService.logActivity(user, "DELETE", "Goal Deletion", "Deleted goal: " + goal.getGoalTitle(), "Goals", null, null);
+        }
+
+        if (recommendationService != null) {
+            recommendationService.refreshRecommendations(user);
+        }
     }
 
     @Transactional
@@ -130,6 +148,12 @@ public class GoalService {
             double totalActiveEmission = activeLogs.stream().mapToDouble(ActivityLog::getCarbonEmission).sum();
             dailyActive = totalActiveEmission / activeDays;
         }
+        double completedSavings = 0.0;
+        if (recommendationService != null) {
+            completedSavings = recommendationService.getCompletedMonthlySavings(user);
+        }
+        double dailySavings = completedSavings / 30.0;
+        dailyActive = Math.max(0.0, dailyActive - dailySavings);
 
         // 3. Reduction achieved percentage
         double reductionAchieved = 0.0;
@@ -169,59 +193,89 @@ public class GoalService {
         goal.setTrackStatus(trackStatus);
 
         // Publish GoalProgressEvent
-        eventPublisher.publishEvent(new com.carbontracker.event.GoalProgressEvent(this, goal));
+        if (eventPublisher != null) {
+            eventPublisher.publishEvent(new com.carbontracker.event.GoalProgressEvent(this, goal));
+        }
 
         // 4. Update status
         if (progressPercentage >= 100.0) {
+            boolean wasCompleted = (goal.getStatus() == GoalStatus.COMPLETED);
             goal.setStatus(GoalStatus.COMPLETED);
             goalRepository.save(goal);
 
+            if (!wasCompleted) {
+                if (achievementService != null) {
+                    achievementService.awardPoints(user, 50, "Completed carbon goal: " + goal.getGoalTitle());
+                    achievementService.checkAndAwardAchievements(user);
+                }
+            }
+
             // Send notification & email
-            notificationService.createNotification(
-                    user,
-                    "Goal Achieved! \uD83C\uDFC6",
-                    "Congratulations! You completed your sustainability goal: " + goal.getGoalTitle(),
-                    NotificationType.SUCCESS
-            );
-            emailService.sendGoalAchievementEmail(user.getEmail(), goal.getGoalTitle());
-            auditLogService.log(user, "GOAL_COMPLETED", "Goal", goal.getId(), "Achieved goal: " + goal.getGoalTitle());
-            auditLogService.logActivity(user, "UPDATE", "Goal Completion", "Completed goal: " + goal.getGoalTitle(), "Goals", null, null);
+            if (notificationService != null) {
+                notificationService.createNotification(
+                        user,
+                        "Goal Achieved! \uD83C\uDFC6",
+                        "Congratulations! You completed your sustainability goal: " + goal.getGoalTitle(),
+                        NotificationType.SUCCESS
+                );
+            }
+            if (emailService != null) {
+                emailService.sendGoalAchievementEmail(user.getEmail(), goal.getGoalTitle());
+            }
+            if (auditLogService != null) {
+                auditLogService.log(user, "GOAL_COMPLETED", "Goal", goal.getId(), "Achieved goal: " + goal.getGoalTitle());
+                auditLogService.logActivity(user, "UPDATE", "Goal Completion", "Completed goal: " + goal.getGoalTitle(), "Goals", null, null);
+            }
 
             // Publish GoalCompletedEvent
-            eventPublisher.publishEvent(new com.carbontracker.event.GoalCompletedEvent(this, user));
+            if (eventPublisher != null) {
+                eventPublisher.publishEvent(new com.carbontracker.event.GoalCompletedEvent(this, user));
+            }
         } else if (today.isAfter(target)) {
             goal.setStatus(GoalStatus.FAILED);
             goalRepository.save(goal);
 
-            notificationService.createNotification(
-                    user,
-                    "Goal Ended",
-                    "Goal period ended. Better luck next time with: " + goal.getGoalTitle(),
-                    NotificationType.WARNING
-            );
-            auditLogService.log(user, "GOAL_FAILED", "Goal", goal.getId(), "Failed goal: " + goal.getGoalTitle());
-            auditLogService.logActivity(user, "UPDATE", "Goal Period Ended", "Goal period ended: " + goal.getGoalTitle(), "Goals", null, null);
+            if (notificationService != null) {
+                notificationService.createNotification(
+                        user,
+                        "Goal Ended",
+                        "Goal period ended. Better luck next time with: " + goal.getGoalTitle(),
+                        NotificationType.WARNING
+                );
+            }
+            if (auditLogService != null) {
+                auditLogService.log(user, "GOAL_FAILED", "Goal", goal.getId(), "Failed goal: " + goal.getGoalTitle());
+                auditLogService.logActivity(user, "UPDATE", "Goal Period Ended", "Goal period ended: " + goal.getGoalTitle(), "Goals", null, null);
+            }
         } else {
             goalRepository.save(goal);
 
             // Send tracking warnings/encouragements on status changes
             if (!trackStatus.equals(oldTrackStatus)) {
                 if ("BEHIND_SCHEDULE".equals(trackStatus)) {
-                    notificationService.createNotification(
-                            user,
-                            "Goal Warning: Behind Schedule ⚠️",
-                            "Your goal '" + goal.getGoalTitle() + "' is behind schedule. Make some eco adjustments to get back on track!",
-                            NotificationType.WARNING
-                    );
-                    emailService.sendGoalStatusAlertEmail(user.getEmail(), goal.getGoalTitle(), false);
+                    if (notificationService != null) {
+                        notificationService.createNotification(
+                                user,
+                                "Goal Warning: Behind Schedule ⚠️",
+                                "Your goal '" + goal.getGoalTitle() + "' is behind schedule. Make some eco adjustments to get back on track!",
+                                NotificationType.WARNING
+                        );
+                    }
+                    if (emailService != null) {
+                        emailService.sendGoalStatusAlertEmail(user.getEmail(), goal.getGoalTitle(), false);
+                    }
                 } else if ("AHEAD_OF_SCHEDULE".equals(trackStatus)) {
-                    notificationService.createNotification(
-                            user,
-                            "Goal Update: Ahead of Schedule! 🚀",
-                            "Great work! You are ahead of schedule for your goal: " + goal.getGoalTitle(),
-                            NotificationType.SUCCESS
-                    );
-                    emailService.sendGoalStatusAlertEmail(user.getEmail(), goal.getGoalTitle(), true);
+                    if (notificationService != null) {
+                        notificationService.createNotification(
+                                user,
+                                "Goal Update: Ahead of Schedule! 🚀",
+                                "Great work! You are ahead of schedule for your goal: " + goal.getGoalTitle(),
+                                NotificationType.SUCCESS
+                        );
+                    }
+                    if (emailService != null) {
+                        emailService.sendGoalStatusAlertEmail(user.getEmail(), goal.getGoalTitle(), true);
+                    }
                 }
             }
         }

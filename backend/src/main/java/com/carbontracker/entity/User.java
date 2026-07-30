@@ -45,6 +45,13 @@ public class User {
     @Builder.Default
     private boolean active = true;
 
+    @Builder.Default
+    @Column(name = "reward_points")
+    private Integer rewardPoints = 0;
+
+    @Builder.Default
+    private Integer level = 1;
+
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 

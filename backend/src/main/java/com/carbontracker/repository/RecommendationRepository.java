@@ -10,4 +10,6 @@ import java.util.List;
 public interface RecommendationRepository extends JpaRepository<Recommendation, Long> {
     List<Recommendation> findByUserId(Long userId);
     void deleteByUserId(Long userId);
+    java.util.Optional<Recommendation> findByUserIdAndTitleAndCategory(Long userId, String title, String category);
+    List<Recommendation> findByUserIdAndStatus(Long userId, String status);
 }

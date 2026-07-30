@@ -41,7 +41,13 @@ const categoryIcons = {
 
 const AnalyticsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('ALL');
-  const [presetRange, setPresetRange] = useState('LAST_30_DAYS');
+  
+  // Custom period states
+  const [periodType, setPeriodType] = useState('DAILY'); // 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY', 'CUSTOM'
+  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [selectedWeek, setSelectedWeek] = useState('2026-W30'); 
+  const [selectedMonth, setSelectedMonth] = useState('2026-07');
+  const [selectedYear, setSelectedYear] = useState(2026);
   const [startDate, setStartDate] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() - 30);
@@ -52,144 +58,168 @@ const AnalyticsPage = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  // Analytics Data States
-  const [dailyData, setDailyData] = useState([]);
-  const [weeklyData, setWeeklyData] = useState([]);
-  const [monthlyData, setMonthlyData] = useState([]);
-  const [categoryBreakdown, setCategoryBreakdown] = useState([]);
+  // Consolidated Analytics Data States
+  const [totalEmissions, setTotalEmissions] = useState(0);
+  const [sustainabilityScore, setSustainabilityScore] = useState(100);
+  const [transportTotal, setTransportTotal] = useState(0);
+  const [electricityTotal, setElectricityTotal] = useState(0);
+  const [foodTotal, setFoodTotal] = useState(0);
+  const [shoppingTotal, setShoppingTotal] = useState(0);
+  const [previousPeriodEmissions, setPreviousPeriodEmissions] = useState(0);
+  const [percentageChange, setPercentageChange] = useState(0);
+  const [trendLabel, setTrendLabel] = useState('STABLE');
+  const [trendData, setTrendData] = useState([]);
+  const [recommendationsList, setRecommendationsList] = useState([]);
   const [benchmark, setBenchmark] = useState(null);
   const [insights, setInsights] = useState([]);
-
-  // Preset Date Range Handler
-  const handlePresetChange = (preset) => {
-    setPresetRange(preset);
-    const today = new Date();
-    let start = new Date();
-
-    if (preset === 'TODAY') {
-      start = today;
-    } else if (preset === 'YESTERDAY') {
-      start.setDate(today.getDate() - 1);
-    } else if (preset === 'LAST_7_DAYS') {
-      start.setDate(today.getDate() - 7);
-    } else if (preset === 'LAST_30_DAYS') {
-      start.setDate(today.getDate() - 30);
-    } else if (preset === 'THIS_MONTH') {
-      start = new Date(today.getFullYear(), today.getMonth(), 1);
-    } else if (preset === 'LAST_MONTH') {
-      start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-    } else if (preset === 'THIS_YEAR') {
-      start = new Date(today.getFullYear(), 0, 1);
-    }
-
-    setStartDate(start.toISOString().split('T')[0]);
-    setEndDate(today.toISOString().split('T')[0]);
-  };
 
   const fetchAnalytics = useCallback(async () => {
     setLoading(true);
     try {
-      const [dailyRes, weeklyRes, monthlyRes, catRes, benchRes, trendRes] = await Promise.all([
-        api.get(`/api/v1/analytics/daily?startDate=${startDate}&endDate=${endDate}`),
-        api.get('/api/v1/analytics/weekly'),
-        api.get('/api/v1/analytics/monthly'),
-        api.get(`/api/v1/analytics/category-breakdown?startDate=${startDate}&endDate=${endDate}`),
-        api.get('/api/v1/benchmarking'),
-        api.get('/api/v1/analytics/trends')
-      ]);
+      let endpoint = '';
+      if (periodType === 'DAILY') {
+        endpoint = `/api/v1/analytics/daily?date=${selectedDate}`;
+      } else if (periodType === 'WEEKLY') {
+        const [year, weekPart] = selectedWeek.split('-W');
+        endpoint = `/api/v1/analytics/weekly?week=${parseInt(weekPart, 10)}&year=${parseInt(year, 10)}`;
+      } else if (periodType === 'MONTHLY') {
+        const [year, month] = selectedMonth.split('-');
+        endpoint = `/api/v1/analytics/monthly?month=${parseInt(month, 10)}&year=${parseInt(year, 10)}`;
+      } else if (periodType === 'YEARLY') {
+        endpoint = `/api/v1/analytics/yearly?year=${selectedYear}`;
+      } else if (periodType === 'CUSTOM') {
+        endpoint = `/api/v1/analytics/date-range?startDate=${startDate}&endDate=${endDate}`;
+      }
 
-      if (dailyRes.data?.data?.history) {
-        setDailyData(dailyRes.data.data.history);
-      }
-      if (weeklyRes.data?.data?.trend) {
-        setWeeklyData(weeklyRes.data.data.trend);
-      }
-      if (monthlyRes.data?.data?.trend) {
-        setMonthlyData(monthlyRes.data.data.trend);
-      }
-      if (catRes.data?.data) {
-        setCategoryBreakdown(catRes.data.data);
-      }
-      if (benchRes.data?.data) {
-        setBenchmark(benchRes.data.data);
-      }
-      if (trendRes.data?.data?.insights) {
-        setInsights(trendRes.data.data.insights);
+      const res = await api.get(endpoint);
+      if (res.data?.success && res.data?.data) {
+        const data = res.data.data;
+        setTotalEmissions(data.totalEmissions);
+        setSustainabilityScore(data.sustainabilityScore);
+        setTransportTotal(data.transportTotal);
+        setElectricityTotal(data.electricityTotal);
+        setFoodTotal(data.foodTotal);
+        setShoppingTotal(data.shoppingTotal);
+        setPreviousPeriodEmissions(data.previousPeriodEmissions);
+        setPercentageChange(data.percentageChange);
+        setTrendLabel(data.trendLabel);
+        setTrendData(data.trend || []);
+        setRecommendationsList(data.recommendations || []);
+        setBenchmark(data.benchmarking);
+        setInsights(data.insights || []);
       }
     } catch (err) {
       console.error('Error loading analytics:', err);
     } finally {
       setLoading(false);
     }
-  }, [startDate, endDate]);
+  }, [periodType, selectedDate, selectedWeek, selectedMonth, selectedYear, startDate, endDate]);
 
   useEffect(() => {
     fetchAnalytics();
   }, [fetchAnalytics]);
 
-  // Derived Aggregate KPI Calculations for Selected Category
-  const getCategoryValueFromLog = (logItem, category) => {
-    if (category === 'ALL') return logItem.overallTotal;
-    if (category === 'TRANSPORT') return logItem.transport || 0;
-    if (category === 'ELECTRICITY') return logItem.electricity || 0;
-    if (category === 'FOOD') return logItem.food || 0;
-    if (category === 'SHOPPING') return logItem.shopping || 0;
-    return logItem.overallTotal;
+  // Helper function to resolve period boundaries for exports
+  const getPeriodStartEndDates = () => {
+    if (periodType === 'DAILY') {
+      return { start: selectedDate, end: selectedDate };
+    }
+    if (periodType === 'WEEKLY') {
+      const [year, weekPart] = selectedWeek.split('-W');
+      const y = parseInt(year, 10);
+      const w = parseInt(weekPart, 10);
+      const simple = new Date(y, 0, 1 + (w - 1) * 7);
+      const dow = simple.getDay();
+      const ISOweekStart = simple;
+      if (dow <= 4) {
+        ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1);
+      } else {
+        ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
+      }
+      const end = new Date(ISOweekStart);
+      end.setDate(ISOweekStart.getDate() + 6);
+      return { start: ISOweekStart.toISOString().split('T')[0], end: end.toISOString().split('T')[0] };
+    }
+    if (periodType === 'MONTHLY') {
+      const [year, month] = selectedMonth.split('-');
+      const y = parseInt(year, 10);
+      const m = parseInt(month, 10);
+      const start = new Date(y, m - 1, 1);
+      const end = new Date(y, m, 0);
+      return { start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0] };
+    }
+    if (periodType === 'YEARLY') {
+      return { start: `${selectedYear}-01-01`, end: `${selectedYear}-12-31` };
+    }
+    if (periodType === 'CUSTOM') {
+      return { start: startDate, end: endDate };
+    }
+    return { start: startDate, end: endDate };
   };
 
-  const filteredLogs = dailyData.filter(d => getCategoryValueFromLog(d, selectedCategory) > 0 || selectedCategory === 'ALL');
+  // Derived Aggregate KPI Calculations for Selected Category
+  const getSelectedCategoryValue = () => {
+    if (selectedCategory === 'ALL') return totalEmissions;
+    if (selectedCategory === 'TRANSPORT') return transportTotal;
+    if (selectedCategory === 'ELECTRICITY') return electricityTotal;
+    if (selectedCategory === 'FOOD') return foodTotal;
+    if (selectedCategory === 'SHOPPING') return shoppingTotal;
+    return totalEmissions;
+  };
 
-  const totalEmissions = dailyData.reduce((acc, curr) => acc + getCategoryValueFromLog(curr, selectedCategory), 0);
-  const daysCount = dailyData.length || 1;
-  const dailyAvg = totalEmissions / daysCount;
+  const selectedTotalEmissions = getSelectedCategoryValue();
+
+  const getPeriodDays = () => {
+    if (periodType === 'DAILY') return 1;
+    if (periodType === 'WEEKLY') return 7;
+    if (periodType === 'MONTHLY') {
+      const [year, month] = selectedMonth.split('-');
+      return new Date(parseInt(year, 10), parseInt(month, 10), 0).getDate();
+    }
+    if (periodType === 'YEARLY') return 365;
+    if (periodType === 'CUSTOM') {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const diffTime = Math.abs(end - start);
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    }
+    return 30;
+  };
+
+  const periodDays = getPeriodDays();
+  const dailyAvg = selectedTotalEmissions / periodDays;
   const weeklyAvg = dailyAvg * 7;
   const monthlyAvg = dailyAvg * 30;
   const estimatedAnnual = dailyAvg * 365;
 
-  const peakDayObj = dailyData.reduce((max, item) => {
-    const val = getCategoryValueFromLog(item, selectedCategory);
-    return val > (max.val || 0) ? { date: item.date, val } : max;
+  const peakDayObj = trendData.reduce((max, item) => {
+    return item.emissions > (max.val || 0) ? { date: item.label, val: item.emissions } : max;
   }, { date: 'N/A', val: 0 });
 
-  const lowestDayObj = dailyData.reduce((min, item) => {
-    const val = getCategoryValueFromLog(item, selectedCategory);
-    return (min.val === undefined || val < min.val) ? { date: item.date, val } : min;
+  const lowestDayObj = trendData.reduce((min, item) => {
+    return (min.val === undefined || item.emissions < min.val) ? { date: item.label, val: item.emissions } : min;
   }, { date: 'N/A', val: undefined });
 
-  // Dynamic Chart Data mapping for Selected Category
-  const dailyChartData = dailyData.map(item => ({
-    date: item.date,
-    emissions: Number(getCategoryValueFromLog(item, selectedCategory).toFixed(1))
+  // Category percentage factor for trend charts
+  const categoryContributionPct = totalEmissions > 0 ? (selectedTotalEmissions / totalEmissions) : 1.0;
+
+  // Render trend data points
+  const activeTrendData = trendData.map(item => ({
+    label: item.label,
+    emissions: Number((item.emissions * categoryContributionPct).toFixed(1))
   }));
 
-  // Category percentage factor for weekly & monthly charts
-  const catShareObj = categoryBreakdown.find(c => c.category === selectedCategory);
-  const catShareFactor = selectedCategory === 'ALL' ? 1.0 : (catShareObj ? (catShareObj.percentageContribution / 100) : 0.25);
-
-  const weeklyChartData = weeklyData.map(item => ({
-    weekLabel: item.weekLabel,
-    emissions: Number((item.emissions * catShareFactor).toFixed(1))
-  }));
-
-  const monthlyChartData = monthlyData.map(item => ({
-    monthLabel: item.monthLabel,
-    emissions: Number((item.emissions * catShareFactor).toFixed(1))
-  }));
-
-  // Recommendations Filtered by Selected Category
-  const allRecommendations = [
-    { action: 'Switch to public transport twice a week', category: 'TRANSPORT', monthlySavings: 12.5, annualSavings: 150.0, difficulty: 'Easy', impact: 'High' },
-    { action: 'Carpool for work commutes', category: 'TRANSPORT', monthlySavings: 8.0, annualSavings: 96.0, difficulty: 'Easy', impact: 'Medium' },
-    { action: 'Lower AC temperature by 2 degrees & switch off standby electronics', category: 'ELECTRICITY', monthlySavings: 14.0, annualSavings: 168.0, difficulty: 'Medium', impact: 'High' },
-    { action: 'Upgrade home lighting to LEDs', category: 'ELECTRICITY', monthlySavings: 3.5, annualSavings: 42.0, difficulty: 'Easy', impact: 'Low' },
-    { action: 'Adopt 2 plant-based meals per week', category: 'FOOD', monthlySavings: 10.0, annualSavings: 120.0, difficulty: 'Easy', impact: 'Medium' },
-    { action: 'Reduce red meat consumption', category: 'FOOD', monthlySavings: 15.0, annualSavings: 180.0, difficulty: 'Medium', impact: 'High' },
-    { action: 'Limit fast fashion & practice 48-hour cool-off before non-essential buys', category: 'SHOPPING', monthlySavings: 8.0, annualSavings: 96.0, difficulty: 'Easy', impact: 'Medium' }
+  const categoryBreakdown = [
+    { category: 'TRANSPORT', emissionValue: transportTotal, percentageContribution: totalEmissions > 0 ? (transportTotal / totalEmissions) * 100 : 0 },
+    { category: 'ELECTRICITY', emissionValue: electricityTotal, percentageContribution: totalEmissions > 0 ? (electricityTotal / totalEmissions) * 100 : 0 },
+    { category: 'FOOD', emissionValue: foodTotal, percentageContribution: totalEmissions > 0 ? (foodTotal / totalEmissions) * 100 : 0 },
+    { category: 'SHOPPING', emissionValue: shoppingTotal, percentageContribution: totalEmissions > 0 ? (shoppingTotal / totalEmissions) * 100 : 0 }
   ];
 
+  // Recommendations Filtered by Selected Category
   const filteredRecommendations = selectedCategory === 'ALL'
-    ? allRecommendations
-    : allRecommendations.filter(r => r.category === selectedCategory);
+    ? recommendationsList
+    : recommendationsList.filter(r => r.category === selectedCategory);
 
   // Journey Timeline Demo Events
   const journeyEvents = [
@@ -203,18 +233,38 @@ const AnalyticsPage = () => {
   // Export PDF handler
   const handleDownloadPDF = async () => {
     try {
-      const response = await api.get('/api/v1/exports/user?format=pdf', {
+      const dates = getPeriodStartEndDates();
+      const response = await api.get(`/api/v1/exports/user?format=pdf&startDate=${dates.start}&endDate=${dates.end}`, {
         responseType: 'blob',
       });
       const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `carbon_analytics_report_${selectedCategory}_${new Date().toISOString().slice(0, 10)}.pdf`);
+      link.setAttribute('download', `carbon_analytics_report_${selectedCategory}_${dates.start}_to_${dates.end}.pdf`);
       document.body.appendChild(link);
       link.click();
       link.remove();
     } catch (err) {
       console.error('Failed to export PDF report', err);
+    }
+  };
+
+  // Export CSV handler
+  const handleDownloadCSV = async () => {
+    try {
+      const dates = getPeriodStartEndDates();
+      const response = await api.get(`/api/v1/exports/user?format=csv&startDate=${dates.start}&endDate=${dates.end}`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'text/csv' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `carbon_analytics_report_${selectedCategory}_${dates.start}_to_${dates.end}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      console.error('Failed to export CSV report', err);
     }
   };
 
@@ -232,33 +282,33 @@ const AnalyticsPage = () => {
         </Box>
 
         <Stack direction="row" spacing={1.5} flexWrap="wrap">
+          <Button variant="contained" color="primary" startIcon={<DownloadIcon />} onClick={handleDownloadCSV}>
+            Download CSV
+          </Button>
           <Button variant="contained" color="secondary" startIcon={<DownloadIcon />} onClick={handleDownloadPDF}>
             Download PDF
           </Button>
         </Stack>
       </Stack>
 
-      {/* FILTER CONTROLS BAR WITH CATEGORY DROPDOWN */}
+      {/* FILTER CONTROLS BAR */}
       <Paper className="glass-card" sx={{ p: 3, mb: 4, borderRadius: 4 }}>
         <Grid container spacing={2.5} alignItems="center">
-          {/* 1. Date Range Preset */}
+          {/* 1. Period Type Select */}
           <Grid item xs={12} sm={6} md={3}>
             <FormControl fullWidth size="small">
-              <InputLabel>Date Range Preset</InputLabel>
-              <Select value={presetRange} label="Date Range Preset" onChange={(e) => handlePresetChange(e.target.value)}>
-                <MenuItem value="TODAY">Today</MenuItem>
-                <MenuItem value="YESTERDAY">Yesterday</MenuItem>
-                <MenuItem value="LAST_7_DAYS">Last 7 Days</MenuItem>
-                <MenuItem value="LAST_30_DAYS">Last 30 Days</MenuItem>
-                <MenuItem value="THIS_MONTH">This Month</MenuItem>
-                <MenuItem value="LAST_MONTH">Last Month</MenuItem>
-                <MenuItem value="THIS_YEAR">This Year</MenuItem>
+              <InputLabel>Period Type</InputLabel>
+              <Select value={periodType} label="Period Type" onChange={(e) => setPeriodType(e.target.value)}>
+                <MenuItem value="DAILY">Daily Analytics</MenuItem>
+                <MenuItem value="WEEKLY">Weekly Analytics</MenuItem>
+                <MenuItem value="MONTHLY">Monthly Analytics</MenuItem>
+                <MenuItem value="YEARLY">Yearly Analytics</MenuItem>
                 <MenuItem value="CUSTOM">Custom Date Range</MenuItem>
               </Select>
             </FormControl>
           </Grid>
 
-          {/* 2. Category Dropdown Filter */}
+          {/* 2. Category Filter */}
           <Grid item xs={12} sm={6} md={3}>
             <FormControl fullWidth size="small">
               <InputLabel>Category Filter</InputLabel>
@@ -272,31 +322,88 @@ const AnalyticsPage = () => {
             </FormControl>
           </Grid>
 
-          {/* 3. Start Date */}
-          <Grid item xs={12} sm={6} md={2}>
-            <TextField
-              fullWidth
-              size="small"
-              type="date"
-              label="Start Date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-            />
-          </Grid>
+          {/* 3 & 4. Dynamic Period Inputs */}
+          {periodType === 'DAILY' && (
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                size="small"
+                type="date"
+                label="Select Date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+          )}
 
-          {/* 4. End Date */}
-          <Grid item xs={12} sm={6} md={2}>
-            <TextField
-              fullWidth
-              size="small"
-              type="date"
-              label="End Date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-            />
-          </Grid>
+          {periodType === 'WEEKLY' && (
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                size="small"
+                type="week"
+                label="Select Week"
+                value={selectedWeek}
+                onChange={(e) => setSelectedWeek(e.target.value)}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+          )}
+
+          {periodType === 'MONTHLY' && (
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                size="small"
+                type="month"
+                label="Select Month"
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+          )}
+
+          {periodType === 'YEARLY' && (
+            <Grid item xs={12} sm={6} md={4}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Select Year</InputLabel>
+                <Select value={selectedYear} label="Select Year" onChange={(e) => setSelectedYear(e.target.value)}>
+                  {[2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030].map(y => (
+                    <MenuItem key={y} value={y}>{y}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+          )}
+
+          {periodType === 'CUSTOM' && (
+            <>
+              <Grid item xs={12} sm={6} md={2}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="date"
+                  label="Start Date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={2}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="date"
+                  label="End Date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+            </>
+          )}
 
           {/* 5. Apply Filter */}
           <Grid item xs={12} md={2}>
@@ -373,7 +480,7 @@ const AnalyticsPage = () => {
               <Grid item xs={12} sm={6} md={3}>
                 <Paper className="glass-card" sx={{ p: 3 }}>
                   <Typography variant="caption" color="text.secondary">Total Period Emissions ({selectedCategory})</Typography>
-                  <Typography variant="h4" fontWeight={900} color="primary.main">{totalEmissions.toFixed(1)} kg</Typography>
+                  <Typography variant="h4" fontWeight={900} color="primary.main">{selectedTotalEmissions.toFixed(1)} kg</Typography>
                   <Typography variant="caption" color="text.secondary">CO₂ equivalent</Typography>
                 </Paper>
               </Grid>
@@ -404,15 +511,15 @@ const AnalyticsPage = () => {
 
               <Grid item xs={12} sm={6} md={3}>
                 <Paper className="glass-card" sx={{ p: 3 }}>
-                  <Typography variant="caption" color="text.secondary">Total Activities Logged</Typography>
-                  <Typography variant="h4" fontWeight={900} color="secondary.main">{filteredLogs.length}</Typography>
-                  <Typography variant="caption" color="text.secondary">Verified log entries</Typography>
+                  <Typography variant="caption" color="text.secondary">Previous Period Emissions</Typography>
+                  <Typography variant="h4" fontWeight={900} color="secondary.main">{previousPeriodEmissions.toFixed(1)} kg</Typography>
+                  <Typography variant="caption" color="text.secondary">Baseline comparison</Typography>
                 </Paper>
               </Grid>
 
               <Grid item xs={12} sm={6} md={3}>
                 <Paper className="glass-card" sx={{ p: 3 }}>
-                  <Typography variant="caption" color="text.secondary">Peak Emission Day</Typography>
+                  <Typography variant="caption" color="text.secondary">Peak Emission Point</Typography>
                   <Typography variant="h5" fontWeight={800} color="error.main">{peakDayObj.date || 'N/A'}</Typography>
                   <Typography variant="caption" color="text.secondary">{peakDayObj.val !== undefined ? `${peakDayObj.val.toFixed(1)} kg CO₂` : 'No data'}</Typography>
                 </Paper>
@@ -420,7 +527,7 @@ const AnalyticsPage = () => {
 
               <Grid item xs={12} sm={6} md={3}>
                 <Paper className="glass-card" sx={{ p: 3 }}>
-                  <Typography variant="caption" color="text.secondary">Lowest Emission Day</Typography>
+                  <Typography variant="caption" color="text.secondary">Lowest Emission Point</Typography>
                   <Typography variant="h5" fontWeight={800} color="success.main">{lowestDayObj.date || 'N/A'}</Typography>
                   <Typography variant="caption" color="text.secondary">{lowestDayObj.val !== undefined ? `${lowestDayObj.val.toFixed(1)} kg CO₂` : 'No data'}</Typography>
                 </Paper>
@@ -428,11 +535,11 @@ const AnalyticsPage = () => {
 
               <Grid item xs={12} sm={6} md={3}>
                 <Paper className="glass-card" sx={{ p: 3 }}>
-                  <Typography variant="caption" color="text.secondary">Estimated Carbon Saved</Typography>
-                  <Typography variant="h4" fontWeight={900} color="success.main">
-                    {(selectedCategory === 'ALL' ? 24.5 : 12.0).toFixed(1)} kg
+                  <Typography variant="caption" color="text.secondary">Period Difference & Change</Typography>
+                  <Typography variant="h4" fontWeight={900} color={percentageChange <= 0 ? "success.main" : "error.main"}>
+                    {percentageChange.toFixed(1)}%
                   </Typography>
-                  <Typography variant="caption" color="text.secondary">Compared to baseline</Typography>
+                  <Typography variant="caption" color="text.secondary">Trend status: {trendLabel}</Typography>
                 </Paper>
               </Grid>
             </Grid>
@@ -448,29 +555,29 @@ const AnalyticsPage = () => {
                 <Paper className="glass-card" sx={{ p: 3 }}>
                   <Typography variant="subtitle2" color="text.secondary" gutterBottom>Sustainability Score</Typography>
                   <Stack direction="row" alignItems="center" spacing={2} my={1}>
-                    <Typography variant="h3" fontWeight={900} color="primary.main">82 / 100</Typography>
-                    <Chip label="Excellent" color="success" size="small" />
+                    <Typography variant="h3" fontWeight={900} color="primary.main">{sustainabilityScore.toFixed(0)} / 100</Typography>
+                    <Chip label={sustainabilityScore >= 80 ? "Excellent" : sustainabilityScore >= 60 ? "Good" : "Needs Improvement"} color={sustainabilityScore >= 70 ? "success" : "warning"} size="small" />
                   </Stack>
-                  <LinearProgress variant="determinate" value={82} sx={{ height: 8, borderRadius: 4 }} />
+                  <LinearProgress variant="determinate" value={sustainabilityScore} sx={{ height: 8, borderRadius: 4 }} />
                 </Paper>
               </Grid>
 
               <Grid item xs={12} md={4}>
                 <Paper className="glass-card" sx={{ p: 3 }}>
-                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>Estimated Annual Footprint ({selectedCategory})</Typography>
+                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>Estimated Annual Trajectory ({selectedCategory})</Typography>
                   <Typography variant="h3" fontWeight={900}>{estimatedAnnual.toFixed(0)} kg</Typography>
-                  <Typography variant="caption" color="text.secondary">CO₂e annual trajectory</Typography>
+                  <Typography variant="caption" color="text.secondary">CO₂e annual projected footprint</Typography>
                 </Paper>
               </Grid>
 
               <Grid item xs={12} md={4}>
                 <Paper className="glass-card" sx={{ p: 3 }}>
-                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>Goal Achievement Probability</Typography>
+                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>Goal Target Success Odds</Typography>
                   <Stack direction="row" alignItems="center" spacing={2} my={1}>
-                    <Typography variant="h3" fontWeight={900} color="secondary.main">86%</Typography>
-                    <Chip label="High Chance" color="primary" size="small" />
+                    <Typography variant="h3" fontWeight={900} color="secondary.main">{Math.max(30, Math.min(98, Math.round(sustainabilityScore + 5)))}%</Typography>
+                    <Chip label="Calculated Odds" color="primary" size="small" />
                   </Stack>
-                  <LinearProgress variant="determinate" value={86} color="secondary" sx={{ height: 8, borderRadius: 4 }} />
+                  <LinearProgress variant="determinate" value={Math.max(30, Math.min(98, Math.round(sustainabilityScore + 5)))} color="secondary" sx={{ height: 8, borderRadius: 4 }} />
                 </Paper>
               </Grid>
             </Grid>
@@ -499,56 +606,42 @@ const AnalyticsPage = () => {
       {/* TAB 1: BREAKDOWN & COMPARISON CHARTS */}
       {activeTab === 1 && (
         <Grid container spacing={4}>
-          {/* Daily Trend Line Chart for Selected Category */}
+          {/* Active Period Trend Chart */}
           <Grid item xs={12} md={6}>
             <Paper className="glass-card" sx={{ p: 3, borderRadius: 4, height: 400 }}>
               <Typography variant="h6" fontWeight={700} gutterBottom>
-                Daily Emissions ({selectedCategory})
+                {periodType === 'DAILY' && `Daily Emissions Trend (Last 7 Days - ${selectedCategory})`}
+                {periodType === 'WEEKLY' && `Weekly Emissions Trend (Last 4 Weeks - ${selectedCategory})`}
+                {periodType === 'MONTHLY' && `Monthly Emissions Trend (Last 6 Months - ${selectedCategory})`}
+                {periodType === 'YEARLY' && `Monthly Emissions Breakdown (${selectedYear} - ${selectedCategory})`}
+                {periodType === 'CUSTOM' && `Custom Range Emissions Trend (${selectedCategory})`}
               </Typography>
               <ResponsiveContainer width="100%" height="85%">
-                <LineChart data={dailyChartData}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="emissions" stroke={categoryColors[selectedCategory] || '#10b981'} strokeWidth={3} dot={{ r: 4 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </Paper>
-          </Grid>
-
-          {/* Weekly Trend Area Chart for Selected Category */}
-          <Grid item xs={12} md={6}>
-            <Paper className="glass-card" sx={{ p: 3, borderRadius: 4, height: 400 }}>
-              <Typography variant="h6" fontWeight={700} gutterBottom>
-                Weekly Emissions ({selectedCategory})
-              </Typography>
-              <ResponsiveContainer width="100%" height="85%">
-                <AreaChart data={weeklyChartData}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                  <XAxis dataKey="weekLabel" />
-                  <YAxis />
-                  <Tooltip />
-                  <Area type="monotone" dataKey="emissions" stroke="#3b82f6" fill="#3b82f633" strokeWidth={2} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </Paper>
-          </Grid>
-
-          {/* Monthly Trend Bar Chart for Selected Category */}
-          <Grid item xs={12} md={6}>
-            <Paper className="glass-card" sx={{ p: 3, borderRadius: 4, height: 400 }}>
-              <Typography variant="h6" fontWeight={700} gutterBottom>
-                Monthly Emissions ({selectedCategory})
-              </Typography>
-              <ResponsiveContainer width="100%" height="85%">
-                <BarChart data={monthlyChartData}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                  <XAxis dataKey="monthLabel" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="emissions" fill="#8b5cf6" radius={[6, 6, 0, 0]} />
-                </BarChart>
+                {periodType === 'DAILY' || periodType === 'CUSTOM' ? (
+                  <LineChart data={activeTrendData}>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                    <XAxis dataKey="label" />
+                    <YAxis />
+                    <Tooltip />
+                    <Line type="monotone" dataKey="emissions" stroke={categoryColors[selectedCategory] || '#10b981'} strokeWidth={3} dot={{ r: 4 }} />
+                  </LineChart>
+                ) : periodType === 'WEEKLY' ? (
+                  <AreaChart data={activeTrendData}>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                    <XAxis dataKey="label" />
+                    <YAxis />
+                    <Tooltip />
+                    <Area type="monotone" dataKey="emissions" stroke="#3b82f6" fill="#3b82f633" strokeWidth={2} />
+                  </AreaChart>
+                ) : (
+                  <BarChart data={activeTrendData}>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                    <XAxis dataKey="label" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="emissions" fill="#8b5cf6" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                )}
               </ResponsiveContainer>
             </Paper>
           </Grid>
@@ -635,18 +728,30 @@ const AnalyticsPage = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredRecommendations.map((rec, index) => (
-                  <TableRow key={index} hover>
-                    <TableCell fontWeight={600}>{rec.action}</TableCell>
-                    <TableCell>
-                      <Chip label={rec.category} size="small" style={{ backgroundColor: `${categoryColors[rec.category]}22`, color: categoryColors[rec.category], fontWeight: 700 }} />
+                {filteredRecommendations.length > 0 ? (
+                  filteredRecommendations.map((rec, index) => (
+                    <TableRow key={index} hover>
+                      <TableCell sx={{ fontWeight: 600 }}>{rec.action}</TableCell>
+                      <TableCell>
+                        <Chip label={rec.category} size="small" style={{ backgroundColor: `${categoryColors[rec.category]}22`, color: categoryColors[rec.category], fontWeight: 700 }} />
+                      </TableCell>
+                      <TableCell sx={{ color: 'success.main', fontWeight: 700 }}>{rec.estimatedSavings.includes("reduction:") ? rec.estimatedSavings.split("reduction:")[1].trim() : rec.estimatedSavings}</TableCell>
+                      <TableCell sx={{ color: 'success.main', fontWeight: 700 }}>
+                        {rec.estimatedSavings.includes("reduction:") ? 
+                          (parseFloat(rec.estimatedSavings.split("reduction:")[1].split(" ")[1]) * 12).toFixed(1) + " kg CO₂" : 
+                          "N/A"}
+                      </TableCell>
+                      <TableCell><Chip label={rec.difficulty} size="small" variant="outlined" /></TableCell>
+                      <TableCell><Chip label={rec.impact} color={rec.impact === 'High' ? 'primary' : 'default'} size="small" /></TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center" sx={{ color: 'text.secondary', py: 3 }}>
+                      No recommendations found for this category and period. Keep logging activities!
                     </TableCell>
-                    <TableCell sx={{ color: 'success.main', fontWeight: 700 }}>{rec.monthlySavings} kg CO₂</TableCell>
-                    <TableCell sx={{ color: 'success.main', fontWeight: 700 }}>{rec.annualSavings} kg CO₂</TableCell>
-                    <TableCell><Chip label={rec.difficulty} size="small" variant="outlined" /></TableCell>
-                    <TableCell><Chip label={rec.impact} color={rec.impact === 'High' ? 'primary' : 'default'} size="small" /></TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </Paper>
@@ -712,15 +817,15 @@ const AnalyticsPage = () => {
               <Paper className="glass-card" sx={{ p: 3, textAlign: 'center' }}>
                 <Typography variant="subtitle2" color="text.secondary">Platform Average</Typography>
                 <Typography variant="h3" fontWeight={900} color="primary.main">{benchmark?.platformAverage || 45.2} kg</Typography>
-                <Typography variant="caption" color="text.secondary">Monthly active user average</Typography>
+                <Typography variant="caption" color="text.secondary">Active user average for this period</Typography>
               </Paper>
             </Grid>
 
             <Grid item xs={12} md={4}>
               <Paper className="glass-card" sx={{ p: 3, textAlign: 'center' }}>
                 <Typography variant="subtitle2" color="text.secondary">Your Footprint ({selectedCategory})</Typography>
-                <Typography variant="h3" fontWeight={900}>{totalEmissions.toFixed(1)} kg</Typography>
-                <Typography variant="caption" color="text.secondary">Current period emissions</Typography>
+                <Typography variant="h3" fontWeight={900}>{selectedTotalEmissions.toFixed(1)} kg</Typography>
+                <Typography variant="caption" color="text.secondary">Current period footprint</Typography>
               </Paper>
             </Grid>
 

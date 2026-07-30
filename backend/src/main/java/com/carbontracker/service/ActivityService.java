@@ -37,6 +37,13 @@ public class ActivityService {
     @Autowired
     private AuditLogService auditLogService;
 
+    @Autowired
+    private RecommendationService recommendationService;
+
+    @Autowired
+    @org.springframework.context.annotation.Lazy
+    private AchievementService achievementService;
+
     @Transactional
     @org.springframework.cache.annotation.CacheEvict(value = "analytics", allEntries = true)
     public ActivityLog logActivity(ActivityLogRequest request, User user) {
@@ -68,6 +75,10 @@ public class ActivityService {
         // Audit logging
         auditLogService.log(user, "CREATE_ACTIVITY", "ActivityLog", savedLog.getId(), "Logged " + request.getActivityType() + ": " + carbonEmission + " kg CO2");
         auditLogService.logActivity(user, "CREATE", "Activity Log Creation", "Logged " + request.getActivityType() + ": " + carbonEmission + " kg CO2", "Dashboard", null, null);
+
+        if (achievementService != null) {
+            achievementService.awardPoints(user, 10, "Logged carbon activity: " + request.getActivityType());
+        }
 
         // Sync summaries and check achievements
         syncUserMetrics(user, request.getLogDate());
@@ -149,13 +160,31 @@ public class ActivityService {
 
     private void syncUserMetrics(User user, java.time.LocalDate date) {
         // Update the aggregated weekly carbon summaries
-        summaryService.updateSummaryForUserAndDate(user, date);
-        analyticsService.updateSummariesForUserAndDate(user, date);
+        if (summaryService != null) {
+            summaryService.updateSummaryForUserAndDate(user, date);
+        }
+        if (analyticsService != null) {
+            analyticsService.updateSummariesForUserAndDate(user, date);
+        }
 
         // Recalculate Active Goals progress
-        goalService.recalculateGoalsForUser(user);
+        if (goalService != null) {
+            goalService.recalculateGoalsForUser(user);
+        }
+
+        // Regenerate recommendations
+        if (recommendationService != null) {
+            recommendationService.refreshRecommendations(user);
+        }
 
         // Publish ActivityLoggedEvent to decouple and check badges
-        eventPublisher.publishEvent(new com.carbontracker.event.ActivityLoggedEvent(this, user));
+        if (eventPublisher != null) {
+            eventPublisher.publishEvent(new com.carbontracker.event.ActivityLoggedEvent(this, user));
+        }
+
+        // Evaluate achievements
+        if (achievementService != null) {
+            achievementService.checkAndAwardAchievements(user);
+        }
     }
 }

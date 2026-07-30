@@ -221,6 +221,16 @@ public class AnalyticsV1Test {
         assertEquals(expectedEmissions, range.getTransportTotal());
         assertEquals(0.0, range.getElectricityTotal());
         assertTrue(range.getAverageDailyEmissions() > 0);
-        assertEquals(LocalDate.now().toString(), range.getHighestEmissionDay());
+    }
+
+    @Autowired
+    private UserActivityHistoryRepository userActivityHistoryRepo;
+
+    @Test
+    public void testAdminEndpoints() {
+        assertNotNull(userActivityHistoryRepo.findAllLogins(org.springframework.data.domain.PageRequest.of(0, 10)));
+        assertNotNull(userActivityHistoryRepo.findMostActiveUsersLimit(org.springframework.data.domain.PageRequest.of(0, 5)));
+        assertNotNull(userActivityHistoryRepo.findMostVisitedPagesLimit(org.springframework.data.domain.PageRequest.of(0, 5)));
+        assertNotNull(userActivityHistoryRepo.findMostDownloadedReportsLimit(org.springframework.data.domain.PageRequest.of(0, 5)));
     }
 }

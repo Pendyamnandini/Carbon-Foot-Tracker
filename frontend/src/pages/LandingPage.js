@@ -270,21 +270,47 @@ const LandingPage = () => {
             <Typography variant="h4" fontWeight={800}>
               Comprehensive SaaS Platform Features
             </Typography>
-            <Typography variant="subtitle1" color="text.secondary" maxWidth="700px" mx="auto">
-              Built for precision, scalability, and seamless sustainability reporting across personal and organizational scopes.
+            <Typography variant="body1" color="text.secondary" maxWidth="600px" mx="auto" sx={{ fontSize: '0.95rem' }}>
+              Everything you need to measure emissions, complete eco challenges, and report zero carbon compliance.
             </Typography>
           </Stack>
 
-          <Grid container spacing={4}>
+          <Grid container spacing={3.5}>
             {features.map((feature, index) => (
               <Grid item xs={12} sm={6} md={4} key={index}>
-                <Card className="glass-card-hover" sx={{ height: '100%', p: 1 }}>
-                  <CardContent sx={{ p: 4 }}>
-                    <Box sx={{ mb: 2 }}>{feature.icon}</Box>
-                    <Typography variant="h6" fontWeight={700} gutterBottom>
+                <Card 
+                  className="glass-card-hover" 
+                  variant="outlined"
+                  sx={{ 
+                    height: '100%', 
+                    p: 1.5, 
+                    borderRadius: 4.5,
+                    background: theme => theme.palette.mode === 'dark' ? 'rgba(30,41,59,0.1)' : '#ffffff',
+                    borderColor: 'divider',
+                    transition: 'all 0.3s',
+                    '&:hover': {
+                      transform: 'translateY(-5px)',
+                      boxShadow: '0 15px 35px rgba(0,0,0,0.03)'
+                    }
+                  }}
+                >
+                  <CardContent sx={{ p: 2 }}>
+                    <Box sx={{ 
+                      mb: 2, 
+                      width: 56, 
+                      height: 56, 
+                      borderRadius: 3, 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      background: theme => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'
+                    }}>
+                      {feature.icon}
+                    </Box>
+                    <Typography variant="subtitle1" fontWeight={800} gutterBottom>
                       {feature.title}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6, fontSize: '0.85rem' }}>
                       {feature.description}
                     </Typography>
                   </CardContent>
@@ -295,30 +321,42 @@ const LandingPage = () => {
         </Box>
 
         {/* TESTIMONIALS */}
-        <Box sx={{ mb: 12 }}>
-          <Stack textAlign="center" spacing={2} sx={{ mb: 6 }}>
-            <Typography variant="h4" fontWeight={800}>
-              Trusted by Climate Champions
+        <Box sx={{ mb: 14 }}>
+          <Stack textAlign="center" spacing={2} sx={{ mb: 7 }}>
+            <Typography variant="h4" fontWeight={900} sx={{ letterSpacing: -0.5 }}>
+              What Sustainability Advocates Say
             </Typography>
-            <Typography variant="subtitle1" color="text.secondary">
-              See how CarbonTracker empowers individuals and businesses to meet zero-carbon goals.
+            <Typography variant="body1" color="text.secondary" sx={{ fontSize: '0.95rem' }}>
+              Real impact stories from businesses and individuals using CarbonTracker.
             </Typography>
           </Stack>
 
-          <Grid container spacing={4}>
+          <Grid container spacing={3.5}>
             {testimonials.map((item, index) => (
               <Grid item xs={12} md={4} key={index}>
-                <Paper className="glass-card" sx={{ p: 4, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRadius: 4 }}>
+                <Paper 
+                  variant="outlined"
+                  sx={{ 
+                    p: 4, 
+                    height: '100%', 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    justifyContent: 'space-between', 
+                    borderRadius: 5,
+                    background: theme => theme.palette.mode === 'dark' ? 'rgba(30,41,59,0.1)' : '#ffffff',
+                    borderColor: 'divider'
+                  }}
+                >
                   <Box>
-                    <FormatQuoteIcon sx={{ fontSize: 40, color: 'primary.main', opacity: 0.5, mb: 1 }} />
-                    <Typography variant="body1" sx={{ fontStyle: 'italic', mb: 3, lineHeight: 1.7 }}>
+                    <FormatQuoteIcon sx={{ fontSize: 36, color: 'primary.main', opacity: 0.3, mb: 1 }} />
+                    <Typography variant="body2" sx={{ fontStyle: 'italic', mb: 3, lineHeight: 1.7, fontSize: '0.9rem', color: 'text.secondary' }}>
                       "{item.quote}"
                     </Typography>
                   </Box>
                   <Stack direction="row" spacing={2} alignItems="center">
-                    <Avatar src={item.avatar} alt={item.author} sx={{ width: 48, height: 48 }} />
+                    <Avatar src={item.avatar} alt={item.author} sx={{ width: 42, height: 42 }} />
                     <Box>
-                      <Typography variant="subtitle2" fontWeight={700}>{item.author}</Typography>
+                      <Typography variant="subtitle2" fontWeight={800} sx={{ lineHeight: 1.2 }}>{item.author}</Typography>
                       <Typography variant="caption" color="text.secondary">{item.role}</Typography>
                     </Box>
                   </Stack>
@@ -328,23 +366,24 @@ const LandingPage = () => {
           </Grid>
         </Box>
 
-        {/* CALL TO ACTION BANNER */}
+        {/* CALL TO ACTION */}
         <Paper
-          elevation={6}
+          elevation={0}
           sx={{
-            p: { xs: 4, md: 8 },
+            p: { xs: 5, md: 8 },
             borderRadius: 6,
-            background: 'linear-gradient(135deg, #10b981 0%, #06b6d4 100%)',
+            background: 'linear-gradient(135deg, #0f766e 0%, #115e59 50%, #0d9488 100%)',
             color: '#ffffff',
             textAlign: 'center',
-            boxShadow: '0 20px 40px rgba(16, 185, 129, 0.3)'
+            boxShadow: '0 20px 40px rgba(15,118,110,0.2)',
+            border: '1px solid rgba(255,255,255,0.1)'
           }}
         >
-          <Typography variant="h3" fontWeight={900} gutterBottom sx={{ fontSize: { xs: '2rem', md: '2.8rem' } }}>
-            Ready to Take Control of Your Carbon Footprint?
+          <Typography variant="h3" fontWeight={900} gutterBottom sx={{ fontSize: { xs: '2rem', md: '2.8rem' }, letterSpacing: -1 }}>
+            Ready to Offset Your Footprint?
           </Typography>
-          <Typography variant="h6" sx={{ opacity: 0.9, mb: 4, maxWidth: 700, mx: 'auto', fontWeight: 400 }}>
-            Join thousands of users and organizations reducing their impact today. Free setup, no credit card required.
+          <Typography variant="subtitle1" sx={{ opacity: 0.85, mb: 4, maxWidth: 600, mx: 'auto', fontWeight: 400, fontSize: '1rem', lineHeight: 1.5 }}>
+            Join a global community tracking Scope 1, 2, and 3 carbon emissions. Completely free for development and demonstration.
           </Typography>
           <Button
             variant="contained"
@@ -355,13 +394,15 @@ const LandingPage = () => {
               px: 5,
               borderRadius: 3,
               fontWeight: 800,
-              fontSize: '1.1rem',
+              fontSize: '1.05rem',
               backgroundColor: '#ffffff',
               color: '#0f766e',
+              textTransform: 'none',
+              boxShadow: '0 10px 20px rgba(0,0,0,0.1)',
               '&:hover': { backgroundColor: '#f8fafc' }
             }}
           >
-            Start Tracking Free Now
+            Start Tracking Free
           </Button>
         </Paper>
       </Container>
