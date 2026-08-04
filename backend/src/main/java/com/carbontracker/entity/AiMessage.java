@@ -24,8 +24,7 @@ public class AiMessage {
     @Column(nullable = false)
     private String sender; // USER, BOT
 
-    @Lob
-    @Column(nullable = false)
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
     @CreationTimestamp
