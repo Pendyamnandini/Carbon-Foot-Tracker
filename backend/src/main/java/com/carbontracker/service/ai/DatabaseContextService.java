@@ -44,10 +44,24 @@ public class DatabaseContextService {
         List<ActivityLog> yesterdayLogs = activityLogRepository.findByUserIdAndLogDateBetween(userId, today.minusDays(1), today.minusDays(1));
         double yesterdayEmissions = yesterdayLogs.stream().mapToDouble(ActivityLog::getCarbonEmission).sum();
 
-        // 3. Find highest category today (or overall if none today)
+        // 3. All-time emissions & last 30 days emissions & averages
+        List<ActivityLog> allLogs = activityLogRepository.findByUserIdOrderByLogDateDesc(userId);
+        double allTimeTotal = allLogs.stream().mapToDouble(ActivityLog::getCarbonEmission).sum();
+        
+        LocalDate thirtyDaysAgo = today.minusDays(30);
+        double last30DaysTotal = allLogs.stream()
+                .filter(log -> !log.getLogDate().isBefore(thirtyDaysAgo))
+                .mapToDouble(ActivityLog::getCarbonEmission)
+                .sum();
+        
+        long logCount = allLogs.size();
+        double dailyAverage = logCount > 0 ? (last30DaysTotal / 30.0) : 0.0;
+
+        // 4. Find highest category today (or overall if none today)
         String highestCat = "";
-        if (!todayLogs.isEmpty()) {
-            Map<String, Double> catTotals = todayLogs.stream()
+        List<ActivityLog> targetLogs = todayLogs.isEmpty() ? allLogs : todayLogs;
+        if (!targetLogs.isEmpty()) {
+            Map<String, Double> catTotals = targetLogs.stream()
                     .collect(Collectors.groupingBy(log -> log.getCategory().name(), Collectors.summingDouble(ActivityLog::getCarbonEmission)));
             highestCat = catTotals.entrySet().stream()
                     .max(Map.Entry.comparingByValue())
@@ -55,11 +69,11 @@ public class DatabaseContextService {
                     .orElse("");
         }
 
-        // 4. Goals count
+        // 5. Goals count
         List<Goal> goals = goalRepository.findByUserId(userId);
         long activeGoals = goals.stream().filter(g -> GoalStatus.ACTIVE == g.getStatus()).count();
 
-        // 5. Recent audit logs for today/yesterday
+        // 6. Recent audit logs for today/yesterday
         List<UserActivityHistory> recentLogs = userActivityHistoryRepository.findTop10ByUserIdOrderByCreatedAtDesc(userId);
         StringBuilder auditStr = new StringBuilder();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
@@ -83,15 +97,27 @@ public class DatabaseContextService {
                 "User Role: %s\n" +
                 "Today's Emissions: %.2f kg CO2e\n" +
                 "Yesterday's Emissions: %.2f kg CO2e\n" +
+                "Last 30 Days Emissions: %.2f kg CO2e\n" +
+                "All-time Emissions: %.2f kg CO2e\n" +
+                "Daily Average: %.2f kg CO2e\n" +
+                "Total Logs Tracked: %d\n" +
                 "Highest Category: %s\n" +
                 "Active Goals: %d\n" +
+                "Reward Points: %d\n" +
+                "Level: %d\n" +
                 "Recent Audit Logs:\n%s",
                 user.getFullName(),
                 user.getRole().name(),
                 todayEmissions,
                 yesterdayEmissions,
-                highestCat.isEmpty() ? "None today" : highestCat,
+                last30DaysTotal,
+                allTimeTotal,
+                dailyAverage,
+                logCount,
+                highestCat.isEmpty() ? "None" : highestCat,
                 activeGoals,
+                user.getRewardPoints() != null ? user.getRewardPoints() : 0,
+                user.getLevel() != null ? user.getLevel() : 1,
                 auditStr.toString()
         );
     }

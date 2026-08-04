@@ -19,9 +19,17 @@ public class LocalHybridAIProvider implements AIProvider {
         String userRole = getValueFromPrompt(systemPrompt, "User Role: (.*)");
         String todayEmissions = getValueFromPrompt(systemPrompt, "Today's Emissions: (.*)");
         String yesterdayEmissions = getValueFromPrompt(systemPrompt, "Yesterday's Emissions: (.*)");
+        String last30DaysEmissions = getValueFromPrompt(systemPrompt, "Last 30 Days Emissions: (.*)");
+        String allTimeEmissions = getValueFromPrompt(systemPrompt, "All-time Emissions: (.*)");
+        String dailyAverage = getValueFromPrompt(systemPrompt, "Daily Average: (.*)");
+        String totalLogsTracked = getValueFromPrompt(systemPrompt, "Total Logs Tracked: (.*)");
         String highestCategory = getValueFromPrompt(systemPrompt, "Highest Category: (.*)");
         String activeGoals = getValueFromPrompt(systemPrompt, "Active Goals: (.*)");
         String recentChanges = getValueFromPrompt(systemPrompt, "Recent Audit Logs: (.*)");
+        String level = getValueFromPrompt(systemPrompt, "Level: (.*)");
+        String rewardPoints = getValueFromPrompt(systemPrompt, "Reward Points: (.*)");
+        
+        // Admin values
         String activeUsersToday = getValueFromPrompt(systemPrompt, "Active Users Logged In Today: (.*)");
         String activeUserDetails = getValueFromPrompt(systemPrompt, "User Logins Details: (.*)");
         String totalUsers = getValueFromPrompt(systemPrompt, "Total Registered Users: (.*)");
@@ -31,7 +39,7 @@ public class LocalHybridAIProvider implements AIProvider {
         if ("admin".equalsIgnoreCase(userRole)) {
             if (msg.contains("user") && (msg.contains("log") || msg.contains("active") || msg.contains("today"))) {
                 return "### 👥 Active Users Today\n\n" +
-                       "There are currently **" + activeUsersToday + "** user(s) logged in today.\n\n" +
+                       "There are currently **" + activeUsersToday + "** active user(s) logged in today.\n\n" +
                        "**Login Details:**\n" + activeUserDetails;
             }
             if (msg.contains("total") || msg.contains("registration") || msg.contains("grow")) {
@@ -53,23 +61,47 @@ public class LocalHybridAIProvider implements AIProvider {
         }
 
         // 3. Route based on Standard User questions
-        if (msg.contains("today") && (msg.contains("emission") || msg.contains("carbon") || msg.contains("footprint"))) {
-            double em = parseDoubleOrZero(todayEmissions);
-            if (em == 0.0) {
-                return "You have recorded **0.0 kg CO₂e** in carbon emissions today. Great job! Keep logging your activities to maintain a clear sustainability overview.";
+        
+        // Explain dashboard / emissions details
+        if (msg.contains("explain") || msg.contains("detail") || msg.contains("status") || msg.contains("footprint") || msg.contains("dashboard")) {
+            if (msg.contains("today")) {
+                return "### 📅 Today's Footprint Summary\n\n" +
+                       "- **Today's Emissions:** " + todayEmissions + "\n" +
+                       "- **Highest Category Source:** " + (highestCategory.isEmpty() ? "None recorded" : highestCategory) + "\n\n" +
+                       "Logging your activities daily keeps your tracker precise and allows the AI engine to generate detailed sustainability suggestions.";
             }
-            return "Your carbon footprint today is **" + todayEmissions + " kg CO₂e**. " +
-                   (highestCategory.isEmpty() ? "" : "Your highest source of emissions is **" + highestCategory + "**.") +
-                   " Try using public transit or energy-saving utilities to reduce this further.";
+            if (msg.contains("yesterday")) {
+                return "### 📅 Yesterday's Footprint Summary\n\n" +
+                       "- **Yesterday's Emissions:** " + yesterdayEmissions + "\n" +
+                       "- **Compared to Today:** " + todayEmissions + "\n\n" +
+                       "Analyzing daily fluctuations helps target peak emissions and adjust utility settings.";
+            }
+            
+            // General dashboard overview
+            return "### 📊 Your Carbon Footprint Deep-Dive\n\n" +
+                   "Here is a comprehensive breakdown of your tracked emissions:\n\n" +
+                   "| Metric | Tracked Value |\n" +
+                   "| :--- | :--- |\n" +
+                   "| **Today's Emissions** | " + todayEmissions + " |\n" +
+                   "| **Yesterday's Emissions** | " + yesterdayEmissions + " |\n" +
+                   "| **Last 30 Days Total** | " + last30DaysEmissions + " |\n" +
+                   "| **All-time Emissions** | " + allTimeEmissions + " |\n" +
+                   "| **Daily Average** | " + dailyAverage + " |\n" +
+                   "| **Total Logs Tracked** | " + totalLogsTracked + " logs |\n" +
+                   "| **Active Goals** | " + activeGoals + " goals |\n" +
+                   "| **Carbon Reward Level** | Level " + level + " (" + rewardPoints + " points) |\n\n" +
+                   "**Highest Contributor:** " + (highestCategory.isEmpty() ? "No active category data" : highestCategory) + ".\n\n" +
+                   "Would you like advice on reducing emissions or details on your goals?";
+        }
+
+        if (msg.contains("today") && (msg.contains("emission") || msg.contains("carbon") || msg.contains("footprint"))) {
+            return "Your carbon footprint today is **" + todayEmissions + "**. " +
+                   (highestCategory.isEmpty() ? "" : "Your highest source of emissions is **" + highestCategory + "**.");
         }
 
         if (msg.contains("yesterday") && (msg.contains("emission") || msg.contains("carbon") || msg.contains("footprint"))) {
-            double em = parseDoubleOrZero(yesterdayEmissions);
-            if (em == 0.0) {
-                return "You have recorded **0.0 kg CO₂e** in carbon emissions for yesterday. Keep logging daily utilities and transport to get accurate historical trends.";
-            }
-            return "Your carbon footprint yesterday was **" + yesterdayEmissions + " kg CO₂e**. " +
-                   "Compared to today (" + todayEmissions + " kg CO₂e), this represents a key shift. Analyzing this variation helps target high-impact reduction opportunities.";
+            return "Your carbon footprint yesterday was **" + yesterdayEmissions + "**. " +
+                   "Compared to today (" + todayEmissions + "), analyzing this variation helps target high-impact reduction opportunities.";
         }
 
         if (msg.contains("log") || msg.contains("change") || msg.contains("did i")) {
@@ -123,8 +155,9 @@ public class LocalHybridAIProvider implements AIProvider {
         // 5. Default General Response
         return "Hello **" + userName + "**! I am your AI Carbon Assistant. I can track your daily footprint, explain charts, summarize goals, and give personalized sustainability tips.\n\n" +
                "**Currently Tracked Metrics:**\n" +
-               "- Today's Footprint: **" + todayEmissions + " kg CO₂e**\n" +
-               "- Yesterday's Footprint: **" + yesterdayEmissions + " kg CO₂e**\n" +
+               "- Today's Footprint: **" + todayEmissions + "**\n" +
+               "- Yesterday's Footprint: **" + yesterdayEmissions + "**\n" +
+               "- Last 30 Days Total: **" + last30DaysEmissions + "**\n" +
                "- Active Targets: **" + activeGoals + "**\n\n" +
                "Ask me anything about your emissions, goals, recent logins/changes, or general sustainability concepts!";
     }
@@ -140,13 +173,5 @@ public class LocalHybridAIProvider implements AIProvider {
             // Ignore
         }
         return "";
-    }
-
-    private double parseDoubleOrZero(String value) {
-        try {
-            return Double.parseDouble(value.replaceAll("[^0-9.]", ""));
-        } catch (Exception e) {
-            return 0.0;
-        }
     }
 }
