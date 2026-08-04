@@ -23,6 +23,45 @@ public class DBResetTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private AiConversationRepository aiConversationRepository;
+    
+    @Autowired
+    private AiMessageRepository aiMessageRepository;
+
+    @Test
+    @Transactional
+    public void verifyChatbotDatabaseTables() {
+        System.out.println(">>> DBResetTest: Verifying Chatbot Database tables...");
+        
+        long initialCount = aiConversationRepository.count();
+        System.out.println("  Initial ai_conversations count: " + initialCount);
+        
+        AiConversation testConv = AiConversation.builder()
+                .title("Verify Database Test")
+                .userId(1L)
+                .role("USER")
+                .build();
+        testConv = aiConversationRepository.save(testConv);
+        System.out.println("  Successfully saved test conversation. ID: " + testConv.getId());
+        
+        AiMessage testMsg = AiMessage.builder()
+                .conversationId(testConv.getId())
+                .sender("BOT")
+                .content("Database tables verified successfully!")
+                .build();
+        testMsg = aiMessageRepository.save(testMsg);
+        System.out.println("  Successfully saved test message. ID: " + testMsg.getId());
+        
+        long newCount = aiConversationRepository.count();
+        System.out.println("  New ai_conversations count: " + newCount);
+        
+        aiMessageRepository.delete(testMsg);
+        aiConversationRepository.delete(testConv);
+        System.out.println("  Cleaned up test conversation and message. Final count: " + aiConversationRepository.count());
+        System.out.println(">>> DBResetTest: Chatbot Database verification PASSED!");
+    }
+
     @Test
     @Rollback(false)
     public void resetAdminPassword() {
