@@ -14,48 +14,50 @@ import NaturePeopleIcon from '@mui/icons-material/NaturePeople';
 import SpeedIcon from '@mui/icons-material/Speed';
 import { useTheme } from '@mui/material/styles';
 import { ColorModeContext } from '../App';
+import { useTranslation } from '../context/LanguageContext';
 
 const LandingPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const theme = useTheme();
   const colorMode = useContext(ColorModeContext);
 
   const stats = [
-    { label: 'Total Emissions Tracked', value: '1,245,800 kg', subtext: 'CO₂ equivalent' },
-    { label: 'Active Eco Warriors', value: '28,400+', subtext: 'Global users' },
-    { label: 'Sustainability Goals', value: '14,250', subtext: 'Achieved this year' },
-    { label: 'Net Carbon Saved', value: '382,500 kg', subtext: 'Verified reduction' }
+    { label: t('landing.statsTotalEmissions'), value: '1,245,800 kg', subtext: t('landing.co2Equiv') },
+    { label: t('landing.statsActiveWarriors'), value: '28,400+', subtext: t('landing.globalUsers') },
+    { label: t('landing.statsGoals'), value: '14,250', subtext: t('landing.achievedThisYear') },
+    { label: t('landing.statsCarbonSaved'), value: '382,500 kg', subtext: t('landing.verifiedReduction') }
   ];
 
   const features = [
     {
-      title: 'Automated Activity Logging',
-      description: 'Log transport, electricity, food, and shopping habits effortlessly with intelligent real-time carbon conversion factors.',
+      title: t('landing.feature1Title'),
+      description: t('landing.feature1Desc'),
       icon: <TravelExploreIcon color="primary" sx={{ fontSize: 44 }} />
     },
     {
-      title: 'Category Intelligence & Forecasts',
-      description: 'Deep dive into 4 core emission categories with predictive trend lines, peak day analysis, and YoY period comparisons.',
+      title: t('landing.feature2Title'),
+      description: t('landing.feature2Desc'),
       icon: <AutoGraphIcon color="secondary" sx={{ fontSize: 44 }} />
     },
     {
-      title: 'Personalized Recommendations',
-      description: 'Get actionable eco-tips calculated with estimated monthly and annual carbon savings tailored to your consumption habits.',
+      title: t('dashboard.tabRecommendations'),
+      description: t('dashboard.tailoredRecsSubtitle'),
       icon: <Co2Icon color="primary" sx={{ fontSize: 44 }} />
     },
     {
-      title: 'Leaderboard & Achievements',
-      description: 'Earn gamified eco-badges (Eco Saver, 7-Day Streak) and climb the platform rankings as you reduce your footprint.',
+      title: t('profile.tabAchievements'),
+      description: t('leaderboard.subtitle'),
       icon: <EmojiEventsIcon color="secondary" sx={{ fontSize: 44 }} />
     },
     {
-      title: 'Enterprise Benchmarking',
-      description: 'Compare your progress against platform averages and organization benchmarks with percentile ranking insights.',
+      title: t('nav.benchmarking'),
+      description: t('dashboard.howYouCompare'),
       icon: <SpeedIcon color="primary" sx={{ fontSize: 44 }} />
     },
     {
-      title: 'Audit-Ready Export Center',
-      description: 'Generate comprehensive PDF and CSV sustainability compliance reports for personal audit or enterprise reporting.',
+      title: t('nav.reports'),
+      description: t('dashboard.analyticsSubtitle'),
       icon: <SecurityIcon color="secondary" sx={{ fontSize: 44 }} />
     }
   ];
@@ -100,17 +102,17 @@ const LandingPage = () => {
               <Box>
                 <Chip
                   icon={<NaturePeopleIcon />}
-                  label="Next-Gen Sustainability Analytics Platform"
+                  label={t('landing.badge')}
                   color="primary"
                   variant="outlined"
                   sx={{ fontWeight: 600, px: 1, py: 0.5, borderRadius: 3 }}
                 />
               </Box>
               <Typography variant="h2" fontWeight={900} sx={{ fontSize: { xs: '2.5rem', md: '3.5rem' }, lineHeight: 1.15, letterSpacing: '-0.02em' }}>
-                Empower Your Journey To <Box component="span" sx={{ background: 'linear-gradient(135deg, #10b981 0%, #06b6d4 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Zero Emissions</Box>
+                {t('landing.heroTitle')}
               </Typography>
               <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400, lineHeight: 1.6 }}>
-                Track daily activities across transport, electricity, food, and shopping. Benefit from real-time analytics, predictive forecasting, automated goal alerts, and enterprise benchmarking.
+                {t('landing.heroSubtitle')}
               </Typography>
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ pt: 1 }}>
                 <Button
@@ -121,7 +123,7 @@ const LandingPage = () => {
                   onClick={() => navigate('/register')}
                   sx={{ py: 1.8, px: 4, borderRadius: 3, fontWeight: 700, fontSize: '1.05rem', boxShadow: '0 10px 25px rgba(16, 185, 129, 0.3)' }}
                 >
-                  Get Started Free
+                  {t('landing.getStarted')}
                 </Button>
                 <Button
                   variant="outlined"
@@ -130,7 +132,7 @@ const LandingPage = () => {
                   onClick={() => navigate('/login')}
                   sx={{ py: 1.8, px: 4, borderRadius: 3, fontWeight: 600, fontSize: '1.05rem', borderColor: 'divider' }}
                 >
-                  Sign In to Portal
+                  {t('auth.login')}
                 </Button>
               </Stack>
             </Stack>
@@ -194,29 +196,29 @@ const LandingPage = () => {
           <Grid container spacing={6} alignItems="center">
             <Grid item xs={12} md={6}>
               <Typography variant="h4" fontWeight={800} gutterBottom sx={{ mb: 3 }}>
-                Why Carbon Footprint Monitoring Matters
+                {t('landing.awarenessTitle')}
               </Typography>
               <Typography variant="body1" color="text.secondary" paragraph sx={{ lineHeight: 1.8 }}>
-                Human activities generate greenhouse gases that accelerate global climate change. Every commute, electricity bill, dietary choice, and retail purchase carries a hidden carbon cost.
+                {t('landing.awarenessDesc1')}
               </Typography>
               <Typography variant="body1" color="text.secondary" paragraph sx={{ lineHeight: 1.8 }}>
-                By establishing a clear baseline and measuring daily outputs, individuals and organizations can target impactful reductions, unlock financial savings, and drive meaningful environmental stewardship.
+                {t('landing.awarenessDesc2')}
               </Typography>
               <Stack direction="row" spacing={3} sx={{ mt: 3 }}>
                 <Box>
-                  <Typography variant="h4" fontWeight={800} color="secondary.main">4.8 Tons</Typography>
-                  <Typography variant="caption" color="text.secondary">Avg. Annual Global Footprint per Person</Typography>
+                  <Typography variant="h4" fontWeight={800} color="secondary.main">{t('landing.awarenessStat1Val')}</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('landing.awarenessStat1Lbl')}</Typography>
                 </Box>
                 <Box>
-                  <Typography variant="h4" fontWeight={800} color="primary.main">2.0 Tons</Typography>
-                  <Typography variant="caption" color="text.secondary">Target Footprint to Halt Global Warming</Typography>
+                  <Typography variant="h4" fontWeight={800} color="primary.main">{t('landing.awarenessStat2Val')}</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('landing.awarenessStat2Lbl')}</Typography>
                 </Box>
               </Stack>
             </Grid>
             <Grid item xs={12} md={6}>
               <Paper className="glass-card" sx={{ p: 4, borderRadius: 4 }}>
                 <Typography variant="h6" fontWeight={700} gutterBottom sx={{ color: 'primary.main', display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <SpeedIcon /> Carbon Impact Breakdown
+                  <SpeedIcon /> {t('landing.impactBreakdown')}
                 </Typography>
                 <Stack spacing={2.5} sx={{ mt: 3 }}>
                   <Box>
@@ -324,10 +326,10 @@ const LandingPage = () => {
         <Box sx={{ mb: 14 }}>
           <Stack textAlign="center" spacing={2} sx={{ mb: 7 }}>
             <Typography variant="h4" fontWeight={900} sx={{ letterSpacing: -0.5 }}>
-              What Sustainability Advocates Say
+              {t('landing.testimonialsTitle')}
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ fontSize: '0.95rem' }}>
-              Real impact stories from businesses and individuals using CarbonTracker.
+              {t('landing.testimonialsSubtitle')}
             </Typography>
           </Stack>
 
@@ -380,10 +382,10 @@ const LandingPage = () => {
           }}
         >
           <Typography variant="h3" fontWeight={900} gutterBottom sx={{ fontSize: { xs: '2rem', md: '2.8rem' }, letterSpacing: -1 }}>
-            Ready to Offset Your Footprint?
+            {t('landing.ctaTitle')}
           </Typography>
           <Typography variant="subtitle1" sx={{ opacity: 0.85, mb: 4, maxWidth: 600, mx: 'auto', fontWeight: 400, fontSize: '1rem', lineHeight: 1.5 }}>
-            Join a global community tracking Scope 1, 2, and 3 carbon emissions. Completely free for development and demonstration.
+            {t('landing.ctaDesc')}
           </Typography>
           <Button
             variant="contained"

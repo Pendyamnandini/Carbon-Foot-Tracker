@@ -93,6 +93,7 @@ public class ProfileController {
         if (request.getState() != null) user.setState(request.getState());
         if (request.getCity() != null) user.setCity(request.getCity());
         if (request.getProfileImageUrl() != null) user.setProfileImageUrl(request.getProfileImageUrl());
+        if (request.getLanguage() != null) user.setLanguage(request.getLanguage());
 
         User updatedUser = userRepository.save(user);
 
@@ -131,6 +132,7 @@ public class ProfileController {
                 .country(user.getCountry())
                 .state(user.getState())
                 .city(user.getCity())
+                .language(user.getLanguage())
                 .build();
     }
 }

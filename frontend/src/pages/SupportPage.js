@@ -23,33 +23,35 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import LanguageIcon from '@mui/icons-material/Language';
 
 import api from '../api';
-import { translate } from '../components/translations';
+import { useTranslation } from '../context/LanguageContext';
 
-const FAQS = [
-  {
-    question: "How is my carbon footprint calculated?",
-    answer: "Your carbon footprint is calculated based on international standard emission factors. We track key categories like Transport (fuel consumption and distance), Electricity (utility bill usage), Food (diet choices), and Shopping. These inputs are multiplied by respective greenhouse gas coefficients to output your footprint in kg CO₂ equivalents."
-  },
-  {
-    question: "What are carbon reduction goals and how do they work?",
-    answer: "Goals allow you to commit to reduction targets over daily, weekly, or monthly periods. For example, you can set a goal to reduce electricity usage by 15% this month. The dashboard tracks your progress automatically as you log carbon-reducing activities."
-  },
-  {
-    question: "How do I earn reward points and level up?",
-    answer: "You earn points by logging sustainable activities (+10 pts), completing goals (+50 pts), implementing recommendations (+30 pts), and unlocking badges (+20 pts). Every 100 points accumulated advances your account to the next level."
-  },
-  {
-    question: "Can I share my certificates on professional platforms?",
-    answer: "Yes! When you earn a Digital Green Certificate, you can click 'View Secure Doc' and download it, or click the 'Share' icon to copy a unique, tamper-proof verification URL that can be shared on LinkedIn or other networks."
-  },
-  {
-    question: "How does organization-level tracking work?",
-    answer: "If you join or create an organization, your carbon footprints are aggregated with your teammates to show department-level analytics, benchmark progress, and help your organization achieve net-zero emission milestones."
-  }
-];
+/* FAQS deleted */
 
 const SupportPage = () => {
-  const [lang, setLang] = useState('en');
+  const { t, lang, changeLanguage: setLang } = useTranslation();
+
+  const FAQS = [
+    {
+      question: t('support.faqQ1'),
+      answer: t('support.faqA1')
+    },
+    {
+      question: t('support.faqQ2'),
+      answer: t('support.faqA2')
+    },
+    {
+      question: t('support.faqQ3'),
+      answer: t('support.faqA3')
+    },
+    {
+      question: t('support.faqQ4'),
+      answer: t('support.faqA4')
+    },
+    {
+      question: t('support.faqQ5'),
+      answer: t('support.faqA5')
+    }
+  ];
   
   // Support Ticket Form States
   const [ticketSubject, setTicketSubject] = useState('');
@@ -269,7 +271,7 @@ const SupportPage = () => {
         feedbackText: feedbackComments
       });
       if (res.data.success) {
-        setSuccess(translate('feedback.success', lang));
+        setSuccess(t('feedback.success'));
         setActiveTicket(res.data.data);
         fetchTickets();
       }
@@ -338,7 +340,7 @@ const SupportPage = () => {
                     <Typography variant="subtitle1" fontWeight={850}>{activeTicket.subject}</Typography>
                     <Typography variant="caption" color="text.secondary">Ticket ID: {activeTicket.ticketId}</Typography>
                   </Box>
-                  <Chip label={translate(`status.${activeTicket.status.toLowerCase().replace(/\s+/g, '_')}`, lang)} color={getStatusColor(activeTicket.status)} size="small" />
+                  <Chip label={t(`status.${activeTicket.status.toLowerCase().replace(/\s+/g, '_')}`)} color={getStatusColor(activeTicket.status)} size="small" />
                 </Box>
                 
                 {/* Message logs */}
@@ -386,7 +388,7 @@ const SupportPage = () => {
                 {activeTicket.status !== 'Closed' && (
                   <Box component="form" onSubmit={handleSendChatMessage} sx={{ p: 2, borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: 1 }}>
                     <TextField
-                      placeholder={translate('chat.placeholder', lang)}
+                      placeholder={t('chat.placeholder')}
                       size="small"
                       fullWidth
                       value={chatInput}
@@ -397,7 +399,7 @@ const SupportPage = () => {
                       <AttachFileIcon />
                     </IconButton>
                     <Button type="submit" variant="contained" endIcon={<SendIcon />}>
-                      {translate('chat.send', lang)}
+                      {t('chat.send')}
                     </Button>
                   </Box>
                 )}
@@ -421,15 +423,15 @@ const SupportPage = () => {
                 <Card sx={{ mb: 3, border: '1px solid #10b981' }}>
                   <CardContent>
                     <Typography variant="subtitle1" fontWeight={850} color="primary" gutterBottom>
-                      {translate('feedback.title', lang)}
+                      {t('feedback.title')}
                     </Typography>
                     <Stack spacing={2} sx={{ mt: 2 }}>
                       <Box display="flex" alignItems="center" gap={1}>
-                        <Typography variant="body2">{translate('feedback.rating', lang)}:</Typography>
+                        <Typography variant="body2">{t('feedback.rating')}:</Typography>
                         <Rating value={feedbackRating} onChange={(e, val) => setFeedbackRating(val)} />
                       </Box>
                       <TextField
-                        label={translate('feedback.text', lang)}
+                        label={t('feedback.text')}
                         multiline
                         rows={3}
                         fullWidth
@@ -437,7 +439,7 @@ const SupportPage = () => {
                         onChange={(e) => setFeedbackComments(e.target.value)}
                       />
                       <Button variant="contained" color="success" onClick={handleFeedbackSubmit}>
-                        {translate('feedback.submit', lang)}
+                        {t('feedback.submit')}
                       </Button>
                     </Stack>
                   </CardContent>
@@ -488,10 +490,10 @@ const SupportPage = () => {
           }}>
             <HelpIcon color="primary" sx={{ fontSize: 50, mb: 1.5 }} />
             <Typography variant="h4" fontWeight={900} gutterBottom>
-              {translate('support.title', lang)}
+              {t('support.title')}
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ maxW: 600, mx: 'auto' }}>
-              {translate('support.subtitle', lang)}
+              {t('support.subtitle')}
             </Typography>
           </Box>
 
@@ -503,7 +505,7 @@ const SupportPage = () => {
             <Grid item xs={12} md={7}>
               <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                 <Typography variant="h6" fontWeight={800}>
-                  {translate('support.faq', lang)}
+                  {t('support.faq')}
                 </Typography>
                 <TextField
                   placeholder="Search FAQ guides..."
@@ -539,12 +541,12 @@ const SupportPage = () => {
 
               {/* Tickets directory list */}
               <Typography variant="h6" fontWeight={800} sx={{ mb: 2 }}>
-                {translate('support.openTickets', lang)}
+                {t('support.openTickets')}
               </Typography>
               {tickets.length === 0 ? (
                 <Paper sx={{ p: 4, textAlign: 'center', bgcolor: 'transparent', border: '1px dashed rgba(255,255,255,0.1)' }}>
                   <Typography variant="body2" color="text.secondary">
-                    {translate('support.noTickets', lang)}
+                    {t('support.noTickets')}
                   </Typography>
                 </Paper>
               ) : (
@@ -564,10 +566,10 @@ const SupportPage = () => {
                     >
                       <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
                         <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                          <Chip label={translate(`category.${t.category.toLowerCase()}`, lang)} size="small" variant="outlined" sx={{ fontWeight: 800, fontSize: '0.65rem' }} />
+                          <Chip label={t(`category.${t.category.toLowerCase()}`)} size="small" variant="outlined" sx={{ fontWeight: 800, fontSize: '0.65rem' }} />
                           <Stack direction="row" spacing={1}>
-                            <Chip label={translate(`priority.${t.priority.toLowerCase()}`, lang)} size="small" color={t.priority === 'Critical' ? 'error' : 'default'} sx={{ fontWeight: 800, fontSize: '0.65rem' }} />
-                            <Chip label={translate(`status.${t.status.toLowerCase().replace(/\s+/g, '_')}`, lang)} size="small" color={getStatusColor(t.status)} sx={{ fontWeight: 800, fontSize: '0.65rem' }} />
+                            <Chip label={t(`priority.${t.priority.toLowerCase()}`)} size="small" color={t.priority === 'Critical' ? 'error' : 'default'} sx={{ fontWeight: 800, fontSize: '0.65rem' }} />
+                            <Chip label={t(`status.${t.status.toLowerCase().replace(/\s+/g, '_')}`)} size="small" color={getStatusColor(t.status)} sx={{ fontWeight: 800, fontSize: '0.65rem' }} />
                           </Stack>
                         </Box>
                         <Typography variant="body2" sx={{ mb: 1, fontWeight: 800 }}>
@@ -588,20 +590,20 @@ const SupportPage = () => {
               <Card sx={{ mb: 3, border: '1px solid rgba(255,255,255,0.05)' }}>
                 <CardContent sx={{ p: 3 }}>
                   <Typography variant="subtitle1" fontWeight={850} sx={{ mb: 2.5 }}>
-                    {translate('support.directContact', lang)}
+                    {t('support.directContact')}
                   </Typography>
                   <Stack spacing={2}>
                     <Box display="flex" alignItems="center" gap={2}>
                       <Avatar sx={{ bgcolor: 'rgba(16,185,129,0.1)', color: '#10b981' }}><EmailIcon /></Avatar>
                       <Box>
-                        <Typography variant="caption" color="text.secondary" display="block">{translate('support.email', lang)}</Typography>
+                        <Typography variant="caption" color="text.secondary" display="block">{t('support.email')}</Typography>
                         <Typography variant="subtitle2" fontWeight={800}>support@carbontracker.org</Typography>
                       </Box>
                     </Box>
                     <Box display="flex" alignItems="center" gap={2}>
                       <Avatar sx={{ bgcolor: 'rgba(6,182,212,0.1)', color: 'info.main' }}><PhoneIcon /></Avatar>
                       <Box>
-                        <Typography variant="caption" color="text.secondary" display="block">{translate('support.phone', lang)}</Typography>
+                        <Typography variant="caption" color="text.secondary" display="block">{t('support.phone')}</Typography>
                         <Typography variant="subtitle2" fontWeight={800}>+1 (800) 555-GREEN</Typography>
                       </Box>
                     </Box>
@@ -613,11 +615,11 @@ const SupportPage = () => {
               <Card sx={{ border: '1px solid rgba(255,255,255,0.05)' }}>
                 <CardContent sx={{ p: 3 }}>
                   <Typography variant="subtitle1" fontWeight={850} sx={{ mb: 2 }}>
-                    {translate('support.submitTicket', lang)}
+                    {t('support.submitTicket')}
                   </Typography>
                   <Stack spacing={2.5}>
                     <TextField
-                      label={translate('support.subject', lang)}
+                      label={t('support.subject')}
                       fullWidth
                       required
                       value={ticketSubject}
@@ -625,46 +627,46 @@ const SupportPage = () => {
                     />
                     
                     <FormControl fullWidth>
-                      <InputLabel>{translate('support.category', lang)}</InputLabel>
+                      <InputLabel>{t('support.category')}</InputLabel>
                       <Select
                         value={category}
                         onChange={(e) => setCategory(e.target.value)}
-                        label={translate('support.category', lang)}
+                        label={t('support.category')}
                       >
-                        <MenuItem value="BUG">Bug Report</MenuItem>
-                        <MenuItem value="FEATURE_REQUEST">Feature Request</MenuItem>
-                        <MenuItem value="SOS_ISSUE">SOS Issue</MenuItem>
-                        <MenuItem value="VOICE_DETECTION_ISSUE">Voice Detection Issue</MenuItem>
-                        <MenuItem value="LOGIN_ISSUE">Login Issue</MenuItem>
-                        <MenuItem value="OTP_ISSUE">OTP Issue</MenuItem>
-                        <MenuItem value="EMAIL_ISSUE">Email Issue</MenuItem>
-                        <MenuItem value="NOTIFICATION_ISSUE">Notification Issue</MenuItem>
-                        <MenuItem value="PERFORMANCE_ISSUE">Performance Issue</MenuItem>
-                        <MenuItem value="UI_UX_ISSUE">UI/UX Issue</MenuItem>
-                        <MenuItem value="ACCOUNT_ISSUE">Account Issue</MenuItem>
-                        <MenuItem value="FEEDBACK">Feedback</MenuItem>
-                        <MenuItem value="GENERAL">General Query</MenuItem>
-                        <MenuItem value="OTHER">Other</MenuItem>
+                        <MenuItem value="BUG">{t('category.bug')}</MenuItem>
+                        <MenuItem value="FEATURE_REQUEST">{t('category.feature')}</MenuItem>
+                        <MenuItem value="SOS_ISSUE">{t('category.sos')}</MenuItem>
+                        <MenuItem value="VOICE_DETECTION_ISSUE">{t('category.voice')}</MenuItem>
+                        <MenuItem value="LOGIN_ISSUE">{t('category.login')}</MenuItem>
+                        <MenuItem value="OTP_ISSUE">{t('category.otp')}</MenuItem>
+                        <MenuItem value="EMAIL_ISSUE">{t('category.email')}</MenuItem>
+                        <MenuItem value="NOTIFICATION_ISSUE">{t('category.notification')}</MenuItem>
+                        <MenuItem value="PERFORMANCE_ISSUE">{t('category.performance')}</MenuItem>
+                        <MenuItem value="UI_UX_ISSUE">{t('category.ui_ux')}</MenuItem>
+                        <MenuItem value="ACCOUNT_ISSUE">{t('category.account')}</MenuItem>
+                        <MenuItem value="FEEDBACK">{t('category.feedback')}</MenuItem>
+                        <MenuItem value="GENERAL">{t('category.query')}</MenuItem>
+                        <MenuItem value="OTHER">{t('category.other')}</MenuItem>
                       </Select>
                     </FormControl>
 
                     <FormControl fullWidth>
-                      <InputLabel>{translate('support.priority', lang)}</InputLabel>
+                      <InputLabel>{t('support.priority')}</InputLabel>
                       <Select
                         value={priority}
                         onChange={(e) => setPriority(e.target.value)}
-                        label={translate('support.priority', lang)}
+                        label={t('support.priority')}
                       >
-                        <MenuItem value="Critical">Critical</MenuItem>
-                        <MenuItem value="High">High</MenuItem>
-                        <MenuItem value="Medium">Medium</MenuItem>
-                        <MenuItem value="Low">Low</MenuItem>
+                        <MenuItem value="Critical">{t('priority.critical')}</MenuItem>
+                        <MenuItem value="High">{t('priority.high')}</MenuItem>
+                        <MenuItem value="Medium">{t('priority.medium')}</MenuItem>
+                        <MenuItem value="Low">{t('priority.low')}</MenuItem>
                       </Select>
                     </FormControl>
 
                     <TextField
-                      label={translate('support.details', lang)}
-                      placeholder={translate('support.detailsPlaceholder', lang)}
+                      label={t('support.details')}
+                      placeholder={t('support.detailsPlaceholder')}
                       fullWidth
                       required
                       multiline
@@ -674,7 +676,7 @@ const SupportPage = () => {
                     />
 
                     <Button variant="outlined" component="label" fullWidth startIcon={<AttachFileIcon />}>
-                      {translate('support.upload', lang)}
+                      {t('support.upload')}
                       <input hidden type="file" onChange={(e) => handleFileChange(e, 'ticket')} />
                     </Button>
 
@@ -697,7 +699,7 @@ const SupportPage = () => {
                           startIcon={<SmartToyIcon />}
                           disabled={formLoading}
                         >
-                          {translate('support.aiCheck', lang)}
+                          {t('support.aiCheck')}
                         </Button>
                       </Grid>
                       <Grid item xs={6}>
@@ -708,7 +710,7 @@ const SupportPage = () => {
                           onClick={handleTicketSubmit}
                           disabled={formLoading}
                         >
-                          {formLoading ? translate('support.submitting', lang) : translate('support.submit', lang)}
+                          {formLoading ? t('support.submitting') : t('support.submit')}
                         </Button>
                       </Grid>
                     </Grid>
@@ -723,22 +725,22 @@ const SupportPage = () => {
       {/* AI Pre-check Diagnostics dialog */}
       <Dialog open={aiPrecheckOpen} onClose={() => setAiPrecheckOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <SmartToyIcon color="primary" /> Eco-Support AI Diagnostics Pre-Check
+          <SmartToyIcon color="primary" /> {t('support.aiCheck')}
         </DialogTitle>
         <DialogContent dividers>
           {aiLoading ? (
             <DialogContentText sx={{ textAlign: 'center', py: 4 }}>
-              <i>{translate('support.aiAnalyzing', lang)}</i>
+              <i>{t('support.aiAnalyzing')}</i>
             </DialogContentText>
           ) : (
             <Box>
               <Typography variant="subtitle2" fontWeight={850} color="primary" gutterBottom>
-                Probable Issue Cause:
+                {t('support.details')}:
               </Typography>
               <Typography variant="body2" sx={{ mb: 2 }}>{aiAnalysis?.analysis}</Typography>
               
               <Typography variant="subtitle2" fontWeight={850} color="secondary" gutterBottom>
-                Troubleshooting Steps:
+                {t('support.faq')}:
               </Typography>
               <List dense>
                 {aiAnalysis?.steps.map((s, idx) => (
@@ -750,7 +752,7 @@ const SupportPage = () => {
               
               <Divider sx={{ my: 2 }} />
               <Typography variant="subtitle2" fontWeight={850} gutterBottom>
-                Eco Recommendation:
+                {t('nav.recommendations')}:
               </Typography>
               <Typography variant="body2" color="text.secondary">{aiAnalysis?.recommendations}</Typography>
             </Box>
@@ -758,10 +760,10 @@ const SupportPage = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setAiPrecheckOpen(false)} color="inherit">
-            {translate('support.aiContinue', lang)}
+            {t('support.aiContinue')}
           </Button>
           <Button onClick={() => setAiPrecheckOpen(false)} variant="contained" color="success">
-            {translate('support.aiCancel', lang)}
+            {t('support.aiCancel')}
           </Button>
         </DialogActions>
       </Dialog>

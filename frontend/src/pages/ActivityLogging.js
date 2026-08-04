@@ -9,6 +9,7 @@ import RestaurantIcon from '@mui/icons-material/Restaurant';
 import LocalMallIcon from '@mui/icons-material/LocalMall';
 import CategoryIcon from '@mui/icons-material/Category';
 import api from '../api';
+import { useTranslation } from '../context/LanguageContext';
 
 const CATEGORIES = {
   TRANSPORT: {
@@ -30,6 +31,7 @@ const CATEGORIES = {
 };
 
 const ActivityLogging = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const [logs, setLogs] = useState([]);
   const [category, setCategory] = useState('TRANSPORT');
@@ -66,7 +68,7 @@ const ActivityLogging = () => {
         setLogs(res.data.data);
       }
     } catch (e) {
-      setError('Could not retrieve activity logs.');
+      setError(t('activity.retrieveError'));
     }
   };
 
@@ -86,7 +88,7 @@ const ActivityLogging = () => {
     setSuccess('');
 
     if (parseFloat(quantity) < 0) {
-      setError('Quantity cannot be negative');
+      setError(t('activity.negativeError'));
       return;
     }
 
@@ -103,19 +105,19 @@ const ActivityLogging = () => {
       if (editId) {
         const res = await api.put(`/api/activities/${editId}`, payload);
         if (res.data.success) {
-          setSuccess('Activity log updated successfully!');
+          setSuccess(t('activity.updateSuccess'));
           setEditId(null);
         }
       } else {
         const res = await api.post('/api/activities', payload);
         if (res.data.success) {
-          setSuccess('Activity logged successfully!');
+          setSuccess(t('activity.logSuccess'));
         }
       }
       setQuantity('');
       fetchLogs();
     } catch (err) {
-      setError(err.response?.data?.message || 'Logging action failed.');
+      setError(err.response?.data?.message || t('activity.failedError'));
     } finally {
       setLoading(false);
     }
@@ -136,11 +138,11 @@ const ActivityLogging = () => {
     try {
       const res = await api.delete(`/api/activities/${id}`);
       if (res.data.success) {
-        setSuccess('Activity log deleted successfully!');
+        setSuccess(t('activity.deleteSuccess'));
         fetchLogs();
       }
     } catch (err) {
-      setError('Deletion failed.');
+      setError(t('activity.deleteError'));
     }
   };
 
@@ -167,7 +169,7 @@ const ActivityLogging = () => {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Typography variant="h4" fontWeight={800} gutterBottom sx={{ mb: 4 }}>
-        Log Carbon Footprint Habits
+        {t('activity.logTitle')}
       </Typography>
 
       {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
@@ -184,7 +186,7 @@ const ActivityLogging = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   select
-                  label="Category"
+                  label={t('activity.category')}
                   fullWidth
                   value={category}
                   onChange={handleCategoryChange}
@@ -203,7 +205,7 @@ const ActivityLogging = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   select
-                  label="Activity Type"
+                  label={t('activity.type')}
                   fullWidth
                   value={activityType}
                   onChange={(e) => setActivityType(e.target.value)}
@@ -218,7 +220,7 @@ const ActivityLogging = () => {
 
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label={`Quantity (${CATEGORIES[category].unit})`}
+                  label={`${t('activity.quantity')} (${CATEGORIES[category].unit})`}
                   type="number"
                   fullWidth
                   required
@@ -230,7 +232,7 @@ const ActivityLogging = () => {
 
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="Log Date"
+                  label={t('activity.date')}
                   type="date"
                   fullWidth
                   required
@@ -242,11 +244,11 @@ const ActivityLogging = () => {
               <Grid item xs={12} display="flex" justifyContent="flex-end" gap={2}>
                 {editId && (
                   <Button variant="outlined" color="inherit" onClick={handleCancelEdit}>
-                    Cancel
+                    {t('btn.cancel')}
                   </Button>
                 )}
                 <Button type="submit" variant="contained" color="primary" disabled={loading}>
-                  {editId ? 'Update Activity' : 'Log Activity'}
+                  {editId ? t('activity.updateLog') : t('activity.logBtn')}
                 </Button>
               </Grid>
             </Grid>
@@ -257,11 +259,11 @@ const ActivityLogging = () => {
       {/* Logs Table with Date Filter */}
       <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2} sx={{ mb: 2, mt: 4 }}>
         <Typography variant="h6" fontWeight={700}>
-          Recent Activities History
+          {t('activity.recentLogsTitle')}
         </Typography>
         <Stack direction="row" spacing={2} alignItems="center">
           <TextField
-            label="Filter by Date"
+            label={t('activity.filterByDate')}
             type="date"
             size="small"
             InputLabelProps={{ shrink: true }}
@@ -271,7 +273,7 @@ const ActivityLogging = () => {
           />
           {filterDate && (
             <Button variant="outlined" size="small" onClick={() => setFilterDate('')}>
-              Clear
+              {t('btn.clear')}
             </Button>
           )}
         </Stack>
@@ -289,7 +291,7 @@ const ActivityLogging = () => {
             <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap">
               <Box>
                 <Typography variant="body2" color="text.secondary" fontWeight={600}>
-                  Selected Date Standings
+                  {t('activity.dailySummary')}
                 </Typography>
                 <Typography variant="subtitle1" fontWeight={800} color="text.primary" mt={0.5}>
                   {new Date(filterDate).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
@@ -300,7 +302,7 @@ const ActivityLogging = () => {
                   {dailyTotalEmission.toFixed(2)} <Typography variant="caption" color="text.secondary">kg CO2</Typography>
                 </Typography>
                 <Typography variant="caption" color="text.secondary" fontWeight={600}>
-                  {filteredLogs.length} activity logs logged on this day
+                  {filteredLogs.length} {t('activity.logsOnThisDay')}
                 </Typography>
               </Box>
             </Box>
@@ -312,18 +314,18 @@ const ActivityLogging = () => {
         <Table>
           <TableHead sx={{ backgroundColor: 'rgba(255,255,255,0.02)' }}>
             <TableRow>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Date</TableCell>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Category</TableCell>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Activity</TableCell>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="right">Qty</TableCell>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="right">Carbon (kg)</TableCell>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="center">Actions</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('activity.date')}</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('activity.category')}</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('activity.type')}</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="right">{t('activity.quantity')}</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="right">{t('dashboard.activityEmissions')}</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="center">{t('activity.actions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {filteredLogs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} align="center">No logs found.</TableCell>
+                <TableCell colSpan={6} align="center">{t('activity.noLogs')}</TableCell>
               </TableRow>
             ) : (
               filteredLogs.map((log) => {

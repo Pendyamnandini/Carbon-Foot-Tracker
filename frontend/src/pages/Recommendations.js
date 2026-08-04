@@ -23,8 +23,10 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import AddIcon from '@mui/icons-material/Add';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import api from '../api';
+import { useTranslation } from '../context/LanguageContext';
 
 const Recommendations = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -69,7 +71,7 @@ const Recommendations = () => {
         setData(res.data.data);
       }
     } catch (e) {
-      setError('Could not retrieve personalized recommendations.');
+      setError(t('recs.retrieveError'));
     } finally {
       setLoading(false);
     }
@@ -85,11 +87,11 @@ const Recommendations = () => {
       setSuccess('');
       const res = await api.put(`/api/recommendations/${id}/status`, { status: newStatus });
       if (res.data.success) {
-        setSuccess(`Recommendation marked as ${newStatus.replace('_', ' ').toLowerCase()}!`);
+        setSuccess(t('recs.successUpdate'));
         fetchDashboardData();
       }
     } catch (err) {
-      setError('Failed to update recommendation status.');
+      setError(t('recs.failUpdate'));
     }
   };
 
@@ -143,23 +145,23 @@ const Recommendations = () => {
             <TipsAndUpdatesIcon sx={{ fontSize: 48 }} />
           </Avatar>
           <Typography variant="h5" fontWeight={800} gutterBottom>
-            Personalized Eco Recommendations
+            {t('recs.insufficientDataTitle')}
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxW: 600, mx: 'auto' }}>
-            We need a little more activity data to generate personalized recommendations. Log at least 3 activities to enable our smart engine.
+            {t('recs.insufficientDataDesc')}
           </Typography>
           <Grid container spacing={2} justifyContent="center">
             {[
-              { label: 'Log Transport Activity', cat: 'TRANSPORT', color: '#06b6d4' },
-              { label: 'Log Electricity Usage', cat: 'ELECTRICITY', color: '#fbbf24' },
-              { label: 'Log Food Activity', cat: 'FOOD', color: '#f87171' },
-              { label: 'Log Shopping Activity', cat: 'SHOPPING', color: '#a78bfa' }
+              { label: t('activity.logTitle') + ' (' + t('dashboard.catTransport') + ')', cat: 'TRANSPORT', color: '#06b6d4' },
+              { label: t('activity.logTitle') + ' (' + t('dashboard.catElectricity') + ')', cat: 'ELECTRICITY', color: '#fbbf24' },
+              { label: t('activity.logTitle') + ' (' + t('dashboard.catFood') + ')', cat: 'FOOD', color: '#f87171' },
+              { label: t('activity.logTitle') + ' (' + t('dashboard.catShopping') + ')', cat: 'SHOPPING', color: '#a78bfa' }
             ].map((btn, idx) => (
               <Grid item xs={12} sm={6} md={3} key={idx}>
                 <Button
                   fullWidth
                   variant="outlined"
-                  onClick={() => navigate(`/activities/log?category=${btn.cat}`)}
+                  onClick={() => navigate(`/activities/log?category=${t('dashboard.cat' + btn.cat.charAt(0) + btn.cat.slice(1).toLowerCase())}`)}
                   sx={{
                     py: 1.5,
                     color: btn.color,
@@ -171,7 +173,7 @@ const Recommendations = () => {
                   }}
                   startIcon={<AddIcon />}
                 >
-                  {btn.cat}
+                  {t('dashboard.cat' + btn.cat.charAt(0) + btn.cat.slice(1).toLowerCase())}
                 </Button>
               </Grid>
             ))}
@@ -227,9 +229,9 @@ const Recommendations = () => {
 
         {/* Date Selector */}
         <Stack direction="row" spacing={1} sx={{ p: 0.5, bgcolor: 'background.paper', borderRadius: 2, border: '1px solid rgba(255,255,255,0.05)' }}>
-          <Button size="small" variant={period === '7DAYS' ? 'contained' : 'text'} onClick={() => setPeriod('7DAYS')}>7D</Button>
-          <Button size="small" variant={period === '30DAYS' ? 'contained' : 'text'} onClick={() => setPeriod('30DAYS')}>30D</Button>
-          <Button size="small" variant={period === 'CUSTOM' ? 'contained' : 'text'} onClick={() => setPeriod('CUSTOM')}>Custom</Button>
+          <Button size="small" variant={period === '7DAYS' ? 'contained' : 'text'} onClick={() => setPeriod('7DAYS')}>{t('recs.period7Short')}</Button>
+          <Button size="small" variant={period === '30DAYS' ? 'contained' : 'text'} onClick={() => setPeriod('30DAYS')}>{t('recs.period30Short')}</Button>
+          <Button size="small" variant={period === 'CUSTOM' ? 'contained' : 'text'} onClick={() => setPeriod('CUSTOM')}>{t('recs.periodCustomShort')}</Button>
         </Stack>
       </Box>
 
@@ -238,7 +240,7 @@ const Recommendations = () => {
         <Card component="form" onSubmit={handleCustomRangeSubmit} sx={{ p: 2, mb: 4, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
           <CalendarMonthIcon color="action" />
           <TextField
-            label="Start Date"
+            label={t('goals.formStart')}
             type="date"
             size="small"
             value={startDate}
@@ -246,7 +248,7 @@ const Recommendations = () => {
             InputLabelProps={{ shrink: true }}
           />
           <TextField
-            label="End Date"
+            label={t('goals.formEnd')}
             type="date"
             size="small"
             value={endDate}
@@ -263,14 +265,14 @@ const Recommendations = () => {
       {/* KPI Dashboard cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {[
-          { label: 'Total Recs', value: data.totalRecommendations, sub: 'Active tips', color: '#06b6d4' },
-          { label: 'Critical Priority', value: data.criticalRecommendations, sub: 'Needs action', color: '#ef4444' },
-          { label: 'Potential Monthly Savings', value: `${data.potentialMonthlySavings} kg`, sub: 'CO2 equivalent', color: '#10b981' },
-          { label: 'Potential Annual Savings', value: `${data.potentialAnnualSavings} kg`, sub: 'CO2 equivalent', color: '#3b82f6' },
-          { label: 'Sustainability Score', value: `${data.sustainabilityScore}/100`, sub: 'Calculated score', color: '#fbbf24' },
-          { label: 'Top Source Category', value: data.highestEmissionCategory, sub: 'Highest emissions', color: '#f87171' },
-          { label: 'Success Rate', value: `${data.recommendationSuccessRate.toFixed(0)}%`, sub: 'Completion rate', color: '#a78bfa' },
-          { label: 'Goal Impact Potential', value: `${data.goalProgressImpact.toFixed(1)}%`, sub: 'Carbon reduction', color: '#ec4899' }
+          { label: t('recs.activeRecsCount'), value: data.totalRecommendations, sub: t('recs.activeTips'), color: '#06b6d4' },
+          { label: t('recs.badgeCritical'), value: data.criticalRecommendations, sub: t('recs.needsAction'), color: '#ef4444' },
+          { label: t('recs.potentialMonthlySavings'), value: `${data.potentialMonthlySavings} kg`, sub: t('landing.co2Equiv'), color: '#10b981' },
+          { label: t('recs.potentialAnnualSavings'), value: `${data.potentialAnnualSavings} kg`, sub: t('landing.co2Equiv'), color: '#3b82f6' },
+          { label: t('dashboard.periodEcoScore'), value: `${data.sustainabilityScore}/100`, sub: t('recs.calculatedScore'), color: '#fbbf24' },
+          { label: t('recs.topSourceCategory'), value: data.highestEmissionCategory, sub: t('recs.highestEmissions'), color: '#f87171' },
+          { label: t('recs.implementationRate'), value: `${data.recommendationSuccessRate.toFixed(0)}%`, sub: t('recs.completionRate'), color: '#a78bfa' },
+          { label: t('recs.goalImpactPotential'), value: `${data.goalProgressImpact.toFixed(1)}%`, sub: t('recs.carbonReduction'), color: '#ec4899' }
         ].map((card, idx) => (
           <Grid item xs={12} sm={6} md={3} key={idx}>
             <Card sx={{
@@ -300,7 +302,7 @@ const Recommendations = () => {
           </Avatar>
           <Box>
             <Typography variant="h6" fontWeight={800} gutterBottom color="primary.main">
-              Personal Sustainability Insights
+              {t('recs.personalInsights')}
             </Typography>
             <Stack spacing={1}>
               {data.personalizedInsights.map((insight, idx) => (
@@ -316,9 +318,9 @@ const Recommendations = () => {
       {/* Tab Select & Category Filter */}
       <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" sx={{ mb: 3, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <Tabs value={tabIndex} onChange={(e, val) => setTabIndex(val)} textColor="primary" indicatorColor="primary">
-          <Tab label="Active Suggestions" sx={{ fontWeight: 800 }} />
-          <Tab label="Recommendation History" sx={{ fontWeight: 800 }} />
-          <Tab label="Impact Analytics" sx={{ fontWeight: 800 }} />
+          <Tab label={t('recs.tabActive')} sx={{ fontWeight: 800 }} />
+          <Tab label={t('recs.tabHistory')} sx={{ fontWeight: 800 }} />
+          <Tab label={t('recs.tabAnalytics')} sx={{ fontWeight: 800 }} />
         </Tabs>
 
         {/* Category quick filters */}
@@ -326,7 +328,7 @@ const Recommendations = () => {
           {['ALL', 'TRANSPORT', 'ELECTRICITY', 'FOOD', 'SHOPPING'].map((cat) => (
             <Chip
               key={cat}
-              label={cat}
+              label={cat === 'ALL' ? t('recs.filterAll') : cat === 'TRANSPORT' ? t('dashboard.catTransport') : cat === 'ELECTRICITY' ? t('dashboard.catElectricity') : cat === 'FOOD' ? t('dashboard.catFood') : t('dashboard.catShopping')}
               size="small"
               onClick={() => setCategoryFilter(cat)}
               color={categoryFilter === cat ? 'primary' : 'default'}
@@ -343,7 +345,7 @@ const Recommendations = () => {
           {filteredActive.length === 0 ? (
             <Grid item xs={12}>
               <Paper sx={{ p: 4, textAlign: 'center', bgcolor: 'transparent' }}>
-                <Typography color="text.secondary">No active suggestions in this category. Keep logging activities!</Typography>
+                <Typography color="text.secondary">{t('recs.noActive')}</Typography>
               </Paper>
             </Grid>
           ) : (
@@ -382,15 +384,15 @@ const Recommendations = () => {
                       {/* Micro Statistics */}
                       <Grid container spacing={2} sx={{ mb: 3, p: 1.5, bgcolor: 'rgba(255,255,255,0.02)', borderRadius: 1.5 }}>
                         <Grid item xs={4}>
-                          <Typography variant="caption" color="text.secondary" display="block">Current Emission</Typography>
+                          <Typography variant="caption" color="text.secondary" display="block">{t('recs.currentEmission')}</Typography>
                           <Typography variant="subtitle2" fontWeight={800}>{rec.currentEmissions} kg CO₂</Typography>
                         </Grid>
                         <Grid item xs={4}>
-                          <Typography variant="caption" color="text.secondary" display="block">Monthly Savings</Typography>
+                          <Typography variant="caption" color="text.secondary" display="block">{t('recs.monthlySavings')}</Typography>
                           <Typography variant="subtitle2" fontWeight={800} color="primary.main">{rec.estimatedMonthlySavings} kg</Typography>
                         </Grid>
                         <Grid item xs={4}>
-                          <Typography variant="caption" color="text.secondary" display="block">Reduction Pct</Typography>
+                          <Typography variant="caption" color="text.secondary" display="block">{t('recs.reductionPct')}</Typography>
                           <Typography variant="subtitle2" fontWeight={800} color="secondary.main">{rec.carbonReductionPercentage}%</Typography>
                         </Grid>
                       </Grid>
@@ -403,7 +405,7 @@ const Recommendations = () => {
                           startIcon={<InfoIcon />}
                           onClick={() => setDetailRec(rec)}
                         >
-                          Details
+                          {t('recs.actionDetails')}
                         </Button>
                         <Stack direction="row" spacing={1}>
                           <Button
@@ -413,7 +415,7 @@ const Recommendations = () => {
                             startIcon={<AccessTimeIcon />}
                             onClick={() => handleUpdateStatus(rec.id, 'REMIND_ME_LATER')}
                           >
-                            Later
+                            {t('recs.actionSnooze')}
                           </Button>
                           <Button
                             size="small"
@@ -422,7 +424,7 @@ const Recommendations = () => {
                             startIcon={<BlockIcon />}
                             onClick={() => handleUpdateStatus(rec.id, 'NOT_INTERESTED')}
                           >
-                            Ignore
+                            {t('recs.actionIgnore')}
                           </Button>
                           <Button
                             size="small"
@@ -431,7 +433,7 @@ const Recommendations = () => {
                             startIcon={<CheckCircleIcon />}
                             onClick={() => handleUpdateStatus(rec.id, 'COMPLETED')}
                           >
-                            Complete
+                            {t('recs.actionImplement')}
                           </Button>
                         </Stack>
                       </Box>
@@ -449,7 +451,7 @@ const Recommendations = () => {
           {filteredHistory.length === 0 ? (
             <Grid item xs={12}>
               <Paper sx={{ p: 4, textAlign: 'center', bgcolor: 'transparent' }}>
-                <Typography color="text.secondary">No historical recommendations recorded yet.</Typography>
+                <Typography color="text.secondary">{t('recs.noHistory')}</Typography>
               </Paper>
             </Grid>
           ) : (
@@ -485,7 +487,7 @@ const Recommendations = () => {
                             startIcon={<PlayArrowIcon />}
                             onClick={() => handleUpdateStatus(rec.id, 'IN_PROGRESS')}
                           >
-                            Reactivate
+                            {t('recs.actionReactivate')}
                           </Button>
                         )}
                       </Stack>
@@ -503,7 +505,7 @@ const Recommendations = () => {
           {categoryChartData.length === 0 ? (
             <Grid item xs={12}>
               <Paper sx={{ p: 4, textAlign: 'center', bgcolor: 'transparent' }}>
-                <Typography color="text.secondary">Insufficient data to build charts. Keep logging footprint habits!</Typography>
+                <Typography color="text.secondary">{t('recs.noDataAnalytics')}</Typography>
               </Paper>
             </Grid>
           ) : (
@@ -512,7 +514,7 @@ const Recommendations = () => {
                 <Card>
                   <CardContent>
                     <Typography variant="subtitle1" fontWeight={800} gutterBottom>
-                      Savings Potential by Category (kg CO₂/month)
+                      {t('recs.categorySavingsTitle')}
                     </Typography>
                     <Box sx={{ height: 250 }}>
                       <ResponsiveContainer width="100%" height="100%">
@@ -545,7 +547,7 @@ const Recommendations = () => {
                 <Card>
                   <CardContent>
                     <Typography variant="subtitle1" fontWeight={800} gutterBottom>
-                      Top Impact Recommendations (kg CO₂ Savings)
+                      {t('recs.topImpactRecs')}
                     </Typography>
                     <Box sx={{ height: 250 }}>
                       <ResponsiveContainer width="100%" height="100%">
@@ -604,26 +606,26 @@ const Recommendations = () => {
                   <Chip label={detailRec.category} size="small" color="primary" variant="outlined" sx={{ fontWeight: 800, mt: 0.5 }} />
                 </Grid>
                 <Grid item xs={6} sm={3}>
-                  <Typography variant="caption" color="text.secondary" display="block">Difficulty</Typography>
+                  <Typography variant="caption" color="text.secondary" display="block">{t('recs.dialogDifficulty')}</Typography>
                   <Chip label={detailRec.difficulty} size="small" variant="outlined" sx={{ fontWeight: 800, mt: 0.5 }} />
                 </Grid>
                 <Grid item xs={6} sm={3}>
-                  <Typography variant="caption" color="text.secondary" display="block">Impact</Typography>
+                  <Typography variant="caption" color="text.secondary" display="block">{t('recs.dialogImpact')}</Typography>
                   <Chip label={detailRec.impact} size="small" color="secondary" sx={{ fontWeight: 800, mt: 0.5 }} />
                 </Grid>
                 <Grid item xs={6} sm={3}>
-                  <Typography variant="caption" color="text.secondary" display="block">AI Confidence</Typography>
+                  <Typography variant="caption" color="text.secondary" display="block">{t('recs.dialogConfidence')}</Typography>
                   <Chip label={detailRec.confidence} size="small" sx={{ fontWeight: 800, mt: 0.5 }} />
                 </Grid>
               </Grid>
 
               <Grid container spacing={2} sx={{ p: 2, bgcolor: 'rgba(255,255,255,0.02)', borderRadius: 2 }}>
                 <Grid item xs={6}>
-                  <Typography variant="caption" color="text.secondary">Estimated Monthly Savings</Typography>
+                  <Typography variant="caption" color="text.secondary">Estimated {t('recs.monthlySavings')}</Typography>
                   <Typography variant="h6" fontWeight={800} color="primary.main">{detailRec.estimatedMonthlySavings} kg CO₂</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="caption" color="text.secondary">Estimated Annual Savings</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('recs.potentialAnnualSavings')}</Typography>
                   <Typography variant="h6" fontWeight={800} color="secondary.main">{detailRec.estimatedAnnualSavings} kg CO₂</Typography>
                 </Grid>
               </Grid>

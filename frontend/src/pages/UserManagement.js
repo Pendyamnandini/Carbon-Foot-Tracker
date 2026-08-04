@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Alert, Avatar, Box, Chip } from '@mui/material';
 import api from '../api';
+import { useTranslation } from '../context/LanguageContext';
 
 const UserManagement = () => {
+  const { t } = useTranslation();
   const [users, setUsers] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -36,7 +38,7 @@ const UserManagement = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h4" fontWeight={800} gutterBottom sx={{ mb: 4 }}>
-        User Account Directory
+        {t('admin.userDirectoryTitle')}
       </Typography>
 
       {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
@@ -45,11 +47,11 @@ const UserManagement = () => {
         <Table>
           <TableHead sx={{ backgroundColor: 'rgba(255,255,255,0.02)' }}>
             <TableRow>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>User Profile</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('admin.userProfile')}</TableCell>
               <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Email Address</TableCell>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Mobile</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('profile.mobileNumber')}</TableCell>
               <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Platform Role</TableCell>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="center">Account Status</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="center">{t('admin.usersTableStatus')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -70,7 +72,7 @@ const UserManagement = () => {
                 </TableCell>
                 <TableCell align="center">
                   <Chip 
-                    label={u.active ? 'ACTIVE' : 'SUSPENDED'} 
+                    label={u.active ? t('admin.statusActive') : t('admin.statusSuspended')} 
                     size="small" 
                     color={u.active ? 'success' : 'error'} 
                     variant="outlined" 

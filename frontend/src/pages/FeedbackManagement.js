@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Alert, Button, Box, Stack, MenuItem, TextField } from '@mui/material';
 import api from '../api';
+import { useTranslation } from '../context/LanguageContext';
 
 const FeedbackManagement = () => {
+  const { t } = useTranslation();
   const [feedbacks, setFeedbacks] = useState([]);
   const [filterStatus, setFilterStatus] = useState('ALL');
 
@@ -18,7 +20,7 @@ const FeedbackManagement = () => {
         setFeedbacks(res.data.data);
       }
     } catch (e) {
-      setError('Could not retrieve user feedbacks.');
+      setError(t('admin.feedbackFailRetrieve'));
     } finally {
       setLoading(false);
     }
@@ -34,11 +36,11 @@ const FeedbackManagement = () => {
     try {
       const res = await api.put(`/api/admin/feedbacks/${id}/status?status=${status}`);
       if (res.data.success) {
-        setSuccess('Feedback status updated successfully!');
+        setSuccess(t('admin.feedbackSuccessUpdate'));
         fetchFeedbacks();
       }
     } catch (err) {
-      setError('Failed to update status.');
+      setError(t('admin.feedbackFailUpdate'));
     }
   };
 
@@ -58,7 +60,7 @@ const FeedbackManagement = () => {
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
-        <Typography>Loading user feedbacks...</Typography>
+        <Typography>{t('admin.feedbackLoading')}</Typography>
       </Box>
     );
   }
@@ -72,16 +74,16 @@ const FeedbackManagement = () => {
 
         <TextField
           select
-          label="Filter Status"
+          label={t('admin.filterStatus')}
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
           sx={{ width: 180 }}
           size="small"
         >
-          <MenuItem value="ALL">All Feedback</MenuItem>
-          <MenuItem value="OPEN">Open</MenuItem>
-          <MenuItem value="IN_PROGRESS">In Progress</MenuItem>
-          <MenuItem value="RESOLVED">Resolved</MenuItem>
+          <MenuItem value="ALL">{t('admin.allFeedback')}</MenuItem>
+          <MenuItem value="OPEN">{t('admin.statusOpen')}</MenuItem>
+          <MenuItem value="IN_PROGRESS">{t('admin.statusInProgress')}</MenuItem>
+          <MenuItem value="RESOLVED">{t('admin.statusResolved')}</MenuItem>
         </TextField>
       </Stack>
 
@@ -95,15 +97,15 @@ const FeedbackManagement = () => {
               <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Date</TableCell>
               <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>User</TableCell>
               <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Category</TableCell>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Content</TableCell>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="center">Status</TableCell>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="center">Resolution Actions</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('admin.feedbackTableText')}</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="center">{t('admin.supportStatus')}</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="center">{t('admin.supportActions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {filteredFeedbacks.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} align="center">No feedbacks match selection.</TableCell>
+                <TableCell colSpan={6} align="center">{t('admin.noFeedbacks')}</TableCell>
               </TableRow>
             ) : (
               filteredFeedbacks.map((f) => (
@@ -119,16 +121,16 @@ const FeedbackManagement = () => {
                     <Stack direction="row" spacing={1} justifyContent="center">
                       {f.status === 'OPEN' && (
                         <Button variant="outlined" color="secondary" size="small" onClick={() => handleUpdateStatus(f.id, 'IN_PROGRESS')}>
-                          In Progress
+                          {t('admin.statusInProgress')}
                         </Button>
                       )}
                       {f.status !== 'RESOLVED' && (
                         <Button variant="contained" color="success" size="small" onClick={() => handleUpdateStatus(f.id, 'RESOLVED')}>
-                          Resolve
+                          {t('admin.resolveBtn')}
                         </Button>
                       )}
                       {f.status === 'RESOLVED' && (
-                        <Typography variant="caption" color="text.secondary">Completed</Typography>
+                        <Typography variant="caption" color="text.secondary">{t('admin.completed')}</Typography>
                       )}
                     </Stack>
                   </TableCell>

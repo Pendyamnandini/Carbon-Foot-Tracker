@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import { ResponsiveContainer, PieChart, Pie, Cell, Legend, Tooltip as ChartTooltip, BarChart, Bar, XAxis, YAxis } from 'recharts';
 import api from '../api';
+import { useTranslation } from '../context/LanguageContext';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import MergeTypeIcon from '@mui/icons-material/MergeType';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -22,6 +23,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import CloseIcon from '@mui/icons-material/Close';
 
 const AdminSupportDashboard = () => {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -301,10 +303,10 @@ const AdminSupportDashboard = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h4" fontWeight={900} gutterBottom>
-        Support Ticket Management Dashboard
+        {t('admin.supportTitle')}
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
-        Coordinate support query workflows, inspect customer environments, and monitor platform SLA compliance.
+        {t('admin.supportSubtitle')}
       </Typography>
 
       {error && <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError('')}>{error}</Alert>}
@@ -315,7 +317,7 @@ const AdminSupportDashboard = () => {
         <Grid item xs={6} md={2.4}>
           <Card variant="outlined">
             <CardContent sx={{ textAlign: 'center', p: 2 }}>
-              <Typography variant="caption" color="text.secondary">Total Tickets</Typography>
+              <Typography variant="caption" color="text.secondary">{t('admin.supportTotalTickets')}</Typography>
               <Typography variant="h4" fontWeight={900}>{metrics.total}</Typography>
             </CardContent>
           </Card>
@@ -323,7 +325,7 @@ const AdminSupportDashboard = () => {
         <Grid item xs={6} md={2.4}>
           <Card variant="outlined">
             <CardContent sx={{ textAlign: 'center', p: 2 }}>
-              <Typography variant="caption" color="text.secondary">Open / New</Typography>
+              <Typography variant="caption" color="text.secondary">{t('admin.supportOpenNew')}</Typography>
               <Typography variant="h4" fontWeight={900} color="warning.main">{metrics.open}</Typography>
             </CardContent>
           </Card>
@@ -331,7 +333,7 @@ const AdminSupportDashboard = () => {
         <Grid item xs={6} md={2.4}>
           <Card variant="outlined">
             <CardContent sx={{ textAlign: 'center', p: 2 }}>
-              <Typography variant="caption" color="text.secondary">Assigned / In Progress</Typography>
+              <Typography variant="caption" color="text.secondary">{t('admin.supportAssignedInProgress')}</Typography>
               <Typography variant="h4" fontWeight={900} color="secondary.main">{metrics.assigned}</Typography>
             </CardContent>
           </Card>
@@ -339,7 +341,7 @@ const AdminSupportDashboard = () => {
         <Grid item xs={6} md={2.4}>
           <Card variant="outlined">
             <CardContent sx={{ textAlign: 'center', p: 2 }}>
-              <Typography variant="caption" color="text.secondary">Resolved Issues</Typography>
+              <Typography variant="caption" color="text.secondary">{t('admin.supportResolvedIssues')}</Typography>
               <Typography variant="h4" fontWeight={900} color="success.main">{metrics.resolved}</Typography>
             </CardContent>
           </Card>

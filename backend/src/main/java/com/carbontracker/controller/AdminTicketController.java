@@ -44,9 +44,11 @@ public class AdminTicketController {
     }
 
     @PostMapping("/{ticketId}/resolve")
-    public ResponseEntity<ApiResponse<TicketResponse>> resolveTicket(@PathVariable String ticketId) {
+    public ResponseEntity<ApiResponse<TicketResponse>> resolveTicket(
+            @PathVariable String ticketId,
+            @RequestBody(required = false) TicketResolveRequest request) {
         User admin = getCurrentUser();
-        TicketResponse res = ticketService.resolveTicket(ticketId, admin);
+        TicketResponse res = ticketService.resolveTicket(ticketId, request, admin);
         return ResponseEntity.ok(ApiResponse.success("Ticket resolved successfully", res));
     }
 

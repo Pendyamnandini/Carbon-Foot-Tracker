@@ -1,11 +1,10 @@
 import React from 'react';
-import { Drawer, Toolbar, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Box, Divider } from '@mui/material';
+import { Drawer, Toolbar, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Box, Divider, useTheme } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import PersonIcon from '@mui/icons-material/Person';
-import FeedbackIcon from '@mui/icons-material/Feedback';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import PeopleIcon from '@mui/icons-material/People';
@@ -21,6 +20,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import HelpIcon from '@mui/icons-material/Help';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from '../context/LanguageContext';
 
 const drawerWidth = 240;
 
@@ -28,6 +28,8 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
+  const theme = useTheme();
 
   if (!user) return null;
 
@@ -88,7 +90,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
                   py: 1.5,
                   px: 3,
                   background: active ? `${item.color}14` : 'transparent',
-                  borderLeft: active ? `4px solid ${item.color}` : '4px solid transparent',
+                  borderInlineStart: active ? `4px solid ${item.color}` : '4px solid transparent',
                   transition: 'all 0.2s ease',
                   '&:hover': {
                     background: 'action.hover',
@@ -102,7 +104,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
                   {item.icon}
                 </ListItemIcon>
                 <ListItemText 
-                  primary={item.text} 
+                  primary={t('nav.' + item.text.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, ''))} 
                   primaryTypographyProps={{ 
                     variant: 'body2', 
                     fontWeight: active ? 800 : 500,
@@ -118,17 +120,25 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
     </Box>
   );
 
+  const isRTL = theme.direction === 'rtl';
+
   return (
     <Box component="nav" sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}>
       {/* Mobile Drawer */}
       <Drawer
         variant="temporary"
+        anchor={isRTL ? 'right' : 'left'}
         open={mobileOpen}
         onClose={handleDrawerToggle}
         ModalProps={{ keepMounted: true }}
         sx={{
           display: { xs: 'block', sm: 'none' },
-          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, borderRight: '1px solid', borderColor: 'divider' },
+          '& .MuiDrawer-paper': { 
+            boxSizing: 'border-box', 
+            width: drawerWidth, 
+            borderInlineEnd: '1px solid', 
+            borderColor: 'divider' 
+          },
         }}
       >
         {drawerContent}
@@ -136,9 +146,15 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
       {/* Desktop Drawer */}
       <Drawer
         variant="permanent"
+        anchor={isRTL ? 'right' : 'left'}
         sx={{
           display: { xs: 'none', sm: 'block' },
-          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, borderRight: '1px solid', borderColor: 'divider' },
+          '& .MuiDrawer-paper': { 
+            boxSizing: 'border-box', 
+            width: drawerWidth, 
+            borderInlineEnd: '1px solid', 
+            borderColor: 'divider' 
+          },
         }}
         open
       >

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Grid, Card, CardContent, Typography, Box, Alert, CircularProgress, Stack, Paper, Divider, Button, Tabs, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, LinearProgress, Chip } from '@mui/material';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, Tooltip as ChartTooltip, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 import api from '../api';
+import { useTranslation } from '../context/LanguageContext';
 import PeopleIcon from '@mui/icons-material/People';
 import SpeedIcon from '@mui/icons-material/Speed';
 import ForumIcon from '@mui/icons-material/Forum';
@@ -13,6 +14,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import ScreenShareIcon from '@mui/icons-material/ScreenShare';
 
 const AdminDashboard = () => {
+  const { t } = useTranslation();
   const [tabValue, setTabValue] = useState(0);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -195,10 +197,10 @@ const AdminDashboard = () => {
       <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2} sx={{ mb: 4 }}>
         <Box>
           <Typography variant="h4" fontWeight={800} gutterBottom>
-            Platform Administration
+            {t('admin.dashboardTitle')}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Comprehensive platform health overview, user activities audits, and system-wide carbon emissions.
+            {t('admin.dashboardSubtitle')}
           </Typography>
         </Box>
         <Stack direction="row" spacing={1.5} flexWrap="wrap" gap={1}>
@@ -209,7 +211,7 @@ const AdminDashboard = () => {
             disabled={resetting}
             startIcon={resetting ? <CircularProgress size={20} color="inherit" /> : <HistoryIcon />}
           >
-            {resetting ? 'Resetting Demo Data...' : 'Reset & Seed Demo Data'}
+            {resetting ? t('admin.resettingDemoData') : t('admin.resetDemoDataBtn')}
           </Button>
           <Button 
             variant="outlined" 
@@ -217,7 +219,7 @@ const AdminDashboard = () => {
             startIcon={<DownloadIcon />} 
             onClick={() => handleDownload('csv')}
           >
-            Export Platform CSV
+            {t('admin.exportPlatformCSV')}
           </Button>
           <Button 
             variant="contained" 
@@ -225,7 +227,7 @@ const AdminDashboard = () => {
             startIcon={<DownloadIcon />} 
             onClick={() => handleDownload('pdf')}
           >
-            Export Platform PDF
+            {t('admin.exportPlatformPDF')}
           </Button>
         </Stack>
       </Box>
@@ -243,9 +245,9 @@ const AdminDashboard = () => {
                 <CardContent>
                   <Stack direction="row" justifyContent="space-between" alignItems="center">
                     <Box>
-                      <Typography variant="body2" color="text.secondary" fontWeight={600}>Total Users</Typography>
+                      <Typography variant="body2" color="text.secondary" fontWeight={600}>{t('admin.statsUsers')}</Typography>
                       <Typography variant="h4" fontWeight={800} mt={1}>{data.totalUsers}</Typography>
-                      <Typography variant="caption" color="primary">{data.newUsersThisWeek} registered this week</Typography>
+                      <Typography variant="caption" color="primary">{data.newUsersThisWeek} {t('admin.newUsersThisWeek')}</Typography>
                     </Box>
                     <PeopleIcon color="primary" sx={{ fontSize: 32 }} />
                   </Stack>
@@ -259,9 +261,9 @@ const AdminDashboard = () => {
                 <CardContent>
                   <Stack direction="row" justifyContent="space-between" alignItems="center">
                     <Box>
-                      <Typography variant="body2" color="text.secondary" fontWeight={600}>Platform Footprint</Typography>
+                      <Typography variant="body2" color="text.secondary" fontWeight={600}>{t('admin.statsEmissions')}</Typography>
                       <Typography variant="h4" fontWeight={800} mt={1}>{data.totalPlatformEmissions.toFixed(0)} <Typography variant="caption" sx={{ fontWeight: 500 }}>kg</Typography></Typography>
-                      <Typography variant="caption" color="text.secondary">Total CO₂ tracked</Typography>
+                      <Typography variant="caption" color="text.secondary">{t('admin.totalCo2Tracked')}</Typography>
                     </Box>
                     <Co2Icon color="secondary" sx={{ fontSize: 36 }} />
                   </Stack>
@@ -275,9 +277,9 @@ const AdminDashboard = () => {
                 <CardContent>
                   <Stack direction="row" justifyContent="space-between" alignItems="center">
                     <Box>
-                      <Typography variant="body2" color="text.secondary" fontWeight={600}>Pending Feedback</Typography>
+                      <Typography variant="body2" color="text.secondary" fontWeight={600}>{t('admin.statsTickets')}</Typography>
                       <Typography variant="h4" fontWeight={800} mt={1}>{data.openFeedback}</Typography>
-                      <Typography variant="caption" color="warning.main">Unresolved queries</Typography>
+                      <Typography variant="caption" color="warning.main">{t('admin.unresolvedQueries')}</Typography>
                     </Box>
                     <ForumIcon color="warning" sx={{ fontSize: 32 }} />
                   </Stack>
@@ -291,7 +293,7 @@ const AdminDashboard = () => {
                 <CardContent>
                   <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
                     <Box>
-                      <Typography variant="body2" color="text.secondary" fontWeight={600}>Goal success rate</Typography>
+                      <Typography variant="body2" color="text.secondary" fontWeight={600}>{t('admin.goalSuccessRate')}</Typography>
                       <Typography variant="h4" fontWeight={800} mt={0.5}>{data.goalSuccessRate.toFixed(0)}%</Typography>
                     </Box>
                     <FlagIcon sx={{ fontSize: 32, color: '#e879f9' }} />
@@ -315,12 +317,12 @@ const AdminDashboard = () => {
             indicatorColor="primary"
             textColor="primary"
           >
-            <Tab label="Emission Analytics" />
-            <Tab label="Category breakdown" />
-            <Tab label="User Leaderboard rankings" />
-            <Tab label="Goal & Badge Achievement details" />
-            <Tab label="User Activities & Audits" />
-            <Tab label="Platform Gamification" />
+            <Tab label={t('admin.tabEmissionAnalytics')} />
+            <Tab label={t('dashboard.tabCategoryBreakdown')} />
+            <Tab label={t('admin.tabLeaderboardRankings')} />
+            <Tab label={t('admin.tabGoalAchievementDetails')} />
+            <Tab label={t('admin.tabUserActivitiesAudits')} />
+            <Tab label={t('admin.tabPlatformGamification')} />
           </Tabs>
 
           {/* Tab 1: Emission Analytics */}
@@ -329,7 +331,7 @@ const AdminDashboard = () => {
               <Grid item xs={12} md={6}>
                 <Card sx={{ p: 2 }}>
                   <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
-                    Daily Emissions (kg CO₂)
+                    {t('admin.dailyEmissionsLabel')}
                   </Typography>
                   <Box height={300}>
                     <ResponsiveContainer width="100%" height="100%">

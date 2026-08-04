@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Container, Card, CardContent, Typography, TextField, Button, Box, Alert, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import api from '../api';
+import { useTranslation } from '../context/LanguageContext';
 
 const EmissionFactorManagement = () => {
+  const { t } = useTranslation();
   const [factors, setFactors] = useState([]);
   const [editId, setEditId] = useState(null);
   const [editFactor, setEditFactor] = useState('');
@@ -47,7 +49,7 @@ const EmissionFactorManagement = () => {
     try {
       const res = await api.put(`/api/admin/emission-factors/${editId}?factor=${parseFloat(editFactor)}&version=${editVersion}`);
       if (res.data.success) {
-        setSuccess('Emission factor coefficient updated successfully!');
+        setSuccess(t('admin.factorsSuccessUpdate'));
         setEditId(null);
         fetchFactors();
       }
@@ -65,7 +67,7 @@ const EmissionFactorManagement = () => {
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
-        <Typography>Loading emission factors...</Typography>
+        <Typography>{t('admin.factorsLoading')}</Typography>
       </Box>
     );
   }
@@ -84,7 +86,7 @@ const EmissionFactorManagement = () => {
         <Card sx={{ mb: 4 }}>
           <CardContent>
             <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 3 }}>
-              Edit Factor Multiplier Value
+              {t('admin.factorsEditTitle')}
             </Typography>
             <form onSubmit={handleSave}>
               <Stack direction="row" spacing={2} alignItems="center">
@@ -97,16 +99,16 @@ const EmissionFactorManagement = () => {
                   inputProps={{ step: 'any' }}
                 />
                 <TextField
-                  label="Version"
+                  label={t('admin.factorVersion')}
                   required
                   value={editVersion}
                   onChange={(e) => setEditVersion(e.target.value)}
                 />
                 <Button type="submit" variant="contained" color="primary" disabled={saving}>
-                  {saving ? 'Saving...' : 'Save'}
+                  {saving ? 'Saving...' : t('common.save')}
                 </Button>
                 <Button variant="outlined" color="inherit" onClick={handleCancel}>
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
               </Stack>
             </form>
@@ -122,10 +124,10 @@ const EmissionFactorManagement = () => {
               <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Category</TableCell>
               <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Activity Type</TableCell>
               <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Unit</TableCell>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="right">Factor Coeff.</TableCell>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Ver</TableCell>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Source</TableCell>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="center">Edit</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="right">{t('admin.factorCoefficient')}</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('admin.versionShort')}</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('admin.factorSource')}</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="center">{t('common.edit')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

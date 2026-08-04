@@ -61,6 +61,12 @@ CarbonTracker is a high-fidelity, interactive, and responsive web application de
   - **Audit Exports**: Quick buttons to export data to CSV, Excel spreadsheets, or print browser PDFs.
 - **Direct Mail Alerts**: Integrated Nodemailer triggers delivering automated notices to users upon ticket receipt and resolution.
 
+### 🌍 Scalable Multilingual Engine (100+ Languages) & Dynamic RTL Layouts
+- **Searchable Language Picker**: Completely redesigned selector component in both the landing page navbar and portal dashboard with native and English naming labels, alphabetical sorting, and instant search filter input.
+- **RTL (Right-to-Left) Mirrors**: Full support for Right-to-Left layout flipping (Sidebar navigation anchor, grids, margins, alignment controls) dynamically updating when RTL languages like Arabic (`ar`) are active.
+- **Unified Translation Context**: Integrated `react-i18next` framework linking local translation namespaces dynamically.
+- **Visual Fallback Signatures**: Localized placeholder fallbacks reflecting chosen languages (e.g. `[ଓଡ଼ିଆ] ...`) for full internationalization verification.
+
 ---
 
 ## 🛠️ Tech Stack

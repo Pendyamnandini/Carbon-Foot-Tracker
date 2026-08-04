@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Container, Card, Typography, Box, Alert, Grid } from '@mui/material';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, Tooltip as ChartTooltip } from 'recharts';
 import api from '../api';
+import { useTranslation } from '../context/LanguageContext';
 
 const ReportsAnalytics = () => {
+  const { t } = useTranslation();
   const [data, setData] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -28,14 +30,14 @@ const ReportsAnalytics = () => {
 
         const formatted = Object.keys(grouped).map((key) => ({
           name: key,
-          'Total Emissions': parseFloat(grouped[key].sum.toFixed(1)),
-          'Average Emission': parseFloat((grouped[key].sum / grouped[key].count).toFixed(1))
+          [t('dashboard.periodEmissions')]: parseFloat(grouped[key].sum.toFixed(1)),
+          [t('dashboard.dailyAverage')]: parseFloat((grouped[key].sum / grouped[key].count).toFixed(1))
         }));
 
         setData(formatted);
       }
     } catch (e) {
-      setError('Could not compile platform analytics.');
+      setError(t('admin.reportsCompiling'));
     } finally {
       setLoading(false);
     }
@@ -48,7 +50,7 @@ const ReportsAnalytics = () => {
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
-        <Typography>Compiling reports and analytics...</Typography>
+        <Typography>{t('admin.reportsCompiling')}</Typography>
       </Box>
     );
   }
@@ -56,10 +58,10 @@ const ReportsAnalytics = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h4" fontWeight={800} gutterBottom sx={{ mb: 2 }}>
-        Platform Analytics & Reports
+        {t('admin.reportsTitle')}
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-        Aggregated indicators detailing total carbon footprint metrics and averages across all platform categories.
+        {t('admin.reportsSubtitle')}
       </Typography>
 
       {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
@@ -68,11 +70,11 @@ const ReportsAnalytics = () => {
         <Grid item xs={12}>
           <Card sx={{ p: 3 }}>
             <Typography variant="h6" fontWeight={700} sx={{ mb: 3 }}>
-              Total Emissions by Category (kg CO2)
+              {t('admin.reportsEmissionsLabel')}
             </Typography>
             {data.length === 0 ? (
               <Box height={300} display="flex" justifyContent="center" alignItems="center">
-                <Typography color="text.secondary">No activity logs recorded on the platform.</Typography>
+                <Typography color="text.secondary">{t('admin.reportsNoData')}</Typography>
               </Box>
             ) : (
               <Box height={350}>
@@ -86,8 +88,8 @@ const ReportsAnalytics = () => {
                       itemStyle={{ color: '#fff' }}
                     />
                     <Legend />
-                    <Bar dataKey="Total Emissions" fill="#06b6d4" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="Average Emission" fill="#fbbf24" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey={t('dashboard.periodEmissions')} fill="#06b6d4" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey={t('dashboard.dailyAverage')} fill="#fbbf24" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </Box>

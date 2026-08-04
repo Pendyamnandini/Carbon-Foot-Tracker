@@ -3,11 +3,13 @@ import { Container, Card, CardContent, Typography, TextField, Button, Box, Alert
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, Tooltip as ChartTooltip, LineChart, Line } from 'recharts';
 import api from '../api';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from '../context/LanguageContext';
 import DownloadIcon from '@mui/icons-material/Download';
 import PeopleIcon from '@mui/icons-material/People';
 import SpeedIcon from '@mui/icons-material/Speed';
 
 const OrganizationDashboard = () => {
+  const { t } = useTranslation();
   const { user, updateProfileState } = useAuth();
   
   const [orgLink, setOrgLink] = useState(null); // OrganizationUser link
@@ -86,7 +88,7 @@ const OrganizationDashboard = () => {
         organizationType: orgType
       });
       if (res.data.success) {
-        setSuccess('Organization established successfully!');
+        setSuccess(t('org.successCreate'));
         updateProfileState({ role: 'ORG_ADMIN' });
         fetchOrgDetails();
       }
@@ -105,12 +107,12 @@ const OrganizationDashboard = () => {
         role: empRole
       });
       if (res.data.success) {
-        setSuccess('Employee added successfully!');
+        setSuccess(t('org.successAddEmployee'));
         setEmpEmail('');
         fetchOrgDetails();
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to add employee.');
+      setError(err.response?.data?.message || t('org.failAddEmployee'));
     }
   };
 
@@ -121,11 +123,11 @@ const OrganizationDashboard = () => {
     try {
       const res = await api.post(`/api/organizations/${orgLink.organization.id}/reports?month=${reportMonth}&year=${reportYear}`);
       if (res.data.success) {
-        setSuccess('Monthly sustainability report generated!');
+        setSuccess(t('org.successReport'));
         fetchOrgDetails();
       }
     } catch (err) {
-      setError('Failed to generate report.');
+      setError(t('org.failReport'));
     }
   };
 
@@ -149,7 +151,7 @@ const OrganizationDashboard = () => {
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
-        <Typography>Loading organization details...</Typography>
+        <Typography>{t('org.loading')}</Typography>
       </Box>
     );
   }
@@ -162,10 +164,10 @@ const OrganizationDashboard = () => {
           <CardContent>
             <Box textAlign="center" mb={4}>
               <Typography variant="h4" fontWeight={800} color="primary" gutterBottom>
-                Institutional Sustainability
+                {t('org.institutionalTitle')}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Connect your business, school, or organization to track aggregated carbon footprints and report group impact.
+                {t('org.institutionalSubtitle')}
               </Typography>
             </Box>
 
@@ -175,7 +177,7 @@ const OrganizationDashboard = () => {
             <form onSubmit={handleCreateOrg}>
               <Stack spacing={3}>
                 <TextField
-                  label="Organization Name"
+                  label={t('org.orgName')}
                   fullWidth
                   required
                   value={orgName}
@@ -184,19 +186,19 @@ const OrganizationDashboard = () => {
 
                 <TextField
                   select
-                  label="Organization Type"
+                  label={t('org.type')}
                   fullWidth
                   value={orgType}
                   onChange={(e) => setOrgType(e.target.value)}
                 >
-                  <MenuItem value="Business">Business / Corporation</MenuItem>
-                  <MenuItem value="School">School / University</MenuItem>
-                  <MenuItem value="Institution">Government / NGO</MenuItem>
-                  <MenuItem value="Community">Community Group</MenuItem>
+                  <MenuItem value="Business">{t('org.typeBusiness')}</MenuItem>
+                  <MenuItem value="School">{t('org.typeSchool')}</MenuItem>
+                  <MenuItem value="Institution">{t('org.typeGovernment')}</MenuItem>
+                  <MenuItem value="Community">{t('org.typeCommunity')}</MenuItem>
                 </TextField>
 
                 <Button type="submit" variant="contained" color="primary" fullWidth size="large">
-                  Create Organization
+                  {t('org.createBtn')}
                 </Button>
               </Stack>
             </form>
@@ -228,10 +230,10 @@ const OrganizationDashboard = () => {
       <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2} sx={{ mb: 4 }}>
         <Box>
           <Typography variant="h4" fontWeight={800} gutterBottom>
-            {orgLink.organization.organizationName} Dashboard
+            {orgLink.organization.organizationName} {t('org.dashboard')}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Manage employees, monitor team carbon footprints, and review monthly reports.
+            {t('org.dashboardSubtitle')}
           </Typography>
         </Box>
         {isOrgAdmin && (
@@ -267,9 +269,9 @@ const OrganizationDashboard = () => {
               <CardContent>
                 <Stack direction="row" justifyContent="space-between" alignItems="center">
                   <Box>
-                    <Typography variant="body2" color="text.secondary" fontWeight={600}>Total Employees</Typography>
+                    <Typography variant="body2" color="text.secondary" fontWeight={600}>{t('org.totalEmployees')}</Typography>
                     <Typography variant="h4" fontWeight={800} mt={1}>{employees.length}</Typography>
-                    <Typography variant="caption" color="text.secondary">Active team members</Typography>
+                    <Typography variant="caption" color="text.secondary">{t('org.activeTeamMembers')}</Typography>
                   </Box>
                   <PeopleIcon color="primary" sx={{ fontSize: 32 }} />
                 </Stack>
@@ -281,9 +283,9 @@ const OrganizationDashboard = () => {
               <CardContent>
                 <Stack direction="row" justifyContent="space-between" alignItems="center">
                   <Box>
-                    <Typography variant="body2" color="text.secondary" fontWeight={600}>Generated Reports</Typography>
+                    <Typography variant="body2" color="text.secondary" fontWeight={600}>{t('org.generatedReports')}</Typography>
                     <Typography variant="h4" fontWeight={800} mt={1}>{reports.length}</Typography>
-                    <Typography variant="caption" color="text.secondary">Monthly audits archived</Typography>
+                    <Typography variant="caption" color="text.secondary">{t('org.monthlyAuditsArchived')}</Typography>
                   </Box>
                   <SpeedIcon color="secondary" sx={{ fontSize: 32 }} />
                 </Stack>
@@ -303,9 +305,9 @@ const OrganizationDashboard = () => {
             indicatorColor="primary"
             textColor="primary"
           >
-            <Tab label="Emission Trends & Performance" />
-            <Tab label="Team Rankings & Management" />
-            <Tab label="Reports & Actions" />
+            <Tab label="{t('org.tabEmissionTrends')}" />
+            <Tab label="{t('org.tabTeamRankings')}" />
+            <Tab label="{t('org.tabReportsActions')}" />
           </Tabs>
 
           {/* Tab 1: Emission Trends & Dept Performance */}
@@ -315,11 +317,11 @@ const OrganizationDashboard = () => {
               <Grid item xs={12}>
                 <Card sx={{ p: 2 }}>
                   <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
-                    Employee Emission Trends (Last 6 Months, kg CO₂)
+                    {t('org.employeeEmissionTrends')}
                   </Typography>
                   {processedTrendData.length === 0 ? (
                     <Box height={300} display="flex" justifyContent="center" alignItems="center">
-                      <Typography color="text.secondary">No emission data available yet.</Typography>
+                      <Typography color="text.secondary">{t('org.noEmissionData')}</Typography>
                     </Box>
                   ) : (
                     <Box height={300}>
@@ -344,11 +346,11 @@ const OrganizationDashboard = () => {
               <Grid item xs={12}>
                 <Card sx={{ p: 2 }}>
                   <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
-                    Department Performance (Current Month Average, kg CO₂)
+                    {t('org.departmentPerformance')}
                   </Typography>
                   {deptPerformance.length === 0 ? (
                     <Box height={300} display="flex" justifyContent="center" alignItems="center">
-                      <Typography color="text.secondary">No department data available.</Typography>
+                      <Typography color="text.secondary">{t('org.noDeptData')}</Typography>
                     </Box>
                   ) : (
                     <Box height={300}>
@@ -358,8 +360,8 @@ const OrganizationDashboard = () => {
                           <XAxis dataKey="departmentName" stroke="#9ca3af" />
                           <YAxis stroke="#9ca3af" />
                           <ChartTooltip contentStyle={{ background: '#1f2937', borderColor: '#374151', borderRadius: 8 }} itemStyle={{ color: '#fff' }} />
-                          <Bar dataKey="averageEmissions" fill="#06b6d4" radius={[4, 4, 0, 0]} name="Avg Emissions (kg)" />
-                          <Bar dataKey="totalEmissions" fill="#fbbf24" radius={[4, 4, 0, 0]} name="Total Emissions (kg)" />
+                          <Bar dataKey="averageEmissions" fill="#06b6d4" radius={[4, 4, 0, 0]} name={t('org.avgEmissionsKg')} />
+                          <Bar dataKey="totalEmissions" fill="#fbbf24" radius={[4, 4, 0, 0]} name={t('org.totalEmissionsKg')} />
                         </BarChart>
                       </ResponsiveContainer>
                     </Box>
@@ -369,23 +371,23 @@ const OrganizationDashboard = () => {
             </Grid>
           )}
 
-          {/* Tab 2: Team Rankings & Management */}
+          {/* Tab 2: {t('org.tabTeamRankings')} */}
           {orgTabValue === 1 && (
             <Grid container spacing={3}>
               {/* Leaderboard Rankings */}
               <Grid item xs={12}>
                 <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
-                  Team Rankings (Current Month)
+                  {t('org.teamRankingsCurrentMonth')}
                 </Typography>
                 <TableContainer component={Paper}>
                   <Table size="small">
                     <TableHead sx={{ backgroundColor: 'rgba(255,255,255,0.02)' }}>
                       <TableRow>
-                        <TableCell sx={{ fontWeight: 700 }}>Rank</TableCell>
-                        <TableCell sx={{ fontWeight: 700 }}>Employee</TableCell>
-                        <TableCell sx={{ fontWeight: 700 }}>Department</TableCell>
-                        <TableCell sx={{ fontWeight: 700 }} align="right">Emissions (kg)</TableCell>
-                        <TableCell sx={{ fontWeight: 700 }} align="right">Sustainability Score</TableCell>
+                        <TableCell sx={{ fontWeight: 700 }}>{t('org.tableRank')}</TableCell>
+                        <TableCell sx={{ fontWeight: 700 }}>{t('org.tableEmployee')}</TableCell>
+                        <TableCell sx={{ fontWeight: 700 }}>{t('org.tableDepartment')}</TableCell>
+                        <TableCell sx={{ fontWeight: 700 }} align="right">{t('org.tableEmissions')}</TableCell>
+                        <TableCell sx={{ fontWeight: 700 }} align="right">{t('org.tableSustainabilityScore')}</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -408,12 +410,12 @@ const OrganizationDashboard = () => {
                 <Card>
                   <CardContent>
                     <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>
-                      Add Employee / Member
+                      {t('org.addEmployeeTitle')}
                     </Typography>
                     <form onSubmit={handleAddEmployee}>
                       <Stack spacing={2.5}>
                         <TextField
-                          label="User Email Address"
+                          label={t('org.userEmailAddress')}
                           type="email"
                           fullWidth
                           required
@@ -422,16 +424,16 @@ const OrganizationDashboard = () => {
                         />
                         <TextField
                           select
-                          label="Assigned Role"
+                          label={t('org.assignedRole')}
                           fullWidth
                           value={empRole}
                           onChange={(e) => setEmpRole(e.target.value)}
                         >
-                          <MenuItem value="ORG_USER">Employee (ORG_USER)</MenuItem>
-                          <MenuItem value="ORG_ADMIN">Manager (ORG_ADMIN)</MenuItem>
+                          <MenuItem value="ORG_USER">{t('org.roleUser')}</MenuItem>
+                          <MenuItem value="ORG_ADMIN">{t('org.roleAdmin')}</MenuItem>
                         </TextField>
                         <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 1 }}>
-                          Add User
+                          {t('org.addUserBtn')}
                         </Button>
                       </Stack>
                     </form>
@@ -444,7 +446,7 @@ const OrganizationDashboard = () => {
                 <Card sx={{ height: '100%' }}>
                   <CardContent>
                     <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>
-                      Employees Roster
+                      {t('org.employeesRoster')}
                     </Typography>
                     <Stack spacing={1.5} sx={{ maxHeight: 230, overflowY: 'auto' }}>
                       {employees.map((emp) => (
@@ -463,25 +465,25 @@ const OrganizationDashboard = () => {
             </Grid>
           )}
 
-          {/* Tab 3: Monthly Sustainability Reports */}
+          {/* Tab 3: {t('org.monthlySustainabilityReports')} */}
           {orgTabValue === 2 && (
             <Grid container spacing={3}>
               <Grid item xs={12} md={7}>
                 <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
-                  Monthly Sustainability Reports
+                  {t('org.monthlySustainabilityReports')}
                 </Typography>
                 <TableContainer component={Paper}>
                   <Table>
                     <TableHead sx={{ backgroundColor: 'rgba(255,255,255,0.02)' }}>
                       <TableRow>
-                        <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Report Period</TableCell>
-                        <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="right">Aggregated CO2 (kg)</TableCell>
+                        <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('org.reportPeriod')}</TableCell>
+                        <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="right">{t('org.aggregatedCO2')}</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {reports.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={2} align="center">No reports generated yet.</TableCell>
+                          <TableCell colSpan={2} align="center">{t('org.noReportsYet')}</TableCell>
                         </TableRow>
                       ) : (
                         reports.map((rep) => (
@@ -503,13 +505,13 @@ const OrganizationDashboard = () => {
                 <Card>
                   <CardContent>
                     <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>
-                      Generate Aggregated Report
+                      {t('org.generateAggregatedReport')}
                     </Typography>
                     <form onSubmit={handleGenerateReport}>
                       <Grid container spacing={2}>
                         <Grid item xs={6}>
                           <TextField
-                            label="Month (1-12)"
+                            label={t('org.monthLabel')}
                             type="number"
                             fullWidth
                             required
@@ -520,7 +522,7 @@ const OrganizationDashboard = () => {
                         </Grid>
                         <Grid item xs={6}>
                           <TextField
-                            label="Year"
+                            label={t('org.yearLabel')}
                             type="number"
                             fullWidth
                             required
@@ -530,7 +532,7 @@ const OrganizationDashboard = () => {
                         </Grid>
                         <Grid item xs={12}>
                           <Button type="submit" variant="outlined" color="primary" fullWidth>
-                            Calculate & Save Report
+                            {t('org.calculateSaveReport')}
                           </Button>
                         </Grid>
                       </Grid>
@@ -546,20 +548,20 @@ const OrganizationDashboard = () => {
         <Grid container spacing={4}>
           <Grid item xs={12} md={7}>
             <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
-              Monthly Sustainability Reports
+              {t('org.monthlySustainabilityReports')}
             </Typography>
             <TableContainer component={Paper}>
               <Table>
                 <TableHead sx={{ backgroundColor: 'rgba(255,255,255,0.02)' }}>
                   <TableRow>
-                    <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Report Period</TableCell>
-                    <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="right">Aggregated CO2 (kg)</TableCell>
+                    <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('org.reportPeriod')}</TableCell>
+                    <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="right">{t('org.aggregatedCO2')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {reports.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={2} align="center">No reports generated yet.</TableCell>
+                      <TableCell colSpan={2} align="center">{t('org.noReportsYet')}</TableCell>
                     </TableRow>
                   ) : (
                     reports.map((rep) => (
@@ -579,9 +581,9 @@ const OrganizationDashboard = () => {
           <Grid item xs={12} md={5}>
             <Card sx={{ background: 'rgba(17,24,39,0.4)', border: '1px solid rgba(255,255,255,0.08)' }}>
               <CardContent>
-                <Typography variant="subtitle1" fontWeight={700} gutterBottom>Member Role</Typography>
+                <Typography variant="subtitle1" fontWeight={700} gutterBottom>{t('org.memberRole')}</Typography>
                 <Typography variant="body2" color="text.secondary">
-                  You are registered as an **Employee (ORG_USER)**. Sustainability reports and employee management settings are restricted to organization administrators.
+                  You are registered as an **{t('org.roleUser')}**. Sustainability reports and employee management settings are restricted to organization administrators.
                 </Typography>
               </CardContent>
             </Card>

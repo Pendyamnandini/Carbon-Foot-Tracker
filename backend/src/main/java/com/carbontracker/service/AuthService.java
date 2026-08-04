@@ -94,6 +94,7 @@ public class AuthService {
                 .fullName(user.getFullName())
                 .email(user.getEmail())
                 .role(user.getRole().name())
+                .language(user.getLanguage())
                 .build();
     }
 
@@ -134,6 +135,7 @@ public class AuthService {
                 .fullName(user.getFullName())
                 .email(user.getEmail())
                 .role(user.getRole().name())
+                .language(user.getLanguage())
                 .build();
     }
 

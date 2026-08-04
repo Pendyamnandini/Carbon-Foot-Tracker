@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Card, CardContent, Typography, TextField, Button, Box, Alert, Stack } from '@mui/material';
 import api from '../api';
+import { useTranslation } from '../context/LanguageContext';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 
 const OtpVerificationPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
@@ -57,10 +59,10 @@ const OtpVerificationPage = () => {
         <CardContent>
           <Box textAlign="center" mb={4}>
             <Typography variant="h4" fontWeight={800} color="primary" gutterBottom>
-              Verify OTP
+              {t('auth.otpTitle')}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Enter the 6-digit code sent to <strong>{email}</strong>.
+              <Box component="span">{t('auth.otpSubtitle')} <strong>{email}</strong></Box>
             </Typography>
           </Box>
 
@@ -70,7 +72,7 @@ const OtpVerificationPage = () => {
           <form onSubmit={handleSubmit}>
             <Stack spacing={3}>
               <TextField
-                label="Email Address"
+                label={t('auth.email')}
                 type="email"
                 fullWidth
                 required
@@ -78,7 +80,7 @@ const OtpVerificationPage = () => {
                 value={email}
               />
               <TextField
-                label="6-Digit OTP"
+                label={t('auth.otpLabel')}
                 fullWidth
                 required
                 value={otp}
@@ -87,17 +89,17 @@ const OtpVerificationPage = () => {
               />
 
               <Button type="submit" variant="contained" color="primary" fullWidth size="large" disabled={loading}>
-                {loading ? 'Verifying...' : 'Verify Code'}
+                {loading ? t('auth.otpsending') : t('auth.otpBtnVerify')}
               </Button>
             </Stack>
           </form>
 
           <Box mt={3} display="flex" justifyContent="space-between" alignItems="center">
             <Button variant="text" color="secondary" onClick={handleResend} sx={{ fontSize: '0.875rem' }}>
-              Resend OTP
+              {t('auth.resendOtp')}
             </Button>
             <Link to="/login" style={{ color: '#10b981', textDecoration: 'none', fontWeight: 600, fontSize: '0.875rem' }}>
-              Back to Sign In
+              {t('auth.loginHere')}
             </Link>
           </Box>
         </CardContent>

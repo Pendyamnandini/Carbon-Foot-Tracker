@@ -20,6 +20,15 @@ public class SampleDataService {
     private UserRepository userRepository;
 
     @Autowired
+    private TicketRepository ticketRepository;
+
+    @Autowired
+    private TicketMessageRepository ticketMessageRepository;
+
+    @Autowired
+    private TicketTimelineRepository ticketTimelineRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -123,6 +132,9 @@ public class SampleDataService {
         monthlyRepository.deleteAll();
 
         activityLogRepository.deleteAll();
+        ticketTimelineRepository.deleteAll();
+        ticketMessageRepository.deleteAll();
+        ticketRepository.deleteAll();
 
         // Delete all users except we'll recreate the admin
         userRepository.deleteAll();

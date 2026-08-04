@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Container, Card, CardContent, Typography, TextField, Button, Box, Alert, Stack } from '@mui/material';
 import api from '../api';
+import { useTranslation } from '../context/LanguageContext';
 import { useNavigate, Link } from 'react-router-dom';
 
 const ForgotPasswordPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
@@ -37,10 +39,10 @@ const ForgotPasswordPage = () => {
         <CardContent>
           <Box textAlign="center" mb={4}>
             <Typography variant="h4" fontWeight={800} color="primary" gutterBottom>
-              Forgot Password
+              {t('auth.forgotPasswordTitle')}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Enter your registered email address to receive a 6-digit verification code.
+              {t('auth.forgotPasswordSubtitle')}
             </Typography>
           </Box>
 
@@ -50,7 +52,7 @@ const ForgotPasswordPage = () => {
           <form onSubmit={handleSubmit}>
             <Stack spacing={3}>
               <TextField
-                label="Email Address"
+                label={t('auth.email')}
                 type="email"
                 fullWidth
                 required
@@ -59,14 +61,14 @@ const ForgotPasswordPage = () => {
               />
 
               <Button type="submit" variant="contained" color="primary" fullWidth size="large" disabled={loading}>
-                {loading ? 'Sending OTP...' : 'Send OTP'}
+                {loading ? t('auth.forgotPasswordSending') : t('auth.forgotPasswordBtn')}
               </Button>
             </Stack>
           </form>
 
           <Box mt={3} textAlign="center">
             <Link to="/login" style={{ color: '#10b981', textDecoration: 'none', fontWeight: 600, fontSize: '0.875rem' }}>
-              Back to Sign In
+              {t('auth.loginHere')}
             </Link>
           </Box>
         </CardContent>

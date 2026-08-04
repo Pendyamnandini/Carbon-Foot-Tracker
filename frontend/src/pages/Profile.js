@@ -4,6 +4,7 @@ import {
   Container, Card, CardContent, Typography, TextField, Button, Box, Alert, Stack, Grid, Avatar, Select, MenuItem, InputLabel, FormControl, Tabs, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, LinearProgress, CircularProgress, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, List, ListItem, ListItemText, ListItemAvatar, Badge as MuiBadge, Switch, FormControlLabel
 } from '@mui/material';
 import api from '../api';
+import { useTranslation } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
@@ -22,7 +23,42 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import LockIcon from '@mui/icons-material/Lock';
 import LanguageIcon from '@mui/icons-material/Language';
 
+const SUPPORTED_LANGUAGES = [
+  { code: 'en', label: 'English' },
+  { code: 'hi', label: 'हिंदी (Hindi)' },
+  { code: 'te', label: 'తెలుగు (Telugu)' },
+  { code: 'ta', label: 'தமிழ் (Tamil)' },
+  { code: 'kn', label: 'ಕನ್ನಡ (Kannada)' },
+  { code: 'ml', label: 'മലയാളം (Malayalam)' },
+  { code: 'mr', label: 'मराठी (Marathi)' },
+  { code: 'gu', label: 'ગુજરાતી (Gujarati)' },
+  { code: 'pa', label: 'ਪੰਜਾਬੀ (Punjabi)' },
+  { code: 'bn', label: 'বাংলা (Bengali)' },
+  { code: 'or', label: 'ଓଡ଼ିଆ (Odia)' },
+  { code: 'ur', label: 'اردو (Urdu)' },
+  { code: 'es', label: 'Español (Spanish)' },
+  { code: 'fr', label: 'Français (French)' },
+  { code: 'de', label: 'Deutsch (German)' },
+  { code: 'it', label: 'Italiano (Italian)' },
+  { code: 'pt', label: 'Português (Portuguese)' },
+  { code: 'nl', label: 'Nederlands (Dutch)' },
+  { code: 'ru', label: 'Русский (Russian)' },
+  { code: 'tr', label: 'Türkçe (Turkish)' },
+  { code: 'ar', label: 'العربية (Arabic)' },
+  { code: 'he', label: 'עברית (Hebrew)' },
+  { code: 'fa', label: 'فارسی (Persian)' },
+  { code: 'zh_CN', label: '简体中文' },
+  { code: 'zh_TW', label: '繁體中文' },
+  { code: 'ja', label: '日本語 (Japanese)' },
+  { code: 'ko', label: '한국어 (Korean)' },
+  { code: 'th', label: 'ไทย (Thai)' },
+  { code: 'vi', label: 'Tiếng Việt (Vietnamese)' },
+  { code: 'id', label: 'Bahasa Indonesia' },
+  { code: 'ms', label: 'Bahasa Melayu' }
+];
+
 const Profile = () => {
+  const { t, lang, changeLanguage } = useTranslation();
   const { updateProfileState } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get('tab');
@@ -59,7 +95,7 @@ const Profile = () => {
     goalAlerts: true,
     badgeAlerts: true,
     leaderboardAlerts: true,
-    language: 'en',
+    language: lang,
     currency: 'USD',
     distanceUnit: 'km'
   });
@@ -259,8 +295,13 @@ const Profile = () => {
 
   const handleSaveSettings = () => {
     localStorage.setItem('userSettings', JSON.stringify(settings));
-    setSuccess('Settings saved successfully!');
+    changeLanguage(settings.language);
+    setSuccess(t('profile.successUpdate'));
   };
+
+  useEffect(() => {
+    setSettings(prev => ({ ...prev, language: lang }));
+  }, [lang]);
 
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
@@ -276,7 +317,7 @@ const Profile = () => {
     try {
       const res = await api.post('/api/profile/change-password', passwordState);
       if (res.data.success) {
-        setPasswordSuccess('Password updated successfully!');
+        setPasswordSuccess(t('profile.passwordSuccess'));
         setPasswordState({ oldPassword: '', newPassword: '', confirmPassword: '' });
       }
     } catch (err) {
@@ -325,7 +366,7 @@ const Profile = () => {
     try {
       const res = await api.put('/api/profile', profile);
       if (res.data.success) {
-        setSuccess('Profile updated successfully!');
+        setSuccess(t('profile.successUpdate'));
         updateProfileState({ fullName: profile.fullName });
       }
     } catch (err) {
@@ -437,19 +478,19 @@ const Profile = () => {
           </Typography>
           <Grid container spacing={1.5} sx={{ maxW: 500 }}>
             <Grid item xs={6} sm={3}>
-              <Typography variant="caption" color="text.secondary" display="block">Reward Points</Typography>
+              <Typography variant="caption" color="text.secondary" display="block">{t('profile.rewardsPoints')}</Typography>
               <Typography variant="subtitle2" fontWeight={800} color="primary.main">🪙 {rewards.totalPoints} pts</Typography>
             </Grid>
             <Grid item xs={6} sm={3}>
-              <Typography variant="caption" color="text.secondary" display="block">Earned Badges</Typography>
+              <Typography variant="caption" color="text.secondary" display="block">{t('profile.tabBadges')}</Typography>
               <Typography variant="subtitle2" fontWeight={800} color="secondary.main">🏅 {badgesData.unlockedBadges.length} unlocked</Typography>
             </Grid>
             <Grid item xs={6} sm={3}>
-              <Typography variant="caption" color="text.secondary" display="block">Certificates</Typography>
+              <Typography variant="caption" color="text.secondary" display="block">{t('profile.certsTitle')}</Typography>
               <Typography variant="subtitle2" fontWeight={800} color="info.main">📜 {certificates.length} earned</Typography>
             </Grid>
             <Grid item xs={6} sm={3}>
-              <Typography variant="caption" color="text.secondary" display="block">Global Rank</Typography>
+              <Typography variant="caption" color="text.secondary" display="block">{t('profile.globalRank')}</Typography>
               <Typography variant="subtitle2" fontWeight={800} color="warning.main">🏆 #{rewards.currentRank}</Typography>
             </Grid>
           </Grid>
@@ -469,14 +510,14 @@ const Profile = () => {
         variant="scrollable"
         scrollButtons="auto"
       >
-        <Tab label="Edit Profile" sx={{ fontWeight: 800 }} />
-        <Tab label="Activity History" sx={{ fontWeight: 800 }} />
-        <Tab label="Badges" sx={{ fontWeight: 800 }} />
-        <Tab label="Certificates" sx={{ fontWeight: 800 }} />
-        <Tab label="Achievements" sx={{ fontWeight: 800 }} />
-        <Tab label="Rewards Progress" sx={{ fontWeight: 800 }} />
-        <Tab label="Notification History" sx={{ fontWeight: 800 }} />
-        <Tab label="Settings" sx={{ fontWeight: 800 }} />
+        <Tab label={t('profile.tabProfile')} sx={{ fontWeight: 800 }} />
+        <Tab label={t('profile.tabHistory')} sx={{ fontWeight: 800 }} />
+        <Tab label={t('profile.tabBadges')} sx={{ fontWeight: 800 }} />
+        <Tab label={t('profile.tabCertificates')} sx={{ fontWeight: 800 }} />
+        <Tab label={t('profile.tabAchievements')} sx={{ fontWeight: 800 }} />
+        <Tab label={t('profile.tabRewards')} sx={{ fontWeight: 800 }} />
+        <Tab label={t('profile.tabNotifications')} sx={{ fontWeight: 800 }} />
+        <Tab label={t('profile.tabSettings')} sx={{ fontWeight: 800 }} />
       </Tabs>
 
       {/* Tab 0: Edit Profile */}
@@ -487,7 +528,7 @@ const Profile = () => {
               <Grid container spacing={3}>
                 <Grid item xs={12} sm={6}>
                   <TextField
-                    label="Full Name"
+                    label={t('profile.fullName')}
                     name="fullName"
                     fullWidth
                     required
@@ -497,7 +538,7 @@ const Profile = () => {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
-                    label="Mobile Number"
+                    label={t('profile.mobileNumber')}
                     name="mobileNumber"
                     fullWidth
                     value={profile.mobileNumber}
@@ -506,7 +547,7 @@ const Profile = () => {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
-                    label="Date of Birth"
+                    label={t('profile.dob')}
                     name="dateOfBirth"
                     type="date"
                     fullWidth
@@ -517,23 +558,23 @@ const Profile = () => {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <FormControl fullWidth>
-                    <InputLabel>Gender</InputLabel>
+                    <InputLabel>{t('profile.gender')}</InputLabel>
                     <Select
-                      label="Gender"
+                      label={t('profile.gender')}
                       name="gender"
                       value={profile.gender}
                       onChange={handleChange}
                     >
-                      <MenuItem value="MALE">Male</MenuItem>
-                      <MenuItem value="FEMALE">Female</MenuItem>
-                      <MenuItem value="OTHER">Other</MenuItem>
-                      <MenuItem value="PREFER_NOT_TO_SAY">Prefer not to say</MenuItem>
+                      <MenuItem value="MALE">{t('profile.genderMale')}</MenuItem>
+                      <MenuItem value="FEMALE">{t('profile.genderFemale')}</MenuItem>
+                      <MenuItem value="OTHER">{t('profile.genderOther')}</MenuItem>
+                      <MenuItem value="PREFER_NOT_TO_SAY">{t('profile.genderPreferNotToSay')}</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
                 <Grid item xs={12} sm={4}>
                   <TextField
-                    label="Country"
+                    label={t('profile.country')}
                     name="country"
                     fullWidth
                     value={profile.country}
@@ -542,7 +583,7 @@ const Profile = () => {
                 </Grid>
                 <Grid item xs={12} sm={4}>
                   <TextField
-                    label="State / Province"
+                    label={t('profile.stateProvince')}
                     name="state"
                     fullWidth
                     value={profile.state}
@@ -551,7 +592,7 @@ const Profile = () => {
                 </Grid>
                 <Grid item xs={12} sm={4}>
                   <TextField
-                    label="City"
+                    label={t('profile.city')}
                     name="city"
                     fullWidth
                     value={profile.city}
@@ -560,7 +601,7 @@ const Profile = () => {
                 </Grid>
                 <Grid item xs={12}>
                   <TextField
-                    label="Sustainability Preferences (e.g. Vegetarian, EV Driver, Solar Panels)"
+                    label={t('profile.preferences')}
                     name="sustainabilityPreferences"
                     fullWidth
                     multiline
@@ -572,7 +613,7 @@ const Profile = () => {
                 
                 <Grid item xs={12} display="flex" justifyContent="flex-end">
                   <Button type="submit" variant="contained" color="primary" size="large" disabled={saving}>
-                    {saving ? 'Saving...' : 'Save Profile Changes'}
+                    {saving ? t('profile.saving') : t('profile.saveChangesBtn')}
                   </Button>
                 </Grid>
               </Grid>
@@ -650,7 +691,7 @@ const Profile = () => {
 
             <Box display="flex" justifyContent="space-between" alignItems="center" mt={3}>
               <Typography variant="caption" color="text.secondary">
-                Page {page + 1} of {totalPages}
+                {t('profile.historyPage')} {page + 1} {t('profile.historyOf')} {totalPages}
               </Typography>
               <Stack direction="row" spacing={1.5}>
                 <Button size="small" variant="outlined" disabled={page === 0} onClick={() => handlePageChange('prev')}>
@@ -670,12 +711,12 @@ const Profile = () => {
         <Box>
           <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2} sx={{ mb: 3 }}>
             <Typography variant="h6" fontWeight={800}>
-              Dynamic Carbon Achievements & Badges
+              {t('profile.badgesTitle')}
             </Typography>
             <Stack direction="row" spacing={1}>
-              <Button size="small" variant={badgesFilter === 'unlocked' ? 'contained' : 'outlined'} onClick={() => setBadgesFilter('unlocked')}>Unlocked</Button>
-              <Button size="small" variant={badgesFilter === 'locked' ? 'contained' : 'outlined'} onClick={() => setBadgesFilter('locked')}>Locked</Button>
-              <Button size="small" variant={badgesFilter === 'all' ? 'contained' : 'outlined'} onClick={() => setBadgesFilter('all')}>All Badges</Button>
+              <Button size="small" variant={badgesFilter === 'unlocked' ? 'contained' : 'outlined'} onClick={() => setBadgesFilter('unlocked')}>{t('profile.badgesUnlocked')}</Button>
+              <Button size="small" variant={badgesFilter === 'locked' ? 'contained' : 'outlined'} onClick={() => setBadgesFilter('locked')}>{t('profile.badgesLocked')}</Button>
+              <Button size="small" variant={badgesFilter === 'all' ? 'contained' : 'outlined'} onClick={() => setBadgesFilter('all')}>{t('profile.badgesAll')}</Button>
             </Stack>
           </Box>
 
@@ -683,7 +724,7 @@ const Profile = () => {
             {displayedBadges.length === 0 ? (
               <Grid item xs={12}>
                 <Paper sx={{ p: 4, textAlign: 'center', bgcolor: 'transparent' }}>
-                  <Typography color="text.secondary">No badges found matching this filter.</Typography>
+                  <Typography color="text.secondary">{t('profile.badgesNoBadgesMatching')}</Typography>
                 </Paper>
               </Grid>
             ) : (
@@ -717,14 +758,14 @@ const Profile = () => {
                       {b.locked ? (
                         <Box sx={{ width: '100%' }}>
                           <Box display="flex" justifyContent="space-between" mb={0.5}>
-                            <Typography variant="caption" color="text.secondary">Progress to Unlock</Typography>
+                            <Typography variant="caption" color="text.secondary">{t('profile.badgesProgress')}</Typography>
                             <Typography variant="caption" fontWeight={800}>{b.progress}%</Typography>
                           </Box>
                           <LinearProgress variant="determinate" value={b.progress} sx={{ height: 6, borderRadius: 2 }} color="warning" />
                         </Box>
                       ) : (
                         <Typography variant="caption" color="success.main" display="flex" alignItems="center" gap={0.5} fontWeight={700}>
-                          <CheckCircleIcon sx={{ fontSize: 14 }} /> Earned {new Date(b.dateEarned).toLocaleDateString()}
+                          <CheckCircleIcon sx={{ fontSize: 14 }} /> {t('profile.badgesEarnedOn')} {new Date(b.dateEarned).toLocaleDateString()}
                         </Typography>
                       )}
                     </CardContent>
@@ -740,16 +781,16 @@ const Profile = () => {
       {profileTab === 3 && (
         <Box>
           <Typography variant="h6" fontWeight={800} sx={{ mb: 3 }}>
-            Digital Green Certificates
+            {t('profile.certsTitle')}
           </Typography>
 
           {certificates.length === 0 ? (
             <Paper sx={{ p: 4, textAlign: 'center', background: 'rgba(255,255,255,0.01)', border: '1px dashed rgba(255,255,255,0.1)' }}>
               <Typography color="text.secondary" gutterBottom>
-                No digital certificates generated yet.
+                {t('profile.certsNoCerts')}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ maxW: 500, mx: 'auto' }}>
-                Complete major carbon milestones (such as completing 3 carbon goals, saving 50 kg CO₂ overall, or finishing 5 recommendations) to automatically receive digital certificates.
+                {t('profile.certsNoCertsDesc')}
               </Typography>
             </Paper>
           ) : (
@@ -778,11 +819,11 @@ const Profile = () => {
 
                       <Grid container spacing={1} sx={{ mb: 3, p: 1.5, bgcolor: 'rgba(255,255,255,0.01)', borderRadius: 1.5 }}>
                         <Grid item xs={6}>
-                          <Typography variant="caption" color="text.secondary" display="block">Issued Date</Typography>
+                          <Typography variant="caption" color="text.secondary" display="block">{t('profile.certsIssued')}</Typography>
                           <Typography variant="body2" fontWeight={700}>{new Date(cert.dateIssued).toLocaleDateString()}</Typography>
                         </Grid>
                         <Grid item xs={6}>
-                          <Typography variant="caption" color="text.secondary" display="block">Issuer</Typography>
+                          <Typography variant="caption" color="text.secondary" display="block">{t('profile.certsIssuer')}</Typography>
                           <Typography variant="body2" fontWeight={700}>{cert.organizationName}</Typography>
                         </Grid>
                       </Grid>
@@ -796,7 +837,7 @@ const Profile = () => {
                           startIcon={<CardMembershipIcon />}
                           onClick={() => setSelectedCert(cert)}
                         >
-                          View Secure Doc
+                          {t('profile.certsViewDoc')}
                         </Button>
                         <IconButton size="small" onClick={() => handleShareCertificate(cert)} color="info" sx={{ border: '1px solid rgba(255,255,255,0.1)', borderRadius: 1.5 }}>
                           <ShareIcon fontSize="small" />
@@ -815,12 +856,12 @@ const Profile = () => {
       {profileTab === 4 && (
         <Box>
           <Typography variant="h6" fontWeight={800} sx={{ mb: 3 }}>
-            Continuous Achievements Timeline
+            {t('profile.achieveTitle')}
           </Typography>
 
           {achievements.length === 0 ? (
             <Paper sx={{ p: 4, textAlign: 'center', bgcolor: 'transparent' }}>
-              <Typography color="text.secondary">No achievements unlocked yet. Keep logging activities and reduction goals!</Typography>
+              <Typography color="text.secondary">{t('profile.achieveLocked')}</Typography>
             </Paper>
           ) : (
             <Box sx={{ position: 'relative', pl: 3, borderLeft: '2px solid rgba(16,185,129,0.2)' }}>
@@ -855,7 +896,7 @@ const Profile = () => {
                       {ach.badgeName && (
                         <Box sx={{ mt: 1.5 }} display="flex" alignItems="center" gap={0.5}>
                           <MilitaryTechIcon sx={{ fontSize: 18, color: 'warning.main' }} />
-                          <Typography variant="caption" fontWeight={700}>Badge unlocked: {ach.badgeName}</Typography>
+                          <Typography variant="caption" fontWeight={700}>{t('profile.achieveBadgeUnlocked')} {ach.badgeName}</Typography>
                         </Box>
                       )}
                     </CardContent>
@@ -884,12 +925,12 @@ const Profile = () => {
                   Level {rewards.level}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                  Gain 100 points to level up. You have accumulated {rewards.totalPoints} points overall.
+                  {t('profile.rewardsLevelUpInfo').replace('{totalPoints}', rewards.totalPoints)}
                 </Typography>
                 
                 <Box sx={{ width: '100%', mb: 3 }}>
                   <Box display="flex" justifyContent="space-between" mb={0.5}>
-                    <Typography variant="caption" color="text.secondary">Level Progress</Typography>
+                    <Typography variant="caption" color="text.secondary">{t('profile.levelProgress')}</Typography>
                     <Typography variant="caption" fontWeight={800}>{rewards.progressToNextLevel}%</Typography>
                   </Box>
                   <LinearProgress variant="determinate" value={rewards.progressToNextLevel} sx={{ height: 8, borderRadius: 2 }} />
@@ -897,11 +938,11 @@ const Profile = () => {
 
                 <Grid container spacing={2} sx={{ p: 1.5, bgcolor: 'rgba(255,255,255,0.02)', borderRadius: 2 }}>
                   <Grid item xs={6}>
-                    <Typography variant="caption" color="text.secondary" display="block">Global Rank</Typography>
+                    <Typography variant="caption" color="text.secondary" display="block">{t('profile.globalRank')}</Typography>
                     <Typography variant="subtitle1" fontWeight={800}>🏆 #{rewards.currentRank}</Typography>
                   </Grid>
                   <Grid item xs={6}>
-                    <Typography variant="caption" color="text.secondary" display="block">Points Accumulated</Typography>
+                    <Typography variant="caption" color="text.secondary" display="block">{t('profile.pointsAccumulated')}</Typography>
                     <Typography variant="subtitle1" fontWeight={800}>🪙 {rewards.totalPoints}</Typography>
                   </Grid>
                 </Grid>
@@ -913,19 +954,19 @@ const Profile = () => {
             <Card>
               <CardContent sx={{ p: 3 }}>
                 <Typography variant="h6" fontWeight={800} gutterBottom display="flex" alignItems="center" gap={1}>
-                  <StarsIcon color="primary" /> Earning Points & Achievements Rules
+                  <StarsIcon color="primary" /> {t('profile.earningRulesTitle')}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                  Perform active tasks on the platform to raise your rank, earn points, and unlock green achievements.
+                  {t('profile.earningRulesDesc')}
                 </Typography>
 
                 <Stack spacing={2}>
                   {[
-                    { label: 'Log Carbon Activities', pts: '+10 points', desc: 'Awarded for any daily carbon activity logs.' },
-                    { label: 'Complete Goal Milestones', pts: '+50 points', desc: 'Successfully hit 100% on targets.' },
-                    { label: 'Dynamic Recommendations', pts: '+30 points', desc: 'Implement personalized suggestions.' },
-                    { label: 'Unlock Badges', pts: '+20 points', desc: 'Gain milestones like Streaks or Savings.' },
-                    { label: 'Receive Digital Certificates', pts: '+100 points', desc: 'Earn professional certified badges.' }
+                    { label: t('profile.ruleLogActivities'), pts: '+10 ' + t('org.points'), desc: t('profile.ruleLogActivitiesDesc') },
+                    { label: t('profile.ruleCompleteGoals'), pts: '+50 ' + t('org.points'), desc: t('profile.ruleCompleteGoalsDesc') },
+                    { label: t('profile.ruleRecs'), pts: '+30 ' + t('org.points'), desc: t('profile.ruleRecsDesc') },
+                    { label: t('profile.ruleBadges'), pts: '+20 ' + t('org.points'), desc: t('profile.ruleBadgesDesc') },
+                    { label: t('profile.ruleCerts'), pts: '+100 ' + t('org.points'), desc: t('profile.ruleCertsDesc') }
                   ].map((rule, idx) => (
                     <Box key={idx} display="flex" justifyContent="space-between" alignItems="center" sx={{ pb: 1.5, borderBottom: '1px solid rgba(255,255,255,0.05)', '&:last-child': { pb: 0, borderBottom: 'none' } }}>
                       <Box>
@@ -948,7 +989,7 @@ const Profile = () => {
           <CardContent sx={{ p: 3 }}>
             <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
               <Typography variant="h6" fontWeight={800} display="flex" alignItems="center" gap={1}>
-                <NotificationsIcon color="primary" /> Notifications & History
+                <NotificationsIcon color="primary" /> {t('profile.tabNotifications')}
               </Typography>
               {notifications.some(n => !n.isRead) && (
                 <Button
@@ -957,14 +998,14 @@ const Profile = () => {
                   startIcon={<DoneAllIcon />}
                   onClick={handleMarkAllNotificationsRead}
                 >
-                  Mark all read
+                  {t('profile.markAllRead')}
                 </Button>
               )}
             </Box>
 
             {notifications.length === 0 ? (
               <Paper sx={{ p: 4, textAlign: 'center', bgcolor: 'transparent' }}>
-                <Typography color="text.secondary">No notification logs recorded.</Typography>
+                <Typography color="text.secondary">{t('profile.notifsNoNotifs')}</Typography>
               </Paper>
             ) : (
               <List>
@@ -977,7 +1018,7 @@ const Profile = () => {
                           size="small"
                           onClick={() => handleMarkNotificationRead(notif.id)}
                         >
-                          Mark Read
+                          {t('profile.markRead')}
                         </Button>
                       )
                     }
@@ -1027,13 +1068,13 @@ const Profile = () => {
             <Card sx={{ height: '100%', border: '1px solid rgba(255, 255, 255, 0.05)', background: 'rgba(255,255,255,0.01)' }}>
               <CardContent sx={{ p: 3 }}>
                 <Typography variant="h6" fontWeight={850} display="flex" alignItems="center" gap={1.5} sx={{ mb: 3 }}>
-                  <SettingsIcon color="primary" /> Preferences & Customization
+                  <SettingsIcon color="primary" /> {t('profile.settingsTitle')}
                 </Typography>
                 <Stack spacing={3}>
                   <Box display="flex" justifyContent="space-between" alignItems="center">
                     <Box>
-                      <Typography variant="subtitle2" fontWeight={800}>Weekly Digest Email</Typography>
-                      <Typography variant="caption" color="text.secondary">Receive weekly carbon summary reports</Typography>
+                      <Typography variant="subtitle2" fontWeight={800}>{t('profile.settingsWeekly')}</Typography>
+                      <Typography variant="caption" color="text.secondary">{t('profile.settingsWeeklyDesc')}</Typography>
                     </Box>
                     <Switch
                       checked={settings.weeklyDigest}
@@ -1044,8 +1085,8 @@ const Profile = () => {
 
                   <Box display="flex" justifyContent="space-between" alignItems="center">
                     <Box>
-                      <Typography variant="subtitle2" fontWeight={800}>Goal Milestone Alerts</Typography>
-                      <Typography variant="caption" color="text.secondary">Alert me when I reach 50% or 100% of reduction goals</Typography>
+                      <Typography variant="subtitle2" fontWeight={800}>{t('profile.settingsGoals')}</Typography>
+                      <Typography variant="caption" color="text.secondary">{t('profile.settingsGoalsDesc')}</Typography>
                     </Box>
                     <Switch
                       checked={settings.weeklyDigest}
@@ -1056,8 +1097,8 @@ const Profile = () => {
 
                   <Box display="flex" justifyContent="space-between" alignItems="center">
                     <Box>
-                      <Typography variant="subtitle2" fontWeight={800}>New Badges & Rewards Notifications</Typography>
-                      <Typography variant="caption" color="text.secondary">Notify me when I unlock achievements</Typography>
+                      <Typography variant="subtitle2" fontWeight={800}>{t('profile.settingsBadges')}</Typography>
+                      <Typography variant="caption" color="text.secondary">{t('profile.settingsBadgesDesc')}</Typography>
                     </Box>
                     <Switch
                       checked={settings.weeklyDigest}
@@ -1068,8 +1109,8 @@ const Profile = () => {
 
                   <Box display="flex" justifyContent="space-between" alignItems="center">
                     <Box>
-                      <Typography variant="subtitle2" fontWeight={800}>Leaderboard Rank Updates</Typography>
-                      <Typography variant="caption" color="text.secondary">Receive notifications when my global ranking changes</Typography>
+                      <Typography variant="subtitle2" fontWeight={800}>{t('profile.settingsLeaderboard')}</Typography>
+                      <Typography variant="caption" color="text.secondary">{t('profile.settingsLeaderboardDesc')}</Typography>
                     </Box>
                     <Switch
                       checked={settings.weeklyDigest}
@@ -1081,24 +1122,25 @@ const Profile = () => {
                   <Grid container spacing={2} sx={{ pt: 2 }}>
                     <Grid item xs={12} sm={4}>
                       <FormControl fullWidth size="small">
-                        <InputLabel>Language</InputLabel>
+                        <InputLabel>{t('profile.settingsLanguage')}</InputLabel>
                         <Select
-                          label="Language"
+                          label={t('profile.settingsLanguage')}
                           value={settings.language}
                           onChange={(e) => handleSettingsChange('language', e.target.value)}
                         >
-                          <MenuItem value="en">English</MenuItem>
-                          <MenuItem value="es">Español</MenuItem>
-                          <MenuItem value="fr">Français</MenuItem>
-                          <MenuItem value="de">Deutsch</MenuItem>
+                           {[...SUPPORTED_LANGUAGES].sort((a, b) => a.label.localeCompare(b.label)).map((item) => (
+                             <MenuItem key={item.code} value={item.code}>
+                               {item.label}
+                             </MenuItem>
+                           ))}
                         </Select>
                       </FormControl>
                     </Grid>
                     <Grid item xs={12} sm={4}>
                       <FormControl fullWidth size="small">
-                        <InputLabel>Offset Currency</InputLabel>
+                        <InputLabel>{t('profile.settingsCurrency')}</InputLabel>
                         <Select
-                          label="Offset Currency"
+                          label={t('profile.settingsCurrency')}
                           value={settings.currency}
                           onChange={(e) => handleSettingsChange('currency', e.target.value)}
                         >
@@ -1111,14 +1153,14 @@ const Profile = () => {
                     </Grid>
                     <Grid item xs={12} sm={4}>
                       <FormControl fullWidth size="small">
-                        <InputLabel>Distance Unit</InputLabel>
+                        <InputLabel>{t('profile.settingsDistance')}</InputLabel>
                         <Select
-                          label="Distance Unit"
+                          label={t('profile.settingsDistance')}
                           value={settings.distanceUnit}
                           onChange={(e) => handleSettingsChange('distanceUnit', e.target.value)}
                         >
-                          <MenuItem value="km">Kilometers (km)</MenuItem>
-                          <MenuItem value="mi">Miles (mi)</MenuItem>
+                          <MenuItem value="km">{t('profile.kilometers')}</MenuItem>
+                          <MenuItem value="mi">{t('profile.miles')}</MenuItem>
                         </Select>
                       </FormControl>
                     </Grid>
@@ -1126,7 +1168,7 @@ const Profile = () => {
 
                   <Box display="flex" justifyContent="flex-end" sx={{ pt: 2 }}>
                     <Button variant="contained" color="primary" onClick={handleSaveSettings} sx={{ fontWeight: 800 }}>
-                      Save Preferences
+                      {t('profile.savePreferences')}
                     </Button>
                   </Box>
                 </Stack>
@@ -1138,7 +1180,7 @@ const Profile = () => {
             <Card sx={{ height: '100%', border: '1px solid rgba(255, 255, 255, 0.05)', background: 'rgba(255,255,255,0.01)' }}>
               <CardContent sx={{ p: 3 }}>
                 <Typography variant="h6" fontWeight={850} display="flex" alignItems="center" gap={1.5} sx={{ mb: 3 }}>
-                  <LockIcon color="primary" /> Security & Password
+                  <LockIcon color="primary" /> {t('profile.settingsChangePassword')}
                 </Typography>
                 
                 {passwordError && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setPasswordError('')}>{passwordError}</Alert>}
@@ -1147,7 +1189,7 @@ const Profile = () => {
                 <form onSubmit={handlePasswordSubmit}>
                   <Stack spacing={3}>
                     <TextField
-                      label="Current Password"
+                      label={t('profile.settingsOldPassword')}
                       type="password"
                       fullWidth
                       required
@@ -1155,7 +1197,7 @@ const Profile = () => {
                       onChange={(e) => setPasswordState(prev => ({ ...prev, oldPassword: e.target.value }))}
                     />
                     <TextField
-                      label="New Password"
+                      label={t('profile.settingsNewPassword')}
                       type="password"
                       fullWidth
                       required
@@ -1163,7 +1205,7 @@ const Profile = () => {
                       onChange={(e) => setPasswordState(prev => ({ ...prev, newPassword: e.target.value }))}
                     />
                     <TextField
-                      label="Confirm New Password"
+                      label={t('profile.settingsConfirmPassword')}
                       type="password"
                       fullWidth
                       required
@@ -1172,7 +1214,7 @@ const Profile = () => {
                     />
                     <Box display="flex" justifyContent="flex-end">
                       <Button type="submit" variant="contained" color="secondary" disabled={passwordLoading} sx={{ fontWeight: 800 }}>
-                        {passwordLoading ? 'Updating...' : 'Change Password'}
+                        {passwordLoading ? t('profile.saving') : t('profile.settingsUpdatePasswordBtn')}
                       </Button>
                     </Box>
                   </Stack>
@@ -1207,7 +1249,7 @@ const Profile = () => {
               </Typography>
 
               <Typography variant="h3" fontWeight={900} sx={{ my: 4, fontFamily: 'serif', letterSpacing: 1 }}>
-                Certificate of Achievement
+                {t('profile.certsModalTitle')}
               </Typography>
 
               <Typography variant="body1" sx={{ color: 'text.secondary', fontStyle: 'italic', mb: 2 }}>
@@ -1247,10 +1289,10 @@ const Profile = () => {
           </DialogContent>
           <DialogActions>
             <Button startIcon={<PrintIcon />} variant="contained" onClick={handlePrintCertificate}>
-              Print / Save PDF
+              {t('profile.certsModalPrint')}
             </Button>
             <Button onClick={() => setSelectedCert(null)} color="inherit">
-              Close
+              {t('recs.dialogClose')}
             </Button>
           </DialogActions>
         </Dialog>

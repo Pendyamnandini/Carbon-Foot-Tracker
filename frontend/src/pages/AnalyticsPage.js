@@ -24,6 +24,7 @@ import GridViewIcon from '@mui/icons-material/GridView';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 
 import api from '../api';
+import { useTranslation } from '../context/LanguageContext';
 
 const categoryColors = {
   TRANSPORT: '#3b82f6',
@@ -40,6 +41,7 @@ const categoryIcons = {
 };
 
 const AnalyticsPage = () => {
+  const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   
   // Custom period states
@@ -274,7 +276,7 @@ const AnalyticsPage = () => {
       <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }} spacing={2} sx={{ mb: 4 }}>
         <Box>
           <Typography variant="h4" fontWeight={900} gutterBottom sx={{ letterSpacing: '-0.02em' }}>
-            Advanced Analytics & Intelligence
+            {t('analytics.title')}
           </Typography>
           <Typography variant="body1" color="text.secondary">
             Deep-dive category breakdown ({selectedCategory}), period comparison, predictive forecasts, and carbon potential engine.
@@ -283,10 +285,10 @@ const AnalyticsPage = () => {
 
         <Stack direction="row" spacing={1.5} flexWrap="wrap">
           <Button variant="contained" color="primary" startIcon={<DownloadIcon />} onClick={handleDownloadCSV}>
-            Download CSV
+            {t('dashboard.exportCSV')}
           </Button>
           <Button variant="contained" color="secondary" startIcon={<DownloadIcon />} onClick={handleDownloadPDF}>
-            Download PDF
+            {t('dashboard.exportPDF')}
           </Button>
         </Stack>
       </Stack>
@@ -298,11 +300,11 @@ const AnalyticsPage = () => {
           <Grid item xs={12} sm={6} md={3}>
             <FormControl fullWidth size="small">
               <InputLabel>Period Type</InputLabel>
-              <Select value={periodType} label="Period Type" onChange={(e) => setPeriodType(e.target.value)}>
-                <MenuItem value="DAILY">Daily Analytics</MenuItem>
-                <MenuItem value="WEEKLY">Weekly Analytics</MenuItem>
-                <MenuItem value="MONTHLY">Monthly Analytics</MenuItem>
-                <MenuItem value="YEARLY">Yearly Analytics</MenuItem>
+              <Select value={periodType} label={t('analytics.periodType')} onChange={(e) => setPeriodType(e.target.value)}>
+                <MenuItem value="DAILY">{t('analytics.dailyAnalytics')}</MenuItem>
+                <MenuItem value="WEEKLY">{t('analytics.weeklyAnalytics')}</MenuItem>
+                <MenuItem value="MONTHLY">{t('analytics.monthlyAnalytics')}</MenuItem>
+                <MenuItem value="YEARLY">{t('analytics.yearlyAnalytics')}</MenuItem>
                 <MenuItem value="CUSTOM">Custom Date Range</MenuItem>
               </Select>
             </FormControl>
@@ -312,12 +314,12 @@ const AnalyticsPage = () => {
           <Grid item xs={12} sm={6} md={3}>
             <FormControl fullWidth size="small">
               <InputLabel>Category Filter</InputLabel>
-              <Select value={selectedCategory} label="Category Filter" onChange={(e) => setSelectedCategory(e.target.value)}>
-                <MenuItem value="ALL">All Categories</MenuItem>
-                <MenuItem value="TRANSPORT">Transport Analytics</MenuItem>
-                <MenuItem value="ELECTRICITY">Electricity Analytics</MenuItem>
-                <MenuItem value="FOOD">Food Analytics</MenuItem>
-                <MenuItem value="SHOPPING">Shopping Analytics</MenuItem>
+              <Select value={selectedCategory} label={t('analytics.categoryFilter')} onChange={(e) => setSelectedCategory(e.target.value)}>
+                <MenuItem value="ALL">{t('recs.filterAll')}</MenuItem>
+                <MenuItem value="TRANSPORT">{t('analytics.transportAnalytics')}</MenuItem>
+                <MenuItem value="ELECTRICITY">{t('analytics.electricityAnalytics')}</MenuItem>
+                <MenuItem value="FOOD">{t('analytics.foodAnalytics')}</MenuItem>
+                <MenuItem value="SHOPPING">{t('analytics.shoppingAnalytics')}</MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -329,7 +331,7 @@ const AnalyticsPage = () => {
                 fullWidth
                 size="small"
                 type="date"
-                label="Select Date"
+                label={t('analytics.selectDate')}
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
                 InputLabelProps={{ shrink: true }}
@@ -343,7 +345,7 @@ const AnalyticsPage = () => {
                 fullWidth
                 size="small"
                 type="week"
-                label="Select Week"
+                label={t('analytics.selectWeek')}
                 value={selectedWeek}
                 onChange={(e) => setSelectedWeek(e.target.value)}
                 InputLabelProps={{ shrink: true }}
@@ -357,7 +359,7 @@ const AnalyticsPage = () => {
                 fullWidth
                 size="small"
                 type="month"
-                label="Select Month"
+                label={t('analytics.selectMonth')}
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
                 InputLabelProps={{ shrink: true }}
@@ -369,7 +371,7 @@ const AnalyticsPage = () => {
             <Grid item xs={12} sm={6} md={4}>
               <FormControl fullWidth size="small">
                 <InputLabel>Select Year</InputLabel>
-                <Select value={selectedYear} label="Select Year" onChange={(e) => setSelectedYear(e.target.value)}>
+                <Select value={selectedYear} label={t('analytics.selectYear')} onChange={(e) => setSelectedYear(e.target.value)}>
                   {[2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030].map(y => (
                     <MenuItem key={y} value={y}>{y}</MenuItem>
                   ))}
@@ -385,7 +387,7 @@ const AnalyticsPage = () => {
                   fullWidth
                   size="small"
                   type="date"
-                  label="Start Date"
+                  label={t('analytics.startDate')}
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                   InputLabelProps={{ shrink: true }}
@@ -396,7 +398,7 @@ const AnalyticsPage = () => {
                   fullWidth
                   size="small"
                   type="date"
-                  label="End Date"
+                  label={t('analytics.endDate')}
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                   InputLabelProps={{ shrink: true }}
@@ -458,11 +460,11 @@ const AnalyticsPage = () => {
       {/* TABS FOR DEEP-DIVE VIEWS */}
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
         <Tabs value={activeTab} onChange={(e, val) => setActiveTab(val)} indicatorColor="primary">
-          <Tab label="KPI Overview & Deep Insights" icon={<SpeedIcon />} iconPosition="start" />
-          <Tab label="Breakdown & Comparison Charts" icon={<AutoGraphIcon />} iconPosition="start" />
-          <Tab label="Forecasts & Recommendations" icon={<TrendingDownIcon />} iconPosition="start" />
-          <Tab label="Activity Heatmap & Timeline" icon={<TimelineIcon />} iconPosition="start" />
-          <Tab label="Benchmarking BI" icon={<EqualizerIcon />} iconPosition="start" />
+          <Tab label={t('analytics.tabKpiOverview')} icon={<SpeedIcon />} iconPosition="start" />
+          <Tab label={t('analytics.tabBreakdownCharts')} icon={<AutoGraphIcon />} iconPosition="start" />
+          <Tab label={t('analytics.tabForecastsRecs')} icon={<TrendingDownIcon />} iconPosition="start" />
+          <Tab label={t('analytics.tabHeatmapTimeline')} icon={<TimelineIcon />} iconPosition="start" />
+          <Tab label={t('analytics.tabBenchmarkingBi')} icon={<EqualizerIcon />} iconPosition="start" />
         </Tabs>
       </Box>
 
@@ -479,7 +481,7 @@ const AnalyticsPage = () => {
             <Grid container spacing={3}>
               <Grid item xs={12} sm={6} md={3}>
                 <Paper className="glass-card" sx={{ p: 3 }}>
-                  <Typography variant="caption" color="text.secondary">Total Period Emissions ({selectedCategory})</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('analytics.totalPeriodCarbonFootprint')} ({selectedCategory})</Typography>
                   <Typography variant="h4" fontWeight={900} color="primary.main">{selectedTotalEmissions.toFixed(1)} kg</Typography>
                   <Typography variant="caption" color="text.secondary">CO₂ equivalent</Typography>
                 </Paper>
@@ -487,7 +489,7 @@ const AnalyticsPage = () => {
 
               <Grid item xs={12} sm={6} md={3}>
                 <Paper className="glass-card" sx={{ p: 3 }}>
-                  <Typography variant="caption" color="text.secondary">Daily Average Emissions</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('analytics.dailyAverage')}</Typography>
                   <Typography variant="h4" fontWeight={900}>{dailyAvg.toFixed(1)} kg</Typography>
                   <Typography variant="caption" color="text.secondary">Per active day ({selectedCategory})</Typography>
                 </Paper>
@@ -495,7 +497,7 @@ const AnalyticsPage = () => {
 
               <Grid item xs={12} sm={6} md={3}>
                 <Paper className="glass-card" sx={{ p: 3 }}>
-                  <Typography variant="caption" color="text.secondary">Weekly Average Emissions</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('analytics.weeklyAverage')}</Typography>
                   <Typography variant="h4" fontWeight={900}>{weeklyAvg.toFixed(1)} kg</Typography>
                   <Typography variant="caption" color="text.secondary">Projected 7-day average</Typography>
                 </Paper>
@@ -503,7 +505,7 @@ const AnalyticsPage = () => {
 
               <Grid item xs={12} sm={6} md={3}>
                 <Paper className="glass-card" sx={{ p: 3 }}>
-                  <Typography variant="caption" color="text.secondary">Monthly Average Emissions</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('analytics.monthlyAverage')}</Typography>
                   <Typography variant="h4" fontWeight={900}>{monthlyAvg.toFixed(1)} kg</Typography>
                   <Typography variant="caption" color="text.secondary">Projected 30-day average</Typography>
                 </Paper>
@@ -511,7 +513,7 @@ const AnalyticsPage = () => {
 
               <Grid item xs={12} sm={6} md={3}>
                 <Paper className="glass-card" sx={{ p: 3 }}>
-                  <Typography variant="caption" color="text.secondary">Previous Period Emissions</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('analytics.previousPeriod')}</Typography>
                   <Typography variant="h4" fontWeight={900} color="secondary.main">{previousPeriodEmissions.toFixed(1)} kg</Typography>
                   <Typography variant="caption" color="text.secondary">Baseline comparison</Typography>
                 </Paper>
@@ -519,7 +521,7 @@ const AnalyticsPage = () => {
 
               <Grid item xs={12} sm={6} md={3}>
                 <Paper className="glass-card" sx={{ p: 3 }}>
-                  <Typography variant="caption" color="text.secondary">Peak Emission Point</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('analytics.peakDay')}</Typography>
                   <Typography variant="h5" fontWeight={800} color="error.main">{peakDayObj.date || 'N/A'}</Typography>
                   <Typography variant="caption" color="text.secondary">{peakDayObj.val !== undefined ? `${peakDayObj.val.toFixed(1)} kg CO₂` : 'No data'}</Typography>
                 </Paper>
@@ -527,7 +529,7 @@ const AnalyticsPage = () => {
 
               <Grid item xs={12} sm={6} md={3}>
                 <Paper className="glass-card" sx={{ p: 3 }}>
-                  <Typography variant="caption" color="text.secondary">Lowest Emission Point</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('analytics.lowestDay')}</Typography>
                   <Typography variant="h5" fontWeight={800} color="success.main">{lowestDayObj.date || 'N/A'}</Typography>
                   <Typography variant="caption" color="text.secondary">{lowestDayObj.val !== undefined ? `${lowestDayObj.val.toFixed(1)} kg CO₂` : 'No data'}</Typography>
                 </Paper>
@@ -535,7 +537,7 @@ const AnalyticsPage = () => {
 
               <Grid item xs={12} sm={6} md={3}>
                 <Paper className="glass-card" sx={{ p: 3 }}>
-                  <Typography variant="caption" color="text.secondary">Period Difference & Change</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('analytics.periodOverPeriod')}</Typography>
                   <Typography variant="h4" fontWeight={900} color={percentageChange <= 0 ? "success.main" : "error.main"}>
                     {percentageChange.toFixed(1)}%
                   </Typography>
@@ -556,7 +558,7 @@ const AnalyticsPage = () => {
                   <Typography variant="subtitle2" color="text.secondary" gutterBottom>Sustainability Score</Typography>
                   <Stack direction="row" alignItems="center" spacing={2} my={1}>
                     <Typography variant="h3" fontWeight={900} color="primary.main">{sustainabilityScore.toFixed(0)} / 100</Typography>
-                    <Chip label={sustainabilityScore >= 80 ? "Excellent" : sustainabilityScore >= 60 ? "Good" : "Needs Improvement"} color={sustainabilityScore >= 70 ? "success" : "warning"} size="small" />
+                    <Chip label={sustainabilityScore >= 80 ? t('analytics.excellent') : sustainabilityScore >= 60 ? t('analytics.good') : t('analytics.needsImprovement')} color={sustainabilityScore >= 70 ? "success" : "warning"} size="small" />
                   </Stack>
                   <LinearProgress variant="determinate" value={sustainabilityScore} sx={{ height: 8, borderRadius: 4 }} />
                 </Paper>
@@ -575,7 +577,7 @@ const AnalyticsPage = () => {
                   <Typography variant="subtitle2" color="text.secondary" gutterBottom>Goal Target Success Odds</Typography>
                   <Stack direction="row" alignItems="center" spacing={2} my={1}>
                     <Typography variant="h3" fontWeight={900} color="secondary.main">{Math.max(30, Math.min(98, Math.round(sustainabilityScore + 5)))}%</Typography>
-                    <Chip label="Calculated Odds" color="primary" size="small" />
+                    <Chip label={t('analytics.calculatedOdds')} color="primary" size="small" />
                   </Stack>
                   <LinearProgress variant="determinate" value={Math.max(30, Math.min(98, Math.round(sustainabilityScore + 5)))} color="secondary" sx={{ height: 8, borderRadius: 4 }} />
                 </Paper>

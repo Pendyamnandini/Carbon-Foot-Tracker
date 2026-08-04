@@ -5,8 +5,10 @@ import FlagIcon from '@mui/icons-material/Flag';
 import StarIcon from '@mui/icons-material/Star';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import api from '../api';
+import { useTranslation } from '../context/LanguageContext';
 
 const Goals = () => {
+  const { t } = useTranslation();
   const [goals, setGoals] = useState([]);
   const [goalTitle, setGoalTitle] = useState('');
   const [targetReduction, setTargetReduction] = useState('');
@@ -24,7 +26,7 @@ const Goals = () => {
         setGoals(res.data.data);
       }
     } catch (e) {
-      setError('Could not retrieve goals.');
+      setError(t('goals.retrieveError'));
     }
   };
 
@@ -38,7 +40,7 @@ const Goals = () => {
     setSuccess('');
 
     if (parseFloat(targetReduction) <= 0 || parseFloat(targetReduction) > 100) {
-      setError('Target reduction percentage must be between 1% and 100%');
+      setError(t('goals.validationTarget'));
       return;
     }
 
@@ -54,13 +56,13 @@ const Goals = () => {
     try {
       const res = await api.post('/api/goals', payload);
       if (res.data.success) {
-        setSuccess('Goal established successfully!');
+        setSuccess(t('goals.successCreate'));
         setGoalTitle('');
         setTargetReduction('');
         fetchGoals();
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to establish goal.');
+      setError(err.response?.data?.message || t('goals.failCreate'));
     } finally {
       setLoading(false);
     }
@@ -72,18 +74,18 @@ const Goals = () => {
     try {
       const res = await api.delete(`/api/goals/${id}`);
       if (res.data.success) {
-        setSuccess('Goal deleted successfully!');
+        setSuccess(t('goals.successDelete'));
         fetchGoals();
       }
     } catch (err) {
-      setError('Goal deletion failed.');
+      setError(t('goals.failDelete'));
     }
   };
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Typography variant="h4" fontWeight={800} gutterBottom sx={{ mb: 4 }}>
-        Sustainability Goals
+        {t('goals.title')}
       </Typography>
 
       {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
@@ -93,13 +95,13 @@ const Goals = () => {
       <Card sx={{ mb: 5 }}>
         <CardContent>
           <Typography variant="h6" fontWeight={700} sx={{ mb: 3 }}>
-            🎯 Establish Custom Sustainability Goal
+            🎯 {t('goals.establishTitle')}
           </Typography>
           <form onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <TextField
-                  label="Goal Title (e.g. 15% Commute Reduction)"
+                  label={t('goals.formTitle')}
                   fullWidth
                   required
                   value={goalTitle}
@@ -109,7 +111,7 @@ const Goals = () => {
 
               <Grid item xs={12} sm={4}>
                 <TextField
-                  label="Target Reduction (%)"
+                  label={t('goals.formTarget')}
                   type="number"
                   fullWidth
                   required
@@ -121,7 +123,7 @@ const Goals = () => {
 
               <Grid item xs={12} sm={4}>
                 <TextField
-                  label="Start Date"
+                  label={t('goals.formStart')}
                   type="date"
                   fullWidth
                   required
@@ -132,7 +134,7 @@ const Goals = () => {
 
               <Grid item xs={12} sm={4}>
                 <TextField
-                  label="Target End Date"
+                  label={t('goals.formEnd')}
                   type="date"
                   fullWidth
                   required
@@ -143,7 +145,7 @@ const Goals = () => {
 
               <Grid item xs={12} display="flex" justifyContent="flex-end">
                 <Button type="submit" variant="contained" color="primary" disabled={loading} startIcon={<FlagIcon />}>
-                  {loading ? 'Creating...' : 'Create Goal'}
+                  {loading ? t('goals.formCreating') : t('goals.formSubmit')}
                 </Button>
               </Grid>
             </Grid>
@@ -153,13 +155,13 @@ const Goals = () => {
 
       {/* Goals Tracker List */}
       <Typography variant="h6" fontWeight={700} sx={{ mb: 3 }}>
-        Your Goals & Target Progress
+        {t('goals.listTitle')}
       </Typography>
 
       <Stack spacing={3}>
         {goals.length === 0 ? (
           <Paper sx={{ p: 4, textAlign: 'center', background: 'rgba(17,24,39,0.3)', borderColor: 'divider' }}>
-            <Typography color="text.secondary">You don't have any active carbon reduction goals.</Typography>
+            <Typography color="text.secondary">{t('goals.noGoals')}</Typography>
           </Paper>
         ) : (
           goals.map((goal) => (
@@ -182,13 +184,13 @@ const Goals = () => {
                     <Box display="flex" alignItems="center" gap={0.5}>
                       <StarIcon sx={{ fontSize: '1rem', color: 'warning.main' }} />
                       <Typography variant="caption" fontWeight={600}>
-                        Target: {goal.targetReductionPercentage}% Reduction
+                        {t('goals.targetReduction')}{goal.targetReductionPercentage}% {t('dashboard.carbonReductions') || 'Reduction'}
                       </Typography>
                     </Box>
                     <Box display="flex" alignItems="center" gap={0.5}>
                       <DateRangeIcon sx={{ fontSize: '1rem' }} />
                       <Typography variant="caption">
-                        {goal.startDate} to {goal.targetDate}
+                        {goal.startDate} {t('goals.to')} {goal.targetDate}
                       </Typography>
                     </Box>
                   </Stack>

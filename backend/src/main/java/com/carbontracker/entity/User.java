@@ -39,6 +39,10 @@ public class User {
     @Column(name = "profile_image_url")
     private String profileImageUrl;
 
+    @Builder.Default
+    @Column(name = "language")
+    private String language = "en";
+
     @Column(name = "sustainability_preferences")
     private String sustainabilityPreferences;
 

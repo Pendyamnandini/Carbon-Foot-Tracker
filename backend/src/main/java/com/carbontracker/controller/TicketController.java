@@ -66,4 +66,18 @@ public class TicketController {
         TicketResponse res = ticketService.addFeedback(ticketId, request, user);
         return ResponseEntity.ok(ApiResponse.success("Feedback submitted successfully", res));
     }
+
+    @PostMapping("/{ticketId}/reopen")
+    public ResponseEntity<ApiResponse<TicketResponse>> reopenTicket(@PathVariable String ticketId) {
+        User user = getCurrentUser();
+        TicketResponse res = ticketService.reopenTicket(ticketId, user);
+        return ResponseEntity.ok(ApiResponse.success("Ticket reopened successfully", res));
+    }
+
+    @PostMapping("/{ticketId}/escalate")
+    public ResponseEntity<ApiResponse<TicketResponse>> escalateTicket(@PathVariable String ticketId) {
+        User user = getCurrentUser();
+        TicketResponse res = ticketService.escalateTicket(ticketId, user);
+        return ResponseEntity.ok(ApiResponse.success("Ticket escalated to administrator successfully", res));
+    }
 }

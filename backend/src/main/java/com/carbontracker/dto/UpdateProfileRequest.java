@@ -14,4 +14,5 @@ public class UpdateProfileRequest {
     private String state;
     private String city;
     private String profileImageUrl;
+    private String language;
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { AppBar, Toolbar, Typography, IconButton, Badge, Menu, MenuItem, Box, Tooltip, Avatar, List, ListItem, ListItemText, Popover, Divider, Button } from '@mui/material';
+import { AppBar, Toolbar, Typography, IconButton, Badge, Menu, MenuItem, Box, Tooltip, Avatar, List, ListItem, ListItemText, Popover, Divider } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -10,9 +10,12 @@ import { useTheme } from '@mui/material/styles';
 import { ColorModeContext } from '../App';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '../context/LanguageContext';
+import LanguageSelector from './LanguageSelector';
 import api from '../api';
 
 const Navbar = ({ handleDrawerToggle }) => {
+  const { t } = useTranslation();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
@@ -37,7 +40,7 @@ const Navbar = ({ handleDrawerToggle }) => {
   useEffect(() => {
     if (user) {
       fetchNotifications();
-      const interval = setInterval(fetchNotifications, 30000); // Poll every 30s
+      const interval = setInterval(fetchNotifications, 4000); // Poll every 4s
       return () => clearInterval(interval);
     }
   }, [user]);
@@ -92,99 +95,108 @@ const Navbar = ({ handleDrawerToggle }) => {
           Carbon<Box component="span" sx={{ color: 'secondary.main', fontWeight: 300 }}>Tracker</Box>
         </Typography>
 
-        {user && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            {/* Theme Toggle */}
-            <Tooltip title={theme.palette.mode === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}>
-              <IconButton color="inherit" onClick={colorMode.toggleColorMode}>
-                {theme.palette.mode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
-              </IconButton>
-            </Tooltip>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {/* Global Language Selector */}
+          <Tooltip title={t('nav.changeLang')}>
+            <Box sx={{ display: 'flex', alignItems: 'center', color: 'inherit' }}>
+              <LanguageSelector color="inherit" />
+            </Box>
+          </Tooltip>
 
-            {/* Notifications */}
-            <IconButton color="inherit" onClick={handleOpenNotifMenu}>
-              <Badge badgeContent={unreadCount} color="error">
-                <NotificationsIcon />
-              </Badge>
+          {/* Theme Toggle */}
+          <Tooltip title={theme.palette.mode === 'dark' ? t('nav.switchLight') : t('nav.switchDark')}>
+            <IconButton color="inherit" onClick={colorMode.toggleColorMode}>
+              {theme.palette.mode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
             </IconButton>
-            
-            <Popover
-              open={Boolean(anchorElNotif)}
-              anchorEl={anchorElNotif}
-              onClose={handleCloseNotifMenu}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-              PaperProps={{
-                sx: { width: 320, maxHeight: 400, background: theme.palette.background.paper, border: '1px solid ' + theme.palette.divider }
-              }}
-            >
-              <Box p={2} display="flex" justifyContent="space-between" alignItems="center">
-                <Typography variant="subtitle1" fontWeight={700}>Notifications</Typography>
-                {unreadCount > 0 && <Typography variant="caption" color="primary">{unreadCount} new</Typography>}
-              </Box>
-              <Divider />
-              <List sx={{ p: 0 }}>
-                {notifications.length === 0 ? (
-                  <ListItem><ListItemText primary="No new notifications" /></ListItem>
-                ) : (
-                  notifications.map((notif) => (
-                    <ListItem 
-                      key={notif.id} 
-                      onClick={() => handleMarkAsRead(notif.id)}
-                      button
-                      sx={{ background: notif.isRead ? 'transparent' : (theme.palette.mode === 'dark' ? 'rgba(16, 185, 129, 0.08)' : 'rgba(16, 185, 129, 0.15)'), borderBottom: '1px solid ' + theme.palette.divider }}
-                    >
-                      <ListItemText
-                        primary={notif.title}
-                        secondary={notif.message}
-                        primaryTypographyProps={{ variant: 'body2', fontWeight: notif.isRead ? 400 : 700 }}
-                        secondaryTypographyProps={{ variant: 'caption' }}
-                      />
-                    </ListItem>
-                  ))
-                )}
-              </List>
-            </Popover>
+          </Tooltip>
 
-            {/* Profile Dropdown */}
-            <Tooltip title="User Account">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0, ml: 1 }}>
-                <Avatar sx={{ bgcolor: 'secondary.main', width: 36, height: 36 }}>
-                  {user.fullName.charAt(0).toUpperCase()}
-                </Avatar>
+          {user && (
+            <>
+              {/* Notifications */}
+              <IconButton color="inherit" onClick={handleOpenNotifMenu}>
+                <Badge badgeContent={unreadCount} color="error">
+                  <NotificationsIcon />
+                </Badge>
               </IconButton>
-            </Tooltip>
-            
-            <Menu
-              sx={{ mt: '45px' }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-              keepMounted
-              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-              PaperProps={{
-                sx: { background: theme.palette.background.paper, border: '1px solid ' + theme.palette.divider }
-              }}
-            >
-              <MenuItem disabled sx={{ opacity: '1 !important' }}>
-                <Box>
-                  <Typography variant="subtitle2" fontWeight={700}>{user.fullName}</Typography>
-                  <Typography variant="caption" color="text.secondary">{user.email}</Typography>
-                  <Typography variant="caption" display="block" color="primary.main">{user.role}</Typography>
+              
+              <Popover
+                open={Boolean(anchorElNotif)}
+                anchorEl={anchorElNotif}
+                onClose={handleCloseNotifMenu}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                PaperProps={{
+                  sx: { width: 320, maxHeight: 400, background: theme.palette.background.paper, border: '1px solid ' + theme.palette.divider }
+                }}
+              >
+                <Box p={2} display="flex" justifyContent="space-between" alignItems="center">
+                  <Typography variant="subtitle1" fontWeight={700}>{t('nav.notifications')}</Typography>
+                  {unreadCount > 0 && <Typography variant="caption" color="primary">{unreadCount} {t('nav.newNotif')}</Typography>}
                 </Box>
-              </MenuItem>
-              <Divider />
-              <MenuItem onClick={handleProfile}>
-                <AccountCircleIcon sx={{ mr: 1, fontSize: 20 }} /> Profile
-              </MenuItem>
-              <MenuItem onClick={handleLogout}>
-                <LogoutIcon sx={{ mr: 1, fontSize: 20 }} /> Logout
-              </MenuItem>
-            </Menu>
-          </Box>
-        )}
+                <Divider />
+                <List sx={{ p: 0 }}>
+                  {notifications.length === 0 ? (
+                    <ListItem><ListItemText primary={t('nav.noNewNotifications')} /></ListItem>
+                  ) : (
+                    notifications.map((notif) => (
+                      <ListItem 
+                        key={notif.id} 
+                        onClick={() => handleMarkAsRead(notif.id)}
+                        button
+                        sx={{ background: notif.isRead ? 'transparent' : (theme.palette.mode === 'dark' ? 'rgba(16, 185, 129, 0.08)' : 'rgba(16, 185, 129, 0.15)'), borderBottom: '1px solid ' + theme.palette.divider }}
+                      >
+                        <ListItemText
+                          primary={notif.title}
+                          secondary={notif.message}
+                          primaryTypographyProps={{ variant: 'body2', fontWeight: notif.isRead ? 400 : 700 }}
+                          secondaryTypographyProps={{ variant: 'caption' }}
+                        />
+                      </ListItem>
+                    ))
+                  )}
+                </List>
+              </Popover>
+
+              {/* Profile Dropdown */}
+              <Tooltip title={t('nav.userAccount')}>
+                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0, ml: 1 }}>
+                  <Avatar sx={{ bgcolor: 'secondary.main', width: 36, height: 36 }}>
+                    {user.fullName.charAt(0).toUpperCase()}
+                  </Avatar>
+                </IconButton>
+              </Tooltip>
+              
+              <Menu
+                sx={{ mt: '45px' }}
+                id="menu-appbar"
+                anchorEl={anchorElUser}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                keepMounted
+                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
+                PaperProps={{
+                  sx: { background: theme.palette.background.paper, border: '1px solid ' + theme.palette.divider }
+                }}
+              >
+                <MenuItem disabled sx={{ opacity: '1 !important' }}>
+                  <Box>
+                    <Typography variant="subtitle2" fontWeight={700}>{user.fullName}</Typography>
+                    <Typography variant="caption" color="text.secondary">{user.email}</Typography>
+                    <Typography variant="caption" display="block" color="primary.main">{user.role}</Typography>
+                  </Box>
+                </MenuItem>
+                <Divider />
+                <MenuItem onClick={handleProfile}>
+                  <AccountCircleIcon sx={{ mr: 1, fontSize: 20 }} /> {t('nav.profile')}
+                </MenuItem>
+                <MenuItem onClick={handleLogout}>
+                  <LogoutIcon sx={{ mr: 1, fontSize: 20 }} /> {t('nav.logout')}
+                </MenuItem>
+              </Menu>
+            </>
+          )}
+        </Box>
       </Toolbar>
     </AppBar>
   );

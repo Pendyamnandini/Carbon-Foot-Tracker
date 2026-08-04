@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Grid, Card, CardContent, Typography, Box, Alert, CircularProgress, Stack, Tooltip, LinearProgress, TextField, Tabs, Tab, Button, Divider, Chip, Avatar, MenuItem, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import { ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, CartesianGrid, Legend, Tooltip as ChartTooltip, BarChart, Bar, LineChart, Line } from 'recharts';
 import api from '../api';
+import { useTranslation } from '../context/LanguageContext';
 import Co2Icon from '@mui/icons-material/Co2';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import FlagIcon from '@mui/icons-material/Flag';
@@ -19,6 +20,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
 
 const Dashboard = () => {
+  const { t } = useTranslation();
   const [tabValue, setTabValue] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -206,10 +208,10 @@ const Dashboard = () => {
       <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2} sx={{ mb: 4 }}>
         <Box>
           <Typography variant="h4" fontWeight={800} gutterBottom>
-            Carbon Footprint Analytics
+            {t('dashboard.analyticsTitle')}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Advanced real-time tracking, benchmarking comparisons, and personalized sustainability tips.
+            {t('dashboard.analyticsSubtitle')}
           </Typography>
         </Box>
         <Stack direction="row" spacing={1.5}>
@@ -238,11 +240,11 @@ const Dashboard = () => {
           sx={{ mb: 3, borderRadius: 3 }}
           action={
             <Button color="inherit" size="small" onClick={() => window.location.href = '/login'}>
-              Sign In Again
+              {t('dashboard.signInAgain')}
             </Button>
           }
         >
-          {error} Your session token may have expired. Please re-authenticate to load your live analytics data.
+          {error} {t('dashboard.sessionExpiredAlert')}
         </Alert>
       )}
 
@@ -253,17 +255,17 @@ const Dashboard = () => {
             <TextField
               select
               fullWidth
-              label="Select Date Range Filter"
+              label={t('dashboard.selectDateRangeFilter')}
               value={rangePreset}
               onChange={(e) => handlePresetChange(e.target.value)}
             >
-              <MenuItem value="today">Today</MenuItem>
-              <MenuItem value="yesterday">Yesterday</MenuItem>
-              <MenuItem value="last-7">Last 7 Days</MenuItem>
-              <MenuItem value="last-30">Last 30 Days</MenuItem>
-              <MenuItem value="this-month">This Month</MenuItem>
-              <MenuItem value="prev-month">Previous Month</MenuItem>
-              <MenuItem value="custom">Custom Date Range</MenuItem>
+              <MenuItem value="today">{t('dashboard.presetToday')}</MenuItem>
+              <MenuItem value="yesterday">{t('dashboard.presetYesterday')}</MenuItem>
+              <MenuItem value="last-7">{t('dashboard.presetLast7')}</MenuItem>
+              <MenuItem value="last-30">{t('dashboard.presetLast30')}</MenuItem>
+              <MenuItem value="this-month">{t('dashboard.presetThisMonth')}</MenuItem>
+              <MenuItem value="prev-month">{t('dashboard.presetPrevMonth')}</MenuItem>
+              <MenuItem value="custom">{t('dashboard.presetCustom')}</MenuItem>
             </TextField>
           </Grid>
           <Grid item xs={12} md={8}>
@@ -271,14 +273,14 @@ const Dashboard = () => {
               <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" gap={1.5}>
                 <TextField
                   type="date"
-                  label="From"
+                  label={t('dashboard.from')}
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                   InputLabelProps={{ shrink: true }}
                 />
                 <TextField
                   type="date"
-                  label="To"
+                  label={t('dashboard.to')}
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                   InputLabelProps={{ shrink: true }}
@@ -301,13 +303,13 @@ const Dashboard = () => {
               <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Box>
                   <Typography variant="body2" color="text.secondary" fontWeight={600}>
-                    Period Emissions
+                    {t('dashboard.periodEmissions')}
                   </Typography>
                   <Typography variant="h4" fontWeight={800} sx={{ mt: 1 }}>
                     {(dateRangeSummary?.totalEmissions ?? 0).toFixed(1)} <Typography variant="caption" sx={{ fontWeight: 500 }}>kg</Typography>
                   </Typography>
                   <Chip 
-                    label={(dateRangeSummary?.percentageChange ?? 0) >= 0 ? `+${(dateRangeSummary?.percentageChange ?? 0).toFixed(0)}% vs previous` : `${(dateRangeSummary?.percentageChange ?? 0).toFixed(0)}% vs previous`}
+                    label={(dateRangeSummary?.percentageChange ?? 0) >= 0 ? `+${(dateRangeSummary?.percentageChange ?? 0).toFixed(0)}% ${t('dashboard.vsPrevious')}` : `${(dateRangeSummary?.percentageChange ?? 0).toFixed(0)}% ${t('dashboard.vsPrevious')}`}
                     size="small"
                     color={dateRangeSummary?.trend === 'IMPROVING' ? "success" : dateRangeSummary?.trend === 'INCREASING' ? "error" : "default"}
                     sx={{ mt: 1, fontWeight: 700, height: 20 }}
@@ -328,13 +330,13 @@ const Dashboard = () => {
               <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Box>
                   <Typography variant="body2" color="text.secondary" fontWeight={600}>
-                    Daily Average
+                    {t('dashboard.dailyAverage')}
                   </Typography>
                   <Typography variant="h4" fontWeight={800} sx={{ mt: 1 }}>
                     {(dateRangeSummary?.averageDailyEmissions ?? 0).toFixed(1)} <Typography variant="caption" sx={{ fontWeight: 500 }}>kg</Typography>
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    Total {dateRangeSummary?.activityCount ?? 0} logs tracked
+                    {t('dashboard.totalLogsTracked')}: {dateRangeSummary?.activityCount ?? 0}
                   </Typography>
                 </Box>
                 <Avatar sx={{ bgcolor: 'rgba(251, 191, 36, 0.1)', color: 'warning.main', width: 44, height: 44 }}>
@@ -352,16 +354,16 @@ const Dashboard = () => {
               <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Box>
                   <Typography variant="body2" color="text.secondary" fontWeight={600}>
-                    Peak/Min Days
+                    {t('dashboard.peakMinDays')}
                   </Typography>
                   <Typography variant="subtitle2" fontWeight={800} sx={{ mt: 1 }}>
-                    Max: {(dateRangeSummary?.highestEmissionValue ?? 0).toFixed(1)} kg
+                    {t('dashboard.max')}: {(dateRangeSummary?.highestEmissionValue ?? 0).toFixed(1)} kg
                   </Typography>
                   <Typography variant="caption" color="error.main" display="block">
                     {dateRangeSummary?.highestEmissionDay && dateRangeSummary.highestEmissionDay !== "N/A" ? new Date(dateRangeSummary.highestEmissionDay).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : "N/A"}
                   </Typography>
                   <Typography variant="subtitle2" fontWeight={800} sx={{ mt: 0.5 }}>
-                    Min: {(dateRangeSummary?.lowestEmissionValue ?? 0).toFixed(1)} kg
+                    {t('dashboard.min')}: {(dateRangeSummary?.lowestEmissionValue ?? 0).toFixed(1)} kg
                   </Typography>
                 </Box>
                 <Avatar sx={{ bgcolor: 'rgba(248, 113, 113, 0.1)', color: 'error.main', width: 44, height: 44 }}>
@@ -379,13 +381,13 @@ const Dashboard = () => {
               <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
                 <Box>
                   <Typography variant="body2" color="text.secondary" fontWeight={600}>
-                    Period Eco Score
+                    {t('dashboard.periodEcoScore')}
                   </Typography>
                   <Typography variant="h4" fontWeight={800} sx={{ mt: 0.5 }}>
                     {sustainabilityScore}/100
                   </Typography>
                   <Typography variant="caption" color="success.main" fontWeight={700}>
-                    Percentile standing: {benchmarking?.percentileRanking ? benchmarking.percentileRanking.toFixed(0) : 85}%
+                    {t('dashboard.percentileStanding')}: {benchmarking?.percentileRanking ? benchmarking.percentileRanking.toFixed(0) : 85}%
                   </Typography>
                 </Box>
                 <Avatar sx={{ bgcolor: 'rgba(16, 185, 129, 0.1)', color: 'primary.main', width: 44, height: 44 }}>
@@ -408,9 +410,9 @@ const Dashboard = () => {
         <Grid item xs={12} sm={6} md={3}>
           <Card className="glass-card-hover">
             <CardContent>
-              <Typography variant="body2" color="text.secondary" fontWeight={600}>Goal Completion %</Typography>
+              <Typography variant="body2" color="text.secondary" fontWeight={600}>{t('dashboard.goalCompletion')}</Typography>
               <Typography variant="h4" fontWeight={800} color="secondary.main" sx={{ mt: 1 }}>84%</Typography>
-              <Typography variant="caption" color="text.secondary">On track for 2026 targets</Typography>
+              <Typography variant="caption" color="text.secondary">{t('dashboard.activeTargets')}</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -418,9 +420,9 @@ const Dashboard = () => {
         <Grid item xs={12} sm={6} md={3}>
           <Card className="glass-card-hover">
             <CardContent>
-              <Typography variant="body2" color="text.secondary" fontWeight={600}>Monthly Carbon Savings</Typography>
+              <Typography variant="body2" color="text.secondary" fontWeight={600}>{t('dashboard.monthlyCarbonSavings')}</Typography>
               <Typography variant="h4" fontWeight={800} color="success.main" sx={{ mt: 1 }}>34.2 kg</Typography>
-              <Typography variant="caption" color="text.secondary">CO₂e reduced vs baseline</Typography>
+              <Typography variant="caption" color="text.secondary">{t('dashboard.carbonReductions')}</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -428,9 +430,9 @@ const Dashboard = () => {
         <Grid item xs={12} sm={6} md={3}>
           <Card className="glass-card-hover">
             <CardContent>
-              <Typography variant="body2" color="text.secondary" fontWeight={600}>Highest Category / Most Improved</Typography>
-              <Typography variant="subtitle1" fontWeight={800} sx={{ mt: 1, color: '#3b82f6' }}>High: Transport (48%)</Typography>
-              <Typography variant="subtitle2" fontWeight={700} color="success.main">Improved: Food (-12%)</Typography>
+              <Typography variant="body2" color="text.secondary" fontWeight={600}>{t('dashboard.highestCategory')}</Typography>
+              <Typography variant="subtitle1" fontWeight={800} sx={{ mt: 1, color: '#3b82f6' }}>{t('dashboard.max')}: Transport (48%)</Typography>
+              <Typography variant="subtitle2" fontWeight={700} color="success.main">{t('dashboard.mostImpact')}: Food (-12%)</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -438,11 +440,11 @@ const Dashboard = () => {
         <Grid item xs={12} sm={6} md={3}>
           <Card className="glass-card-hover">
             <CardContent>
-              <Typography variant="body2" color="text.secondary" fontWeight={600}>Estimated Annual Footprint</Typography>
+              <Typography variant="body2" color="text.secondary" fontWeight={600}>{t('dashboard.estimatedAnnualFootprint')}</Typography>
               <Typography variant="h4" fontWeight={800} sx={{ mt: 1 }}>
                 {dateRangeSummary ? (dateRangeSummary.averageDailyEmissions * 365).toFixed(0) : 1850} kg
               </Typography>
-              <Typography variant="caption" color="text.secondary">CO₂e annual projection</Typography>
+              <Typography variant="caption" color="text.secondary">{t('dashboard.basedOnLogs')}</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -456,11 +458,11 @@ const Dashboard = () => {
         indicatorColor="primary"
         textColor="primary"
       >
-        <Tab label="Emissions Trends" />
-        <Tab label="Category Breakdown" />
-        <Tab label="Personalized Recommendations" />
-        <Tab label="Benchmarking & Insights" />
-        <Tab label="Recent Activity History" />
+        <Tab label={t('dashboard.tabEmissionsOverTime')} />
+        <Tab label={t('dashboard.tabCategoryBreakdown')} />
+        <Tab label={t('dashboard.tabRecommendations')} />
+        <Tab label={t('dashboard.tabBenchmarking')} />
+        <Tab label={t('dashboard.tabRecentLogs')} />
       </Tabs>
 
       {/* Tab 1: Emissions Trends */}
@@ -469,11 +471,11 @@ const Dashboard = () => {
           <Grid item xs={12} md={6}>
             <Card sx={{ p: 2 }}>
               <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
-                Daily Emissions Trend (Selected Period)
+                {t('dashboard.chartDailyEmissions')}
               </Typography>
               {dailyChartData.length === 0 ? (
                 <Box height={300} display="flex" justifyContent="center" alignItems="center">
-                  <Typography color="text.secondary">No activities logged in this range.</Typography>
+                  <Typography color="text.secondary">{t('dashboard.noActivities')}</Typography>
                 </Box>
               ) : (
                 <Box height={300}>
@@ -503,11 +505,11 @@ const Dashboard = () => {
           <Grid item xs={12} md={6}>
             <Card sx={{ p: 2 }}>
               <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
-                Weekly Emissions Trend (All Time)
+                {t('dashboard.weeklyEmissionsTrend')}
               </Typography>
               {weeklyChartData.length === 0 ? (
                 <Box height={300} display="flex" justifyContent="center" alignItems="center">
-                  <Typography color="text.secondary">No summaries generated.</Typography>
+                  <Typography color="text.secondary">{t('dashboard.noActivities')}</Typography>
                 </Box>
               ) : (
                 <Box height={300}>
@@ -537,11 +539,11 @@ const Dashboard = () => {
           <Grid item xs={12}>
             <Card sx={{ p: 2 }}>
               <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
-                Monthly Carbon Footprint Trend (All Time)
+                {t('dashboard.monthlyEmissionsTrend')}
               </Typography>
               {monthlyChartData.length === 0 ? (
                 <Box height={300} display="flex" justifyContent="center" alignItems="center">
-                  <Typography color="text.secondary">No monthly summaries generated.</Typography>
+                  <Typography color="text.secondary">{t('dashboard.noMonthlySummaries')}</Typography>
                 </Box>
               ) : (
                 <Box height={300}>
@@ -571,11 +573,11 @@ const Dashboard = () => {
           <Grid item xs={12} md={6}>
             <Card sx={{ p: 2 }}>
               <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
-                Donut Emission Breakdown (Selected Period)
+                {t('dashboard.chartEmissionsDist')}
               </Typography>
               {categoryBreakdown.length === 0 || categoryBreakdown.every(c => c.emissionValue === 0) ? (
                 <Box height={300} display="flex" justifyContent="center" alignItems="center">
-                  <Typography color="text.secondary">No activities logged in this range.</Typography>
+                  <Typography color="text.secondary">{t('dashboard.noActivities')}</Typography>
                 </Box>
               ) : (
                 <Box height={300}>
@@ -614,7 +616,7 @@ const Dashboard = () => {
               </Typography>
               {categoryBreakdown.length === 0 ? (
                 <Box height={300} display="flex" justifyContent="center" alignItems="center">
-                  <Typography color="text.secondary">No activities logged in this range.</Typography>
+                  <Typography color="text.secondary">{t('dashboard.noActivities')}</Typography>
                 </Box>
               ) : (
                 <Box height={300}>
@@ -676,26 +678,26 @@ const Dashboard = () => {
           <Grid item xs={12} md={4}>
             <Card sx={{ p: 3, height: '100%' }}>
               <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
-                Activity Insights (Last 30 Days)
+                {t('dashboard.activityInsights')}
               </Typography>
 
               <Stack spacing={3}>
                 <Box>
-                  <Typography variant="body2" color="text.secondary" fontWeight={600}>Highest Contributor Category</Typography>
+                  <Typography variant="body2" color="text.secondary" fontWeight={600}>{t('dashboard.highestContributor')}</Typography>
                   <Typography variant="h5" fontWeight={800} color="error.main" mt={0.5}>
                     {recommendations?.highestCategory || 'N/A'}
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="body2" color="text.secondary" fontWeight={600}>Most Logged Activity</Typography>
+                  <Typography variant="body2" color="text.secondary" fontWeight={600}>{t('dashboard.mostLoggedActivity')}</Typography>
                   <Typography variant="h5" fontWeight={800} color="warning.main" mt={0.5}>
                     {recommendations?.mostFrequentActivity || 'None'}
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="body2" color="text.secondary" fontWeight={600} mb={1}>Highest Footprint Activities</Typography>
+                  <Typography variant="body2" color="text.secondary" fontWeight={600} mb={1}>{t('dashboard.highestFootprintActivities')}</Typography>
                   {recommendations?.topActivities?.length === 0 ? (
-                    <Typography color="text.secondary" variant="body2">No activities logged recently.</Typography>
+                    <Typography color="text.secondary" variant="body2">{t('dashboard.noActivitiesLoggedRecently')}</Typography>
                   ) : (
                     <Stack spacing={1.5}>
                       {recommendations?.topActivities?.map((act, i) => (
@@ -714,12 +716,12 @@ const Dashboard = () => {
           <Grid item xs={12} md={8}>
             <Card sx={{ p: 3, height: '100%' }}>
               <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
-                💡 Actionable Eco-Recommendations
+                💡 {t('dashboard.personalizedRecs')}
               </Typography>
               
               {recommendations?.recommendations?.length === 0 ? (
                 <Box p={4} textAlign="center">
-                  <Typography color="text.secondary">Log more activities to generate personalized reduction recommendations.</Typography>
+                  <Typography color="text.secondary">{t('dashboard.logMoreToGenerateRecs')}</Typography>
                 </Box>
               ) : (
                 <Stack spacing={2}>
@@ -758,7 +760,7 @@ const Dashboard = () => {
           <Grid item xs={12} md={6}>
             <Card sx={{ p: 3, height: '100%' }}>
               <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
-                Platform Benchmarking Comparison
+                {t('dashboard.benchmarkingComparison')}
               </Typography>
               
               <Alert severity="info" sx={{ mb: 4, fontWeight: 600 }}>
@@ -767,30 +769,30 @@ const Dashboard = () => {
 
               <Stack spacing={2.5}>
                 <Box>
-                  <Typography variant="body2" color="text.secondary" mb={0.5}>Your Footprint (Current Month)</Typography>
+                  <Typography variant="body2" color="text.secondary" mb={0.5}>{t('dashboard.yourFootprint')} (Current Month)</Typography>
                   <LinearProgress variant="determinate" value={Math.min(100, (benchmarking?.yourEmissions / (benchmarking?.platformAverage || 1)) * 50)} color="secondary" sx={{ height: 10, borderRadius: 5 }} />
                   <Box display="flex" justifyContent="space-between" mt={0.5}>
                     <Typography variant="caption" fontWeight={700}>{benchmarking?.yourEmissions.toFixed(1)} kg CO₂</Typography>
-                    <Typography variant="caption" color="text.secondary">Goal target: {benchmarking?.platformAverage.toFixed(1)} kg avg</Typography>
+                    <Typography variant="caption" color="text.secondary">{t('goals.targetReduction')} {benchmarking?.platformAverage.toFixed(1)} kg avg</Typography>
                   </Box>
                 </Box>
 
                 <Box>
-                  <Typography variant="body2" color="text.secondary" mb={0.5}>Platform Average</Typography>
+                  <Typography variant="body2" color="text.secondary" mb={0.5}>{t('dashboard.platformAverage')}</Typography>
                   <LinearProgress variant="determinate" value={50} color="inherit" sx={{ height: 10, borderRadius: 5, color: 'action.disabled' }} />
                   <Typography variant="caption" fontWeight={700} display="block" mt={0.5}>{benchmarking?.platformAverage.toFixed(1)} kg CO₂</Typography>
                 </Box>
 
                 {benchmarking?.organizationAverage && (
                   <Box>
-                    <Typography variant="body2" color="text.secondary" mb={0.5}>Organization Average</Typography>
+                    <Typography variant="body2" color="text.secondary" mb={0.5}>{t('org.orgAverage')}</Typography>
                     <LinearProgress variant="determinate" value={Math.min(100, (benchmarking?.organizationAverage / (benchmarking?.platformAverage || 1)) * 50)} color="primary" sx={{ height: 10, borderRadius: 5 }} />
                     <Typography variant="caption" fontWeight={700} display="block" mt={0.5}>{benchmarking?.organizationAverage.toFixed(1)} kg CO₂ ({benchmarking?.organizationDifferencePercentage >= 0 ? `+${benchmarking?.organizationDifferencePercentage.toFixed(0)}%` : `${benchmarking?.organizationDifferencePercentage.toFixed(0)}%`})</Typography>
                   </Box>
                 )}
 
                 <Box>
-                  <Typography variant="body2" color="text.secondary" mb={0.5}>Cohort Average (Similar Users)</Typography>
+                  <Typography variant="body2" color="text.secondary" mb={0.5}>{t('dashboard.cohortAverage')}</Typography>
                   <LinearProgress variant="determinate" value={Math.min(100, (benchmarking?.similarUsersAverage / (benchmarking?.platformAverage || 1)) * 50)} color="warning" sx={{ height: 10, borderRadius: 5 }} />
                   <Typography variant="caption" fontWeight={700} display="block" mt={0.5}>{benchmarking?.similarUsersAverage.toFixed(1)} kg CO₂ ({benchmarking?.similarUsersDifferencePercentage >= 0 ? `+${benchmarking?.similarUsersDifferencePercentage.toFixed(0)}%` : `${benchmarking?.similarUsersDifferencePercentage.toFixed(0)}%`})</Typography>
                 </Box>
@@ -801,29 +803,29 @@ const Dashboard = () => {
           <Grid item xs={12} md={6}>
             <Card sx={{ p: 3, height: '100%' }}>
               <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
-                📈 Trend Indicators & Insights
+                📈 {t('dashboard.trendIndicators')}
               </Typography>
               
               <Stack direction="row" spacing={2} sx={{ mb: 4 }} flexWrap="wrap" gap={1.5}>
                 <Box textAlign="center" p={2} sx={{ flexGrow: 1, border: '1px solid rgba(255,255,255,0.05)', borderRadius: 2, bgcolor: 'rgba(255,255,255,0.01)' }}>
-                  <Typography variant="body2" color="text.secondary">Daily Trend</Typography>
-                  <Chip label={trends?.dailyTrend || 'STABLE'} color={trends?.dailyTrend === 'IMPROVING' ? 'success' : trends?.dailyTrend === 'INCREASING' ? 'error' : 'primary'} sx={{ mt: 1, fontWeight: 700 }} />
+                  <Typography variant="body2" color="text.secondary">{t('dashboard.dailyTrend')}</Typography>
+                  <Chip label={trends?.dailyTrend === 'IMPROVING' ? t('dashboard.improving') : trends?.dailyTrend === 'INCREASING' ? t('dashboard.increasing') : t('dashboard.stable')} color={trends?.dailyTrend === 'IMPROVING' ? 'success' : trends?.dailyTrend === 'INCREASING' ? 'error' : 'primary'} sx={{ mt: 1, fontWeight: 700 }} />
                 </Box>
                 <Box textAlign="center" p={2} sx={{ flexGrow: 1, border: '1px solid rgba(255,255,255,0.05)', borderRadius: 2, bgcolor: 'rgba(255,255,255,0.01)' }}>
-                  <Typography variant="body2" color="text.secondary">Weekly Trend</Typography>
-                  <Chip label={trends?.weeklyTrend || 'STABLE'} color={trends?.weeklyTrend === 'IMPROVING' ? 'success' : trends?.weeklyTrend === 'INCREASING' ? 'error' : 'primary'} sx={{ mt: 1, fontWeight: 700 }} />
+                  <Typography variant="body2" color="text.secondary">{t('dashboard.weeklyTrend')}</Typography>
+                  <Chip label={trends?.weeklyTrend === 'IMPROVING' ? t('dashboard.improving') : trends?.weeklyTrend === 'INCREASING' ? t('dashboard.increasing') : t('dashboard.stable')} color={trends?.weeklyTrend === 'IMPROVING' ? 'success' : trends?.weeklyTrend === 'INCREASING' ? 'error' : 'primary'} sx={{ mt: 1, fontWeight: 700 }} />
                 </Box>
                 <Box textAlign="center" p={2} sx={{ flexGrow: 1, border: '1px solid rgba(255,255,255,0.05)', borderRadius: 2, bgcolor: 'rgba(255,255,255,0.01)' }}>
-                  <Typography variant="body2" color="text.secondary">Monthly Trend</Typography>
-                  <Chip label={trends?.monthlyTrend || 'STABLE'} color={trends?.monthlyTrend === 'IMPROVING' ? 'success' : trends?.monthlyTrend === 'INCREASING' ? 'error' : 'primary'} sx={{ mt: 1, fontWeight: 700 }} />
+                  <Typography variant="body2" color="text.secondary">{t('dashboard.monthlyTrend')}</Typography>
+                  <Chip label={trends?.monthlyTrend === 'IMPROVING' ? t('dashboard.improving') : trends?.monthlyTrend === 'INCREASING' ? t('dashboard.increasing') : t('dashboard.stable')} color={trends?.monthlyTrend === 'IMPROVING' ? 'success' : trends?.monthlyTrend === 'INCREASING' ? 'error' : 'primary'} sx={{ mt: 1, fontWeight: 700 }} />
                 </Box>
               </Stack>
 
               <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>
-                Analytical Notes:
+                {t('dashboard.analyticalNotes')}
               </Typography>
               {trends?.insights?.length === 0 ? (
-                <Typography color="text.secondary" variant="body2">No trend observations logged yet.</Typography>
+                <Typography color="text.secondary" variant="body2">{t('dashboard.noTrendObservations')}</Typography>
               ) : (
                 <Stack spacing={1.5}>
                   {trends?.insights?.map((ins, i) => (
@@ -846,7 +848,7 @@ const Dashboard = () => {
           <Grid item xs={12} md={4}>
             <Card sx={{ p: 3, height: '100%' }}>
               <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
-                Activity Summary
+                {t('dashboard.recentActivitySummary')}
               </Typography>
 
               <Stack spacing={3}>
@@ -855,7 +857,7 @@ const Dashboard = () => {
                     <SpeedIcon />
                   </Avatar>
                   <Box>
-                    <Typography variant="caption" color="text.secondary" fontWeight={600}>LAST LOGIN TIME</Typography>
+                    <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('dashboard.lastLoginTime')}</Typography>
                     <Typography variant="body2" fontWeight={700}>
                       {recentActivities?.lastLoginTime ? new Date(recentActivities.lastLoginTime).toLocaleString() : 'N/A'}
                     </Typography>
@@ -867,7 +869,7 @@ const Dashboard = () => {
                     <QueryStatsIcon />
                   </Avatar>
                   <Box>
-                    <Typography variant="caption" color="text.secondary" fontWeight={600}>LAST ACTIVE TIME</Typography>
+                    <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('dashboard.lastActiveTime')}</Typography>
                     <Typography variant="body2" fontWeight={700}>
                       {recentActivities?.lastActiveTime ? new Date(recentActivities.lastActiveTime).toLocaleString() : 'N/A'}
                     </Typography>
@@ -877,17 +879,17 @@ const Dashboard = () => {
                 <Divider />
 
                 <Box>
-                  <Typography variant="caption" color="text.secondary" fontWeight={600} display="block">LAST SEARCHED ANALYTICS</Typography>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600} display="block">{t('dashboard.lastSearchedAnalytics')}</Typography>
                   <Typography variant="body2" fontWeight={700} mt={0.5}>{recentActivities?.lastSearchedAnalytics}</Typography>
                 </Box>
 
                 <Box>
-                  <Typography variant="caption" color="text.secondary" fontWeight={600} display="block">LAST DOWNLOADED REPORT</Typography>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600} display="block">{t('dashboard.lastDownloadedReport')}</Typography>
                   <Typography variant="body2" fontWeight={700} mt={0.5}>{recentActivities?.lastDownloadedReport}</Typography>
                 </Box>
 
                 <Box>
-                  <Typography variant="caption" color="text.secondary" fontWeight={600} display="block">LAST VIEWED RECOMMENDATION</Typography>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600} display="block">{t('dashboard.lastViewedRecommendation')}</Typography>
                   <Typography variant="body2" fontWeight={700} mt={0.5}>{recentActivities?.lastViewedRecommendation}</Typography>
                 </Box>
               </Stack>
@@ -898,21 +900,21 @@ const Dashboard = () => {
           <Grid item xs={12} md={8}>
             <Card sx={{ p: 3, height: '100%' }}>
               <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 2 }}>
-                Recent Activities (Last 10 Actions)
+                {t('dashboard.latestTrackedActions')}
               </Typography>
               <TableContainer component={Paper} variant="outlined" sx={{ borderColor: 'rgba(255,255,255,0.05)' }}>
                 <Table size="small">
                   <TableHead sx={{ bgcolor: 'rgba(255,255,255,0.01)' }}>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 700 }}>Activity Name</TableCell>
-                      <TableCell sx={{ fontWeight: 700 }}>Date & Time</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>{t('dashboard.activityName')}</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>{t('dashboard.activityDate')}</TableCell>
                       <TableCell sx={{ fontWeight: 700 }}>Description</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {recentActivities?.last10Activities?.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={3} align="center">No activities recorded yet.</TableCell>
+                        <TableCell colSpan={3} align="center">{t('dashboard.noActivitiesRecorded')}</TableCell>
                       </TableRow>
                     ) : (
                       recentActivities?.last10Activities?.map((act) => (

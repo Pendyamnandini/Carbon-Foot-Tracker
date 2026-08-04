@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Card, CardContent, Typography, TextField, Button, Box, Alert, Stack, Grid, MenuItem, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import api from '../api';
+import { useTranslation } from '../context/LanguageContext';
 
 const CATEGORIES = ['BUG', 'FEATURE_REQUEST', 'UI_FEEDBACK', 'GENERAL'];
 
 const Feedback = () => {
+  const { t } = useTranslation();
   const [feedbackText, setFeedbackText] = useState('');
   const [category, setCategory] = useState('GENERAL');
   const [feedbacks, setFeedbacks] = useState([]);
@@ -20,7 +22,7 @@ const Feedback = () => {
         setFeedbacks(res.data.data);
       }
     } catch (e) {
-      setError('Could not retrieve feedback history.');
+      setError(t('feedback.errorRetrieve'));
     }
   };
 
@@ -37,7 +39,7 @@ const Feedback = () => {
     try {
       const res = await api.post('/api/feedback', { feedbackText, category });
       if (res.data.success) {
-        setSuccess('Feedback submitted successfully! Thank you.');
+        setSuccess(t('feedback.successMsg'));
         setFeedbackText('');
         fetchFeedbacks();
       }
@@ -59,7 +61,7 @@ const Feedback = () => {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Typography variant="h4" fontWeight={800} gutterBottom sx={{ mb: 4 }}>
-        User Feedback
+        {t('feedback.title')}
       </Typography>
 
       {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
@@ -69,14 +71,14 @@ const Feedback = () => {
       <Card sx={{ mb: 5 }}>
         <CardContent>
           <Typography variant="h6" fontWeight={700} sx={{ mb: 3 }}>
-            Submit Feedback or Report a Bug
+            {t('feedback.submitTitle')}
           </Typography>
           <form onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={4}>
                 <TextField
                   select
-                  label="Category"
+                  label={t('feedback.formCategory')}
                   fullWidth
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
@@ -91,7 +93,7 @@ const Feedback = () => {
 
               <Grid item xs={12}>
                 <TextField
-                  label="Feedback Details"
+                  label={t('feedback.formText')}
                   fullWidth
                   required
                   multiline
@@ -113,23 +115,23 @@ const Feedback = () => {
 
       {/* History */}
       <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
-        Your Feedback History
+        {t('feedback.historyTitle')}
       </Typography>
 
       <TableContainer component={Paper}>
         <Table>
           <TableHead sx={{ backgroundColor: 'rgba(255,255,255,0.02)' }}>
             <TableRow>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Date</TableCell>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Category</TableCell>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Details</TableCell>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="center">Status</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('activity.date')}</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('feedback.formCategory')}</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('feedback.tableDetails')}</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="center">{t('dashboard.status')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {feedbacks.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} align="center">No feedback submitted yet.</TableCell>
+                <TableCell colSpan={4} align="center">{t('feedback.noFeedback')}</TableCell>
               </TableRow>
             ) : (
               feedbacks.map((f) => (

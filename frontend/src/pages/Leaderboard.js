@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Card, CardContent, Typography, Box, Alert, CircularProgress, Grid, Avatar, Chip, Stack } from '@mui/material';
 import api from '../api';
+import { useTranslation } from '../context/LanguageContext';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import Co2Icon from '@mui/icons-material/Co2';
 
 const Leaderboard = () => {
+  const { t } = useTranslation();
   const [leaderboard, setLeaderboard] = useState([]);
   const [badges, setBadges] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +32,7 @@ const Leaderboard = () => {
       }
 
     } catch (e) {
-      setError('Could not retrieve leaderboard standings.');
+      setError(t('leaderboard.retrieveError'));
     } finally {
       setLoading(false);
     }
@@ -67,7 +69,7 @@ const Leaderboard = () => {
       <Box display="flex" alignItems="center" gap={1.5} sx={{ mb: 4 }}>
         <EmojiEventsIcon sx={{ fontSize: '2.5rem', color: 'warning.main' }} />
         <Typography variant="h4" fontWeight={800}>
-          Community Leaderboard
+          {t('leaderboard.title')}
         </Typography>
       </Box>
 
@@ -77,13 +79,13 @@ const Leaderboard = () => {
         {/* Leaderboard Standings */}
         <Grid item xs={12} md={7}>
           <Typography variant="h6" fontWeight={800} sx={{ mb: 2 }}>
-            🏆 Monthly Emissions Ranking
+            🏆 {t('leaderboard.subtitle')}
           </Typography>
 
           <Stack spacing={2}>
             {leaderboard.length === 0 ? (
               <Card sx={{ p: 4, textAlign: 'center' }}>
-                <Typography color="text.secondary">No standings available.</Typography>
+                <Typography color="text.secondary">{t('leaderboard.noUsers')}</Typography>
               </Card>
             ) : (
               leaderboard.map((row) => {
@@ -138,7 +140,7 @@ const Leaderboard = () => {
                             {row.userName}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
-                            Active Participant
+                            {t('leaderboard.activeParticipant')}
                           </Typography>
                         </Box>
                       </Box>
@@ -152,7 +154,7 @@ const Leaderboard = () => {
                           </Typography>
                         </Box>
                         <Typography variant="caption" color="text.secondary" fontWeight={600}>
-                          kg CO2 logged
+                          {t('leaderboard.savings')}
                         </Typography>
                       </Box>
                     </Box>
@@ -166,17 +168,17 @@ const Leaderboard = () => {
         {/* User Badges */}
         <Grid item xs={12} md={5}>
           <Typography variant="h6" fontWeight={800} sx={{ mb: 2 }}>
-            🏅 Your Earned Achievements
+            🏅 {t('profile.tabAchievements')}
           </Typography>
           
           {badges.length === 0 ? (
             <Card sx={{ p: 4, textAlign: 'center' }}>
               <WorkspacePremiumIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 2, opacity: 0.6 }} />
               <Typography variant="subtitle1" fontWeight={700} gutterBottom>
-                No Badges Earned Yet
+                {t('profile.badgesLocked')}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Log daily activities and complete your target reduction goals to unlock community accomplishments!
+                {t('profile.badgesLockedDesc')}
               </Typography>
             </Card>
           ) : (
@@ -217,7 +219,7 @@ const Leaderboard = () => {
                         {ub.badge.description}
                       </Typography>
                       <Chip 
-                        label={`Awarded: ${new Date(ub.awardedDate).toLocaleDateString()}`}
+                        label={`{t('profile.badgesEarnedOn')}${new Date(ub.awardedDate).toLocaleDateString()}`}
                         size="small" 
                         color="primary"
                         variant="outlined"

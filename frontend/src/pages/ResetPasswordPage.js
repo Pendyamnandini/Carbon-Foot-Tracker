@@ -3,9 +3,11 @@ import { Container, Card, CardContent, Typography, TextField, Button, Box, Alert
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import api from '../api';
+import { useTranslation } from '../context/LanguageContext';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 
 const ResetPasswordPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
@@ -34,7 +36,7 @@ const ResetPasswordPage = () => {
     setSuccess('');
 
     if (newPassword !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('profile.passwordMatchError'));
       return;
     }
 
@@ -70,7 +72,7 @@ const ResetPasswordPage = () => {
               Reset Password
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Set your new account password.
+              {t('auth.resetPasswordSubtitle')}
             </Typography>
           </Box>
 
@@ -80,7 +82,7 @@ const ResetPasswordPage = () => {
           <form onSubmit={handleSubmit}>
             <Stack spacing={3}>
               <TextField
-                label="New Password"
+                label={t('profile.settingsNewPassword')}
                 type={showPassword ? 'text' : 'password'}
                 fullWidth
                 required
@@ -100,7 +102,7 @@ const ResetPasswordPage = () => {
                 }}
               />
               <TextField
-                label="Confirm Password"
+                label={t('auth.confirmPassword')}
                 type={showConfirmPassword ? 'text' : 'password'}
                 fullWidth
                 required
@@ -121,14 +123,14 @@ const ResetPasswordPage = () => {
               />
 
               <Button type="submit" variant="contained" color="primary" fullWidth size="large" disabled={loading}>
-                {loading ? 'Updating Password...' : 'Reset Password'}
+                {loading ? t('auth.resetPasswordSending') : t('auth.resetPasswordBtn')}
               </Button>
             </Stack>
           </form>
 
           <Box mt={3} textAlign="center">
             <Link to="/login" style={{ color: '#10b981', textDecoration: 'none', fontWeight: 600, fontSize: '0.875rem' }}>
-              Back to Sign In
+              {t('auth.loginHere')}
             </Link>
           </Box>
         </CardContent>

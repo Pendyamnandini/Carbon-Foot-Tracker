@@ -4,9 +4,11 @@ import GoogleIcon from '@mui/icons-material/Google';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from '../context/LanguageContext';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 
 const LoginPage = () => {
+  const { t } = useTranslation();
   const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -99,10 +101,10 @@ const LoginPage = () => {
 
           <Box sx={{ maxWidth: 450, position: 'relative', zIndex: 1 }}>
             <Typography variant="h3" fontWeight={900} gutterBottom sx={{ letterSpacing: -1, lineHeight: 1.1 }}>
-              Measure, Reduce, and <Box component="span" sx={{ color: 'primary.main' }}>Offset</Box> Your Footprint.
+              {t('auth.loginHeroTitle')}
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ mt: 2, fontSize: '1.1rem', lineHeight: 1.6 }}>
-              Join thousands of community members logging their daily activities, competing on the leaderboard, and completing carbon reduction goals.
+              {t('auth.loginHeroDesc')}
             </Typography>
 
             {/* Quick Stats Grid */}
@@ -110,13 +112,13 @@ const LoginPage = () => {
               <Grid item xs={6}>
                 <Box sx={{ borderLeft: '3px solid #10b981', pl: 2 }}>
                   <Typography variant="h5" fontWeight={800} color="primary.main">10,000+</Typography>
-                  <Typography variant="caption" color="text.secondary" fontWeight={600}>TONS CO2 SAVED</Typography>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('auth.tonsSaved')}</Typography>
                 </Box>
               </Grid>
               <Grid item xs={6}>
                 <Box sx={{ borderLeft: '3px solid #06b6d4', pl: 2 }}>
                   <Typography variant="h5" fontWeight={800} color="secondary.main">25,000+</Typography>
-                  <Typography variant="caption" color="text.secondary" fontWeight={600}>ACTIVITIES LOGGED</Typography>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('auth.activitiesLogged')}</Typography>
                 </Box>
               </Grid>
             </Grid>
@@ -143,7 +145,7 @@ const LoginPage = () => {
                 Carbon<Box component="span" sx={{ color: 'secondary.main', fontWeight: 300 }}>Tracker</Box>
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Sign in to manage your carbon footprint logs and tracker.
+                {t('auth.loginSubtitle')}
               </Typography>
             </Box>
 
@@ -152,7 +154,7 @@ const LoginPage = () => {
             <form onSubmit={handleSubmit}>
               <Stack spacing={3}>
                 <TextField
-                  label="Email Address"
+                  label={t('auth.email')}
                   type="email"
                   fullWidth
                   required
@@ -160,7 +162,7 @@ const LoginPage = () => {
                   onChange={(e) => setEmail(e.target.value)}
                 />
                 <TextField
-                  label="Password"
+                  label={t('auth.password')}
                   type={showPassword ? 'text' : 'password'}
                   fullWidth
                   required
@@ -182,18 +184,18 @@ const LoginPage = () => {
                 
                 <Box display="flex" justifyContent="flex-end">
                   <Link to="/forgot-password" style={{ color: '#10b981', textDecoration: 'none', fontSize: '0.875rem', fontWeight: 600 }}>
-                    Forgot Password?
+                    {t('auth.forgot_password')}
                   </Link>
                 </Box>
 
                 <Button type="submit" variant="contained" color="primary" fullWidth size="large" disabled={loading}>
-                  {loading ? 'Signing in...' : 'Sign In'}
+                  {loading ? t('auth.loggingIn') : t('auth.login')}
                 </Button>
               </Stack>
             </form>
 
             <Box mt={3} mb={2}>
-              <Divider>Or</Divider>
+              <Divider>{t('auth.or')}</Divider>
             </Box>
 
             <Button
@@ -205,14 +207,14 @@ const LoginPage = () => {
               disabled={loading}
               sx={{ color: 'text.primary', borderColor: 'divider', '&:hover': { borderColor: 'primary.main' } }}
             >
-              Sign In with Google
+              {t('auth.googleLogin')}
             </Button>
 
             <Box mt={4} textAlign="center">
               <Typography variant="body2" color="text.secondary">
-                Don't have an account?{' '}
+                {t('auth.noAccount')}{' '}
                 <Link to="/register" style={{ color: '#10b981', textDecoration: 'none', fontWeight: 600 }}>
-                  Register here
+                  {t('auth.registerHere')}
                 </Link>
               </Typography>
             </Box>

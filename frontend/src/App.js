@@ -4,6 +4,7 @@ import { ThemeProvider, CssBaseline, Box, Toolbar } from '@mui/material';
 import getTheme from './theme';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { LanguageProvider, useTranslation } from './context/LanguageContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
 import Sidebar, { drawerWidth } from './components/Sidebar';
@@ -75,7 +76,7 @@ const AppContent = () => {
         pointerEvents: 'none'
       }} />
 
-      {user && <Navbar handleDrawerToggle={handleDrawerToggle} />}
+      <Navbar handleDrawerToggle={handleDrawerToggle} />
       {user && <Sidebar mobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle} />}
       
       <Box
@@ -91,7 +92,7 @@ const AppContent = () => {
           zIndex: 1
         }}
       >
-        {user && <Toolbar />} {/* Spacing below Fixed App Bar */}
+        <Toolbar /> {/* Spacing below Fixed App Bar */}
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
@@ -194,6 +195,24 @@ const AppContent = () => {
   );
 };
 
+const ThemeWrapper = ({ mode, children }) => {
+  const { lang } = useTranslation();
+  
+  const theme = useMemo(() => {
+    const isRTL = ['ar', 'he', 'fa', 'ur'].includes(lang);
+    const baseTheme = getTheme(mode);
+    baseTheme.direction = isRTL ? 'rtl' : 'ltr';
+    return baseTheme;
+  }, [mode, lang]);
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      {children}
+    </ThemeProvider>
+  );
+};
+
 const App = () => {
   const [mode, setMode] = useState(() => {
     return localStorage.getItem('themeMode') || 'dark';
@@ -209,18 +228,17 @@ const App = () => {
     },
   }), []);
 
-  const theme = useMemo(() => getTheme(mode), [mode]);
-
   return (
     <ColorModeContext.Provider value={colorMode}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Router>
-          <AuthProvider>
-            <AppContent />
-          </AuthProvider>
-        </Router>
-      </ThemeProvider>
+      <Router>
+        <AuthProvider>
+          <LanguageProvider>
+            <ThemeWrapper mode={mode}>
+              <AppContent />
+            </ThemeWrapper>
+          </LanguageProvider>
+        </AuthProvider>
+      </Router>
     </ColorModeContext.Provider>
   );
 };
