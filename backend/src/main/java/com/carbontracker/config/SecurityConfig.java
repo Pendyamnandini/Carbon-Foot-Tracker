@@ -52,7 +52,8 @@ public class SecurityConfig {
                     "/v3/api-docs/**",
                     "/swagger-ui/**",
                     "/swagger-ui.html",
-                    "/error"
+                    "/error",
+                    "/api/chatbot/test-db"
                 ).permitAll()
                 .requestMatchers("/api/admin/**", "/api/v1/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()

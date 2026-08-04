@@ -94,4 +94,20 @@ public class ChatController {
         conversationService.deleteConversation(id);
         return ResponseEntity.ok(ApiResponse.success("Conversation deleted successfully", null));
     }
+
+    @Autowired
+    private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
+
+    @GetMapping("/test-db")
+    public ResponseEntity<String> testDb() {
+        try {
+            Integer convCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ai_conversations", Integer.class);
+            Integer msgCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ai_messages", Integer.class);
+            return ResponseEntity.ok("DB Status: OK. ai_conversations count = " + convCount + ", ai_messages count = " + msgCount);
+        } catch (Exception e) {
+            java.io.StringWriter sw = new java.io.StringWriter();
+            e.printStackTrace(new java.io.PrintWriter(sw));
+            return ResponseEntity.ok("DB Status: ERROR. Details:\n" + sw.toString());
+        }
+    }
 }
