@@ -8,6 +8,7 @@ import { LanguageProvider, useTranslation } from './context/LanguageContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
 import Sidebar, { drawerWidth } from './components/Sidebar';
+import ChatbotBubble from './components/ChatbotBubble';
 
 // Public Pages
 import LandingPage from './pages/LandingPage';
@@ -235,6 +236,7 @@ const App = () => {
           <LanguageProvider>
             <ThemeWrapper mode={mode}>
               <AppContent />
+              <ChatbotBubble />
             </ThemeWrapper>
           </LanguageProvider>
         </AuthProvider>

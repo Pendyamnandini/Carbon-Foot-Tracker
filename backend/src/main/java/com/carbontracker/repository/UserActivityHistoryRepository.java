@@ -24,6 +24,8 @@ public interface UserActivityHistoryRepository extends JpaRepository<UserActivit
     
     Optional<UserActivityHistory> findFirstByUserIdAndActivityTypeOrderByCreatedAtDesc(Long userId, String activityType);
 
+    List<UserActivityHistory> findByActivityTypeAndCreatedAtAfter(String activityType, LocalDateTime timestamp);
+
     @Query("SELECT u FROM UserActivityHistory u WHERE u.activityType = 'LOGIN' ORDER BY u.createdAt DESC")
     Page<UserActivityHistory> findAllLogins(Pageable pageable);
 
