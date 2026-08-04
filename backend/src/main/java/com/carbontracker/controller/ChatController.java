@@ -54,12 +54,13 @@ public class ChatController {
     }
 
     @PostMapping("/conversations")
-    public ResponseEntity<ApiResponse<AiConversationDto>> createConversation(@RequestParam(value = "role", defaultValue = "USER") String role, @RequestBody(required = false) String title) {
+    public ResponseEntity<ApiResponse<AiConversationDto>> createConversation(@RequestParam(value = "role", defaultValue = "USER") String role, @RequestBody(required = false) java.util.Map<String, String> body) {
         User user = getCurrentUser();
         String activeRole = role;
         if ("ADMIN".equalsIgnoreCase(user.getRole().name())) {
             activeRole = "ADMIN";
         }
+        String title = body != null ? body.get("title") : "New Conversation";
         AiConversationDto dto = conversationService.createConversation(user.getId(), activeRole, title);
         return ResponseEntity.ok(ApiResponse.success(dto));
     }

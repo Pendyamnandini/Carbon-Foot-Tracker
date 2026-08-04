@@ -107,21 +107,48 @@ export const ChatbotBubble = () => {
 
   const handleSendMessage = async (customMessage) => {
     const textToSend = customMessage || inputMsg;
-    if (!textToSend.trim() || !activeConversation) return;
+    if (!textToSend.trim()) return;
 
-    // Optimistically log message in user list
+    let convId = activeConversation ? activeConversation.id : null;
+    
+    // If no active conversation exists, lazily initialize one first
+    if (!convId) {
+      setLoading(true);
+      try {
+        const createRes = await api.post(`/api/chatbot/conversations?role=${userRole}`, { title: "New Conversation" });
+        if (createRes.data.success) {
+          const newConv = createRes.data.data;
+          setConversations(prev => [newConv, ...prev]);
+          setActiveConversation(newConv);
+          convId = newConv.id;
+        } else {
+          throw new Error("Failed to initialize conversation");
+        }
+      } catch (err) {
+        console.error("Lazy conversation initialization failed", err);
+        setMessages(prev => [...prev, {
+          sender: 'BOT',
+          content: "⚠️ **System Error:** Failed to initialize chat session. Verify database status.",
+          createdAt: new Date().toISOString()
+        }]);
+        setLoading(false);
+        return;
+      }
+    }
+
+    // Log the user message
     const userMessage = { sender: 'USER', content: textToSend, createdAt: new Date().toISOString() };
     setMessages(prev => [...prev, userMessage]);
     setInputMsg('');
     setLoading(true);
 
     try {
-      const res = await api.post(`/api/chatbot/conversations/${activeConversation.id}/query`, {
+      const res = await api.post(`/api/chatbot/conversations/${convId}/query`, {
         message: textToSend
       });
       if (res.data.success) {
         setMessages(prev => [...prev, res.data.data]);
-        // Update conversation title list
+        // Update conversation list
         fetchConversations();
       }
     } catch (e) {
