@@ -67,6 +67,14 @@ CarbonTracker is a high-fidelity, interactive, and responsive web application de
 - **Unified Translation Context**: Integrated `react-i18next` framework linking local translation namespaces dynamically.
 - **Visual Fallback Signatures**: Localized placeholder fallbacks reflecting chosen languages (e.g. `[ଓଡ଼ିଆ] ...`) for full internationalization verification.
 
+### 🤖 Context-Aware AI Assistant Chatbot
+- **Interactive Chat Interface**: A floating glassmorphic chatbot bubble ("Carbon Assistant AI") positioned at the bottom-right of the viewport. Supports maximize/minimize configurations, quick-action suggested questions, markdown formatting, search filters, and conversation histories.
+- **Dynamic Database Context Layer**: Automatically fetches live metrics to construct context-rich system prompts:
+  - *Standard Users*: Explains today's/yesterday's footprint details, last 30-day summaries, daily averages, active goals, reward level/points, and audit history.
+  - *Administrators*: Displays platform-wide statistics (active users logged in today, user device/IP details, total registered accounts, pending support tickets) with secure role-based guards.
+- **Centralized Session Persistence**: Automatically stores, retrieves, and clears chat logs in database repositories with dynamic conversation titling.
+- **Swappable AI Provider Layout**: Built with a modular `AIProvider` Java interface, facilitating future switchable integrations for OpenAI, Gemini, Azure, or Ollama without changing the frontend interface.
+
 ---
 
 ## 🛠️ Tech Stack
