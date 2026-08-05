@@ -10,6 +10,7 @@ import LocalMallIcon from '@mui/icons-material/LocalMall';
 import CategoryIcon from '@mui/icons-material/Category';
 import api from '../api';
 import { useTranslation } from '../context/LanguageContext';
+import { usePWA } from '../context/PWAContext';
 
 const CATEGORIES = {
   TRANSPORT: {
@@ -33,6 +34,7 @@ const CATEGORIES = {
 const ActivityLogging = () => {
   const { t } = useTranslation();
   const location = useLocation();
+  const { queueOfflineAction } = usePWA();
   const [logs, setLogs] = useState([]);
   const [category, setCategory] = useState('TRANSPORT');
   const [activityType, setActivityType] = useState('Car Travel');
@@ -100,6 +102,21 @@ const ActivityLogging = () => {
       quantity: parseFloat(quantity),
       logDate
     };
+
+    if (!navigator.onLine) {
+      try {
+        await queueOfflineAction('/api/activities' + (editId ? `/${editId}` : ''), editId ? 'PUT' : 'POST', payload);
+        setSuccess('Currently offline. Log stored locally and queued for automatic sync!');
+        setQuantity('');
+        if (editId) setEditId(null);
+        setLoading(false);
+        return;
+      } catch (e) {
+        setError('Failed to log offline.');
+        setLoading(false);
+        return;
+      }
+    }
 
     try {
       if (editId) {

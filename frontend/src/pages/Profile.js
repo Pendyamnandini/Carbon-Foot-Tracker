@@ -22,6 +22,7 @@ import DoneAllIcon from '@mui/icons-material/DoneAll';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LockIcon from '@mui/icons-material/Lock';
 import LanguageIcon from '@mui/icons-material/Language';
+import { usePWA } from '../context/PWAContext';
 
 const SUPPORTED_LANGUAGES = [
   { code: 'en', label: 'English' },
@@ -63,6 +64,21 @@ const Profile = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get('tab');
 
+  const {
+    isInstallable,
+    isInstalled,
+    isOnline,
+    cacheSize,
+    notificationStatus,
+    lastSyncTime,
+    queuedCount,
+    installApp,
+    clearCache,
+    checkUpdates,
+    forceSync,
+    requestNotificationPermission
+  } = usePWA();
+
   const tabMapping = {
     'profile': 0,
     'history': 1,
@@ -71,7 +87,8 @@ const Profile = () => {
     'achievements': 4,
     'rewards': 5,
     'notifications': 6,
-    'settings': 7
+    'settings': 7,
+    'mobile-app': 8
   };
 
   const reverseTabMapping = [
@@ -82,7 +99,8 @@ const Profile = () => {
     'achievements',
     'rewards',
     'notifications',
-    'settings'
+    'settings',
+    'mobile-app'
   ];
 
   const [profileTab, setProfileTab] = useState(() => {
@@ -518,6 +536,7 @@ const Profile = () => {
         <Tab label={t('profile.tabRewards')} sx={{ fontWeight: 800 }} />
         <Tab label={t('profile.tabNotifications')} sx={{ fontWeight: 800 }} />
         <Tab label={t('profile.tabSettings')} sx={{ fontWeight: 800 }} />
+        <Tab label="Mobile App" sx={{ fontWeight: 800 }} />
       </Tabs>
 
       {/* Tab 0: Edit Profile */}
@@ -1224,6 +1243,121 @@ const Profile = () => {
           </Grid>
         </Grid>
       )}
+      {/* Tab 8: Mobile App (PWA Settings) */}
+      {profileTab === 8 && (
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <Card sx={{ height: '100%', border: '1px solid rgba(16, 185, 129, 0.1)', background: 'rgba(255,255,255,0.01)', backdropFilter: 'blur(10px)' }}>
+              <CardContent sx={{ p: 4 }}>
+                <Typography variant="h6" fontWeight={850} display="flex" alignItems="center" gap={1.5} sx={{ mb: 4, color: '#10b981' }}>
+                  <SettingsIcon /> Mobile App Settings
+                </Typography>
+                <Stack spacing={3}>
+                  <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ pb: 2, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <Box>
+                      <Typography variant="subtitle2" fontWeight={800}>App Installation</Typography>
+                      <Typography variant="caption" color="text.secondary">Run standalone without browser navigation UI</Typography>
+                    </Box>
+                    {isInstalled ? (
+                      <Chip label="Installed" color="success" size="small" sx={{ fontWeight: 800 }} />
+                    ) : isInstallable ? (
+                      <Button variant="contained" color="primary" size="small" onClick={installApp} sx={{ fontWeight: 800 }}>
+                        Install App
+                      </Button>
+                    ) : (
+                      <Chip label="Not Installable" color="default" size="small" sx={{ fontWeight: 800 }} />
+                    )}
+                  </Box>
+
+                  <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ pb: 2, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <Box>
+                      <Typography variant="subtitle2" fontWeight={800}>Network Status</Typography>
+                      <Typography variant="caption" color="text.secondary">Current connectivity state</Typography>
+                    </Box>
+                    <Chip 
+                      label={isOnline ? "Online" : "Offline"} 
+                      color={isOnline ? "success" : "error"} 
+                      size="small" 
+                      sx={{ fontWeight: 800 }} 
+                    />
+                  </Box>
+
+                  <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ pb: 2, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <Box>
+                      <Typography variant="subtitle2" fontWeight={800}>Offline Cache Size</Typography>
+                      <Typography variant="caption" color="text.secondary">Stored assets for offline operations</Typography>
+                    </Box>
+                    <Typography variant="body2" fontWeight={800} color="text.primary">{cacheSize}</Typography>
+                  </Box>
+
+                  <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ pb: 2, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <Box>
+                      <Typography variant="subtitle2" fontWeight={800}>Notifications</Typography>
+                      <Typography variant="caption" color="text.secondary">Push notifications for goals and achievements</Typography>
+                    </Box>
+                    {notificationStatus === 'granted' ? (
+                      <Chip label="Enabled" color="success" size="small" sx={{ fontWeight: 800 }} />
+                    ) : (
+                      <Button variant="outlined" color="primary" size="small" onClick={requestNotificationPermission} sx={{ fontWeight: 800 }}>
+                        Enable
+                      </Button>
+                    )}
+                  </Box>
+                </Stack>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <Card sx={{ height: '100%', border: '1px solid rgba(255, 255, 255, 0.05)', background: 'rgba(255,255,255,0.01)' }}>
+              <CardContent sx={{ p: 4 }}>
+                <Typography variant="h6" fontWeight={850} display="flex" alignItems="center" gap={1.5} sx={{ mb: 4 }}>
+                  <TimelineIcon /> Diagnostics & Sync
+                </Typography>
+                <Stack spacing={3}>
+                  <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ pb: 2, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <Box>
+                      <Typography variant="subtitle2" fontWeight={800}>Application Version</Typography>
+                      <Typography variant="caption" color="text.secondary">Current build signature</Typography>
+                    </Box>
+                    <Typography variant="body2" fontWeight={800} color="text.primary">v1.2.0-pwa</Typography>
+                  </Box>
+
+                  <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ pb: 2, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <Box>
+                      <Typography variant="subtitle2" fontWeight={800}>Last Sync</Typography>
+                      <Typography variant="caption" color="text.secondary">Timestamp of last background sync</Typography>
+                    </Box>
+                    <Typography variant="body2" fontWeight={800} color="text.primary">{lastSyncTime}</Typography>
+                  </Box>
+
+                  <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ pb: 2, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <Box>
+                      <Typography variant="subtitle2" fontWeight={800}>Queued Requests</Typography>
+                      <Typography variant="caption" color="text.secondary">Pending operations synced on recovery</Typography>
+                    </Box>
+                    <Chip label={`${queuedCount} pending`} color={queuedCount > 0 ? "warning" : "default"} size="small" sx={{ fontWeight: 800 }} />
+                  </Box>
+
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ pt: 2 }}>
+                    <Button variant="outlined" color="error" fullWidth onClick={clearCache} sx={{ fontWeight: 800 }}>
+                      Clear Cache
+                    </Button>
+                    <Button variant="outlined" color="primary" fullWidth onClick={checkUpdates} sx={{ fontWeight: 800 }}>
+                      Check Updates
+                    </Button>
+                    <Button variant="contained" color="primary" fullWidth onClick={forceSync} disabled={!isOnline} sx={{ fontWeight: 800 }}>
+                      Force Sync
+                    </Button>
+                  </Stack>
+                </Stack>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+      )}
+      
+      {/* Tab 7: Settings */}
 
       {/* Certificate Print View Dialog */}
       {selectedCert && (

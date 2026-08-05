@@ -5,10 +5,12 @@ import getTheme from './theme';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LanguageProvider, useTranslation } from './context/LanguageContext';
+import { PWAProvider } from './context/PWAContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
 import Sidebar, { drawerWidth } from './components/Sidebar';
 import ChatbotBubble from './components/ChatbotBubble';
+import PWAInstallPrompt from './components/PWAInstallPrompt';
 
 // Public Pages
 import LandingPage from './pages/LandingPage';
@@ -85,6 +87,7 @@ const AppContent = () => {
         sx={{
           flexGrow: 1,
           p: 0,
+          pb: { xs: 8, sm: 2 },
           width: user ? { sm: `calc(100% - ${drawerWidth}px)` } : '100%',
           minHeight: '100vh',
           display: 'flex',
@@ -234,10 +237,13 @@ const App = () => {
       <Router>
         <AuthProvider>
           <LanguageProvider>
-            <ThemeWrapper mode={mode}>
-              <AppContent />
-              <ChatbotBubble />
-            </ThemeWrapper>
+            <PWAProvider>
+              <ThemeWrapper mode={mode}>
+                <AppContent />
+                <ChatbotBubble />
+                <PWAInstallPrompt />
+              </ThemeWrapper>
+            </PWAProvider>
           </LanguageProvider>
         </AuthProvider>
       </Router>

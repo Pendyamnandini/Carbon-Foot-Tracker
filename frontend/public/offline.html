@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="theme-color" content="#0F9D58" />
+  <title>Offline | Carbon Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-color: #0b0f19;
+      --card-bg: rgba(255, 255, 255, 0.03);
+      --primary: #0F9D58;
+      --primary-glow: rgba(15, 157, 88, 0.15);
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: var(--bg-color);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Glowing blur orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      z-index: 0;
+      pointer-events: none;
+    }
+    .orb-1 {
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(15, 157, 88, 0.15) 0%, transparent 70%);
+      top: 10%;
+      left: 10%;
+    }
+    .orb-2 {
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%);
+      bottom: 10%;
+      right: 10%;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 2.5rem;
+      margin: 1.5rem;
+      max-width: 400px;
+      background: rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .icon-container {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem;
+      background: var(--primary-glow);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 2px dashed var(--primary);
+      position: relative;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(15, 157, 88, 0.4);
+      }
+      70% {
+        box-shadow: 0 0 0 15px rgba(15, 157, 88, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(15, 157, 88, 0);
+      }
+    }
+
+    .icon-container svg {
+      width: 40px;
+      height: 40px;
+      fill: var(--primary);
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0 0 0.75rem 0;
+      letter-spacing: -0.025em;
+      background: linear-gradient(135deg, #ffffff 0%, #a7f3d0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--text-muted);
+      margin: 0 0 2rem 0;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 0.875rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      color: #ffffff;
+      background: var(--primary);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      box-shadow: 0 4px 12px rgba(15, 157, 88, 0.3);
+    }
+
+    .btn:hover {
+      background: #0d8a4d;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(15, 157, 88, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .status-badge {
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #34d399;
+      background: rgba(52, 211, 153, 0.1);
+      border-radius: 100px;
+    }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  
+  <div class="container">
+    <div class="icon-container">
+      <!-- Custom Wifi-Off / Cloud-Off SVG -->
+      <svg viewBox="0 0 24 24">
+        <path d="M23.64 16.2L22.38 15C23.3 16.26 23.6 17.87 23.11 19.34L21.13 17.36C21.89 16.65 22.82 16.14 23.64 16.2M1 4.27L2.28 3L21 21.72L19.73 23L16.27 19.54C14.78 20.35 13.06 20.67 11.41 20.39C9.75 20.12 8.23 19.26 7.15 18C8.07 16.74 8.37 15.13 8.86 13.66L1.25 6.05C1.04 6.79 0.94 7.55 1 8.3C1.05 9.8 1.63 11.23 2.62 12.38L3.89 11.16C3.16 10.3 2.84 9.17 2.97 8.04C3.06 7.27 3.32 6.54 3.73 5.89L1 4.27M12 4C14.07 4 16.07 4.81 17.58 6.27L16.32 7.49C15.17 6.38 13.62 5.79 12 5.79C10.87 5.79 9.77 6.1 8.81 6.66L7.33 5.18C8.71 4.4 10.33 4 12 4M12 9.5C13.38 9.5 14.5 10.62 14.5 12C14.5 12.56 14.31 13.07 14 13.5L10.5 10C10.93 9.69 11.44 9.5 12 9.5M12 15C10.62 15 9.5 13.88 9.5 12.5C9.5 11.94 9.69 11.43 10 11L6.5 7.5C5.72 8.79 5.39 10.38 5.61 11.95C5.83 13.5 6.57 14.93 7.73 15.93L6.47 17.15C5.07 15.94 4.18 14.21 3.92 12.3C3.66 10.4 4.05 8.47 5.03 6.88L3.77 5.62C2.47 7.45 1.95 9.75 2.31 12C2.66 14.25 3.86 16.3 5.64 17.72L4.38 18.94C2.26 17.26 0.85 14.77 0.5 12C0.16 9.23 0.9 6.43 2.5 4.18L1.22 2.91L12.5 14.18V20H11.5V14.18L12.5 15.18V20M12 17.79C13.13 17.79 14.23 17.48 15.19 16.92L16.67 18.4C15.29 19.18 13.67 19.58 12 19.58C10.33 19.58 8.71 19.18 7.33 18.4L8.81 16.92C9.77 17.48 10.87 17.79 12 17.79Z" />
+      </svg>
+    </div>
+    
+    <h1>You are offline</h1>
+    <p>We can't connect to our servers right now. Don't worry, you can still view cached dashboards and reports. Any carbon activity logs will be queued and synced automatically when you reconnect.</p>
+    
+    <button class="btn" onclick="window.location.reload()">Try Reconnecting</button>
+    
+    <div class="status-badge" id="sync-status">Offline Queue Ready</div>
+  </div>
+</body>
+</html>
