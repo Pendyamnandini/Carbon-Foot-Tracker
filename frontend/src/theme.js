@@ -22,27 +22,43 @@ export const getTheme = (mode) => createTheme({
     divider: mode === 'dark' ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)',
   },
   typography: {
-    fontFamily: '"Outfit", "Inter", "Roboto", sans-serif',
+    fontFamily: '"Plus Jakarta Sans", "Inter", "Manrope", sans-serif',
     h1: {
       fontWeight: 800,
-      letterSpacing: '-0.025em',
+      letterSpacing: '-0.03em',
+      lineHeight: 1.2,
     },
     h2: {
       fontWeight: 800,
       letterSpacing: '-0.02em',
+      lineHeight: 1.25,
     },
     h4: {
       fontWeight: 800,
       letterSpacing: '-0.015em',
+      lineHeight: 1.3,
     },
     h5: {
       fontWeight: 700,
+      letterSpacing: '-0.01em',
+      lineHeight: 1.35,
     },
     h6: {
       fontWeight: 700,
+      letterSpacing: '-0.01em',
+      lineHeight: 1.4,
+    },
+    body1: {
+      lineHeight: 1.6,
+      letterSpacing: '-0.005em',
+    },
+    body2: {
+      lineHeight: 1.6,
+      letterSpacing: '-0.005em',
     },
     subtitle1: {
       fontWeight: 600,
+      lineHeight: 1.5,
     },
     button: {
       textTransform: 'none',
