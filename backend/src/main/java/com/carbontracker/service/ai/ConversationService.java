@@ -64,7 +64,40 @@ public class ConversationService {
             aiConversationRepository.save(conv);
         }
 
-        return new ChatMessageDto(msg.getSender(), msg.getContent(), msg.getCreatedAt());
+        return new ChatMessageDto(msg.getId(), msg.getSender(), msg.getContent(), msg.isLiked(), msg.isDisliked(), msg.getCreatedAt());
+    }
+
+    public AiConversationDto renameConversation(Long id, String title) {
+        AiConversation conv = aiConversationRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Conversation not found"));
+        conv.setTitle(title);
+        conv = aiConversationRepository.save(conv);
+        return mapToDto(conv);
+    }
+
+    public AiConversationDto pinConversation(Long id, boolean pinned) {
+        AiConversation conv = aiConversationRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Conversation not found"));
+        conv.setPinned(pinned);
+        conv = aiConversationRepository.save(conv);
+        return mapToDto(conv);
+    }
+
+    public AiConversationDto favoriteConversation(Long id, boolean favorite) {
+        AiConversation conv = aiConversationRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Conversation not found"));
+        conv.setFavorite(favorite);
+        conv = aiConversationRepository.save(conv);
+        return mapToDto(conv);
+    }
+
+    public ChatMessageDto setFeedback(Long messageId, boolean liked, boolean disliked) {
+        AiMessage msg = aiMessageRepository.findById(messageId)
+                .orElseThrow(() -> new IllegalArgumentException("Message not found"));
+        msg.setLiked(liked);
+        msg.setDisliked(disliked);
+        msg = aiMessageRepository.save(msg);
+        return new ChatMessageDto(msg.getId(), msg.getSender(), msg.getContent(), msg.isLiked(), msg.isDisliked(), msg.getCreatedAt());
     }
 
     public void deleteConversation(Long conversationId) {
@@ -75,13 +108,15 @@ public class ConversationService {
     private AiConversationDto mapToDto(AiConversation conv) {
         List<ChatMessageDto> messages = aiMessageRepository.findByConversationIdOrderByCreatedAtAsc(conv.getId())
                 .stream()
-                .map(m -> new ChatMessageDto(m.getSender(), m.getContent(), m.getCreatedAt()))
+                .map(m -> new ChatMessageDto(m.getId(), m.getSender(), m.getContent(), m.isLiked(), m.isDisliked(), m.getCreatedAt()))
                 .collect(Collectors.toList());
 
         return AiConversationDto.builder()
                 .id(conv.getId())
                 .title(conv.getTitle())
                 .role(conv.getRole())
+                .pinned(conv.isPinned())
+                .favorite(conv.isFavorite())
                 .createdAt(conv.getCreatedAt())
                 .messages(messages)
                 .build();

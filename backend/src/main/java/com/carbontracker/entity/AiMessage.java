@@ -27,6 +27,14 @@ public class AiMessage {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    @Builder.Default
+    @Column(name = "liked")
+    private boolean liked = false;
+
+    @Builder.Default
+    @Column(name = "disliked")
+    private boolean disliked = false;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

@@ -67,13 +67,19 @@ CarbonTracker is a high-fidelity, interactive, and responsive web application de
 - **Unified Translation Context**: Integrated `react-i18next` framework linking local translation namespaces dynamically.
 - **Visual Fallback Signatures**: Localized placeholder fallbacks reflecting chosen languages (e.g. `[ଓଡ଼ିଆ] ...`) for full internationalization verification.
 
-### 🤖 Context-Aware AI Assistant Chatbot
-- **Interactive Chat Interface**: A floating glassmorphic chatbot bubble ("Carbon Assistant AI") positioned at the bottom-right of the viewport. Supports maximize/minimize configurations, quick-action suggested questions, markdown formatting, search filters, and conversation histories.
-- **Dynamic Database Context Layer**: Automatically fetches live metrics to construct context-rich system prompts:
-  - *Standard Users*: Explains today's/yesterday's footprint details, last 30-day summaries, daily averages, active goals, reward level/points, and audit history.
-  - *Administrators*: Displays platform-wide statistics (active users logged in today, user device/IP details, total registered accounts, pending support tickets) with secure role-based guards.
-- **Centralized Session Persistence**: Automatically stores, retrieves, and clears chat logs in database repositories with dynamic conversation titling.
-- **Swappable AI Provider Layout**: Built with a modular `AIProvider` Java interface, facilitating future switchable integrations for OpenAI, Gemini, Azure, or Ollama without changing the frontend interface.
+### 🤖 Carbon Assistant AI v2 - Enterprise AI Chatbot Upgrade
+- **Modern Glassmorphism UI**: Beautiful premium ChatGPT/Gemini-like double-panel layouts, micro-animations, glass overlays, and glowing background blur filters.
+- **Conversation History with Search**: A sidebar displaying past conversations, with a text field to search/filter chats, renaming, and deletion.
+- **Pinned and Favorite Conversations**: Mark critical chats to keep them at the top of the queue, synced directly to the database.
+- **Full-Screen / Maximize Mode**: Toggle sizing between a compact overlay bubble and a comprehensive dual-panel split screen.
+- **Interactive Charts Inside Chat**: Renders responsive Recharts (Pie, Bar, Line, Circular Gauges, and Progress bars) directly within chat messages via special tag parsing.
+- **Voice Assistant (STT & TTS)**: Native Speech-to-Text (STT) and Text-to-Speech (TTS) engine for hands-free voice interactions.
+- **File Upload Sustainability Auditing**: Drag & drop or file explorer uploads of receipt images, utility bills, or travel log CSVs for automated carbon audits.
+- **Dynamic AI Suggestions**: Custom context chips suggested dynamically based on user role (Admin vs User) when a conversation has no messages.
+- **Sample Data Auto-Seeding**: Users can ask the bot ("seed sample data" or "fill dashboard") to instantly generate 30 days of realistic daily activity logs to populate empty charts.
+- **Dynamic Database Context Layer**: Automatically compiles live metrics (emissions, streaks, goals, badges, platform user metrics, CPU/memory stats, audit logs) into system prompts.
+- **Centralized Session Persistence**: Stores and retrieves conversation histories securely in database entities (`AiConversation` and `AiMessage`).
+- **Swappable AI Provider Layout**: Built with a modular `AIProvider` Java interface for switchable backend engine adapters (Gemini, OpenAI, Azure, Ollama).
 
 ---
 

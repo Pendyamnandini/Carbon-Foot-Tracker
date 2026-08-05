@@ -27,6 +27,14 @@ public class AiConversation {
     @Column(nullable = false)
     private String role;
 
+    @Builder.Default
+    @Column(name = "pinned")
+    private boolean pinned = false;
+
+    @Builder.Default
+    @Column(name = "favorite")
+    private boolean favorite = false;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

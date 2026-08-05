@@ -184,18 +184,33 @@ const Dashboard = () => {
     }
   };
 
-  const dailyChartData = dailyAnalytics?.history?.map(item => ({
-    name: new Date(item.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
-    Emissions: item.overallTotal
-  })) || [];
+  const dailyChartData = dailyAnalytics?.trend?.map(item => {
+    let name = '';
+    try {
+      if (item.label) {
+        const d = new Date(item.label);
+        if (!isNaN(d.getTime())) {
+          name = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' });
+        } else {
+          name = item.label;
+        }
+      }
+    } catch (e) {
+      name = item.label || '';
+    }
+    return {
+      name,
+      Emissions: item.emissions
+    };
+  }) || [];
 
   const weeklyChartData = weeklyAnalytics?.trend?.map(item => ({
-    name: item.weekLabel,
+    name: item.label,
     Emissions: item.emissions
   })) || [];
 
   const monthlyChartData = monthlyAnalytics?.trend?.map(item => ({
-    name: item.monthLabel,
+    name: item.label,
     Emissions: item.emissions
   })) || [];
 

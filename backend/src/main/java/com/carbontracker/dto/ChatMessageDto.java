@@ -9,7 +9,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatMessageDto {
+    private Long id;
     private String sender;
     private String content;
+    private boolean liked;
+    private boolean disliked;
     private LocalDateTime createdAt;
 }
