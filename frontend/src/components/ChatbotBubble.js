@@ -779,21 +779,22 @@ export const ChatbotBubble = () => {
   const suggestedPrompts = useMemo(() => {
     if (userRole === 'ADMIN') {
       return [
-        getLocalString('suggested_active_users', lang) || "Active users logged in today",
-        getLocalString('suggested_registrations', lang) || "Total registrations on platform",
-        getLocalString('suggested_pending_tickets', lang) || "Pending support tickets",
-        getLocalString('suggested_system_health', lang) || "System health diagnostic console"
+        "Show active users today",
+        "Total platform registrations",
+        "Pending support tickets",
+        "Platform category breakdown",
+        "System health check"
       ];
     } else {
       return [
-        getLocalString('suggested_today', lang),
-        getLocalString('suggested_yesterday', lang),
-        getLocalString('suggested_recs', lang),
-        getLocalString('suggested_netzero', lang),
-        getLocalString('suggested_pdf', lang)
+        "What are my emissions today?",
+        "Show my weekly carbon trend",  
+        "How can I reduce my footprint?",
+        "Show my goal progress",
+        "Summarize my carbon data"
       ];
     }
-  }, [userRole, lang]);
+  }, [userRole]);
 
   const renderMessageContent = (text, msgId) => {
     if (!text) return null;

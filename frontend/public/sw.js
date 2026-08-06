@@ -16,7 +16,18 @@ const STATIC_ASSETS = [
   '/icons/icon-152x152.png',
   '/icons/icon-192x192.png',
   '/icons/icon-384x384.png',
-  '/icons/icon-512x512.png'
+  '/icons/icon-512x512.png',
+  '/locales/en/common.json',
+  '/locales/en/dashboard.json',
+  '/locales/en/auth.json',
+  '/locales/hi/common.json',
+  '/locales/hi/dashboard.json',
+  '/locales/te/common.json',
+  '/locales/te/dashboard.json',
+  '/locales/bn/common.json',
+  '/locales/bn/dashboard.json',
+  '/locales/fr/common.json',
+  '/locales/es/common.json'
 ];
 
 // Install Event

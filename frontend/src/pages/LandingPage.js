@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Box, Typography, Button, Container, Grid, Card, CardContent, Stack, IconButton, Avatar, Chip, Paper } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import TravelExploreIcon from '@mui/icons-material/TravelExplore';
@@ -15,12 +15,65 @@ import SpeedIcon from '@mui/icons-material/Speed';
 import { useTheme } from '@mui/material/styles';
 import { ColorModeContext } from '../App';
 import { useTranslation } from '../context/LanguageContext';
+import { SUPPORTED_LANGUAGES } from '../locales/languages';
+import LandingBackground from '../components/LandingBackground';
 
 const LandingPage = () => {
-  const { t } = useTranslation();
+  const { t, changeLanguage } = useTranslation();
   const navigate = useNavigate();
   const theme = useTheme();
   const colorMode = useContext(ColorModeContext);
+
+  const [detectedLang, setDetectedLang] = useState(null);
+  const [showLangPrompt, setShowLangPrompt] = useState(false);
+
+  const langNames = {
+    hi: 'हिन्दी (Hindi)',
+    te: 'తెలుగు (Telugu)',
+    bn: 'বাংলা (Bengali)',
+    ta: 'தமிழ் (Tamil)',
+    kn: 'కన్నడ (Kannada)',
+    ml: 'മലയാളം (Malayalam)',
+    mr: 'मराठी (Marathi)',
+    gu: 'ગુજરાતી (Gujarati)',
+    pa: 'ਪੰਜਾਬੀ (Punjabi)',
+    ur: 'اردو (Urdu)',
+    es: 'Español (Spanish)',
+    fr: 'Français (French)',
+    de: 'Deutsch (German)',
+    it: 'Italiano (Italian)',
+    pt: 'Português (Portuguese)',
+    nl: 'Nederlands (Dutch)',
+    ru: 'Русский (Russian)',
+    zh_CN: '简体中文 (Chinese)',
+    ja: '日本語 (Japanese)',
+    ar: 'العربية (Arabic)'
+  };
+
+  useEffect(() => {
+    const promptDismissed = localStorage.getItem('lang_prompt_dismissed');
+    const savedLang = localStorage.getItem('app_lang');
+    if (!savedLang && !promptDismissed) {
+      const browserLang = navigator.language || navigator.userLanguage || 'en';
+      const shortCode = browserLang.split('-')[0].toLowerCase();
+      const isSupported = SUPPORTED_LANGUAGES.some(l => l.code === shortCode && l.code !== 'en');
+      if (isSupported) {
+        setDetectedLang(shortCode);
+        setShowLangPrompt(true);
+      }
+    }
+  }, []);
+
+  const handleAcceptLang = () => {
+    changeLanguage(detectedLang);
+    localStorage.setItem('lang_prompt_dismissed', 'true');
+    setShowLangPrompt(false);
+  };
+
+  const handleDeclineLang = () => {
+    localStorage.setItem('lang_prompt_dismissed', 'true');
+    setShowLangPrompt(false);
+  };
 
   const stats = [
     { label: t('landing.statsTotalEmissions'), value: '1,245,800 kg', subtext: t('landing.co2Equiv') },
@@ -64,27 +117,28 @@ const LandingPage = () => {
 
   const testimonials = [
     {
-      quote: "CarbonTracker transformed how our company measures Scope 1, 2, and 3 emissions. The category analytics and custom date range filters give us instant clarity.",
-      author: "Sarah Jenkins",
-      role: "Sustainability Director, EcoCorp",
+      quote: t('landing.testimonial1') || "CarbonTracker transformed how our company measures Scope 1, 2, and 3 emissions. The category analytics and custom date range filters give us instant clarity.",
+      author: t('landing.testimonial1Author') || "Sarah Jenkins",
+      role: t('landing.testimonial1Role') || "Sustainability Director, EcoCorp",
       avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150"
     },
     {
-      quote: "The personalized recommendation engine helped me reduce my household carbon footprint by 32% in just two months. The streak badges keep me motivated daily!",
-      author: "David Chen",
-      role: "Individual User & Climate Advocate",
+      quote: t('landing.testimonial2') || "The personalized recommendation engine helped me reduce my household carbon footprint by 32% in just two months. The streak badges keep me motivated daily!",
+      author: t('landing.testimonial2Author') || "David Chen",
+      role: t('landing.testimonial2Role') || "Individual User & Climate Advocate",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
     },
     {
-      quote: "The automated email goal alerts and period comparison engine make tracking our department's green targets effortless and rewarding.",
-      author: "Elena Rostova",
-      role: "ESG Manager, GreenVentures",
+      quote: t('landing.testimonial3') || "The automated email goal alerts and period comparison engine make tracking our department's green targets effortless and rewarding.",
+      author: t('landing.testimonial3Author') || "Elena Rostova",
+      role: t('landing.testimonial3Role') || "ESG Manager, GreenVentures",
       avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
     }
   ];
 
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', pt: 6, pb: 10, position: 'relative' }}>
+      <LandingBackground />
       {/* Floating Theme Toggle */}
       <Box sx={{ position: 'fixed', top: 20, right: 20, zIndex: 1100 }}>
         <Paper elevation={4} sx={{ borderRadius: '50%', p: 0.5, backdropFilter: 'blur(10px)', background: theme.palette.mode === 'dark' ? 'rgba(30,41,59,0.8)' : 'rgba(255,255,255,0.8)' }}>
@@ -94,7 +148,7 @@ const LandingPage = () => {
         </Paper>
       </Box>
 
-      <Container maxWidth="lg">
+      <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
         {/* HERO SECTION */}
         <Grid container spacing={6} alignItems="center" sx={{ mb: 12, pt: 4 }}>
           <Grid item xs={12} md={7}>
@@ -159,12 +213,38 @@ const LandingPage = () => {
                 overflow: 'hidden'
               }}
             >
-              <Co2Icon sx={{ fontSize: 130, color: 'primary.main', mb: 2, filter: 'drop-shadow(0 10px 15px rgba(16, 185, 129, 0.4))' }} />
-              <Typography variant="h5" fontWeight={800} gutterBottom>
-                Real-Time Carbon Intelligence
+              {/* Eco themed backdrop shapes */}
+              <Box sx={{ position: 'absolute', top: -20, right: -20, opacity: 0.15 }}>
+                <NaturePeopleIcon sx={{ fontSize: 100, color: 'primary.main' }} />
+              </Box>
+              <Box sx={{ position: 'absolute', bottom: -30, left: -20, opacity: 0.1 }}>
+                <Co2Icon sx={{ fontSize: 140, color: 'secondary.main' }} />
+              </Box>
+              
+              {/* Hero Graphic */}
+              <Box sx={{ position: 'relative', mb: 3 }}>
+                <Box sx={{
+                  width: 100, height: 100, borderRadius: '50%',
+                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  border: '2px solid rgba(16, 185, 129, 0.4)',
+                  boxShadow: '0 0 30px rgba(16, 185, 129, 0.25)',
+                  zIndex: 2, position: 'relative'
+                }}>
+                  <Co2Icon sx={{ fontSize: 64, color: 'primary.main' }} />
+                </Box>
+                {/* Circular tracking line */}
+                <svg width="120" height="120" style={{ position: 'absolute', top: -10, left: -10, zIndex: 1 }}>
+                  <circle cx="60" cy="60" r="56" fill="none" stroke="rgba(16,185,129,0.2)" strokeWidth="4" />
+                  <circle cx="60" cy="60" r="56" fill="none" stroke="#10b981" strokeWidth="4" strokeDasharray="351" strokeDashoffset="100" />
+                </svg>
+              </Box>
+              
+              <Typography variant="h5" fontWeight={800} gutterBottom sx={{ position: 'relative', zIndex: 3 }}>
+                {t('landing.heroCardTitle', 'Real-Time Carbon Intelligence')}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Live monitoring, dynamic period comparisons, and automated milestone tracking.
+              <Typography variant="body2" color="text.secondary" sx={{ position: 'relative', zIndex: 3 }}>
+                {t('landing.heroCardDesc', 'Live monitoring, dynamic period comparisons, and automated milestone tracking.')}
               </Typography>
             </Paper>
           </Grid>
@@ -223,8 +303,8 @@ const LandingPage = () => {
                 <Stack spacing={2.5} sx={{ mt: 3 }}>
                   <Box>
                     <Stack direction="row" justifyContent="space-between" mb={0.5}>
-                      <Typography variant="subtitle2">Transportation</Typography>
-                      <Typography variant="subtitle2" fontWeight={700}>42% Avg Impact</Typography>
+                      <Typography variant="subtitle2">{t('landing.transportation', 'Transportation')}</Typography>
+                      <Typography variant="subtitle2" fontWeight={700}>{t('landing.impactTransport', '42% Avg Impact')}</Typography>
                     </Stack>
                     <Box sx={{ width: '100%', height: 10, borderRadius: 5, bg: 'divider', overflow: 'hidden' }}>
                       <Box sx={{ width: '42%', height: '100%', background: '#3b82f6' }} />
@@ -233,8 +313,8 @@ const LandingPage = () => {
 
                   <Box>
                     <Stack direction="row" justifyContent="space-between" mb={0.5}>
-                      <Typography variant="subtitle2">Electricity & Heating</Typography>
-                      <Typography variant="subtitle2" fontWeight={700}>28% Avg Impact</Typography>
+                      <Typography variant="subtitle2">{t('landing.electricityHeating', 'Electricity & Heating')}</Typography>
+                      <Typography variant="subtitle2" fontWeight={700}>{t('landing.impactElectricity', '28% Avg Impact')}</Typography>
                     </Stack>
                     <Box sx={{ width: '100%', height: 10, borderRadius: 5, bg: 'divider', overflow: 'hidden' }}>
                       <Box sx={{ width: '28%', height: '100%', background: '#fbbf24' }} />
@@ -243,8 +323,8 @@ const LandingPage = () => {
 
                   <Box>
                     <Stack direction="row" justifyContent="space-between" mb={0.5}>
-                      <Typography variant="subtitle2">Food & Agriculture</Typography>
-                      <Typography variant="subtitle2" fontWeight={700}>18% Avg Impact</Typography>
+                      <Typography variant="subtitle2">{t('landing.foodAgriculture', 'Food & Agriculture')}</Typography>
+                      <Typography variant="subtitle2" fontWeight={700}>{t('landing.impactFood', '18% Avg Impact')}</Typography>
                     </Stack>
                     <Box sx={{ width: '100%', height: 10, borderRadius: 5, bg: 'divider', overflow: 'hidden' }}>
                       <Box sx={{ width: '18%', height: '100%', background: '#10b981' }} />
@@ -253,8 +333,8 @@ const LandingPage = () => {
 
                   <Box>
                     <Stack direction="row" justifyContent="space-between" mb={0.5}>
-                      <Typography variant="subtitle2">Goods & Shopping</Typography>
-                      <Typography variant="subtitle2" fontWeight={700}>12% Avg Impact</Typography>
+                      <Typography variant="subtitle2">{t('landing.goodsShopping', 'Goods & Shopping')}</Typography>
+                      <Typography variant="subtitle2" fontWeight={700}>{t('landing.impactGoods', '12% Avg Impact')}</Typography>
                     </Stack>
                     <Box sx={{ width: '100%', height: 10, borderRadius: 5, bg: 'divider', overflow: 'hidden' }}>
                       <Box sx={{ width: '12%', height: '100%', background: '#ec4899' }} />
@@ -270,10 +350,10 @@ const LandingPage = () => {
         <Box sx={{ mb: 12 }}>
           <Stack textAlign="center" spacing={2} sx={{ mb: 6 }}>
             <Typography variant="h4" fontWeight={800}>
-              Comprehensive SaaS Platform Features
+              {t('landing.featuresTitle', 'Comprehensive SaaS Platform Features')}
             </Typography>
             <Typography variant="body1" color="text.secondary" maxWidth="600px" mx="auto" sx={{ fontSize: '0.95rem' }}>
-              Everything you need to measure emissions, complete eco challenges, and report zero carbon compliance.
+              {t('landing.featuresSubtitle', 'Everything you need to measure emissions, complete eco challenges, and report zero carbon compliance.')}
             </Typography>
           </Stack>
 
@@ -404,10 +484,69 @@ const LandingPage = () => {
               '&:hover': { backgroundColor: '#f8fafc' }
             }}
           >
-            Start Tracking Free
+            {t('landing.startTrackingFree', 'Start Tracking Free')}
           </Button>
         </Paper>
       </Container>
+
+      {/* Dynamic Browser Language Detection Prompt */}
+      {showLangPrompt && detectedLang && (
+        <Box sx={{
+          position: 'fixed',
+          bottom: 24,
+          left: 24,
+          zIndex: 9999,
+          maxWidth: 380,
+          p: 3,
+          borderRadius: 4,
+          border: '1px solid rgba(16, 185, 129, 0.2)',
+          background: 'rgba(11, 15, 25, 0.9)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+        }}>
+          <Typography variant="subtitle1" fontWeight={800} sx={{ color: '#ffffff', mb: 0.5 }}>
+            {t('landing.changeLanguage', 'Change Language?')}
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 2.5, fontSize: '0.85rem' }}>
+            We detected your browser language is <strong>{langNames[detectedLang] || detectedLang}</strong>. Would you like to switch to this language?
+          </Typography>
+          <Box display="flex" gap={1.5}>
+            <Button
+              variant="outlined"
+              fullWidth
+              size="small"
+              onClick={handleDeclineLang}
+              sx={{
+                borderColor: 'rgba(255,255,255,0.1)',
+                color: '#ffffff',
+                textTransform: 'none',
+                fontWeight: 600,
+                borderRadius: 2,
+                '&:hover': { borderColor: 'rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)' }
+              }}
+            >
+              {t('landing.keepEnglish', 'No, keep English')}
+            </Button>
+            <Button
+              variant="contained"
+              fullWidth
+              size="small"
+              onClick={handleAcceptLang}
+              sx={{
+                bgcolor: '#10b981',
+                color: '#ffffff',
+                textTransform: 'none',
+                fontWeight: 700,
+                borderRadius: 2,
+                '&:hover': { bgcolor: '#059669' }
+              }}
+            >
+              {t('landing.yesSwitch', 'Yes, switch')}
+            </Button>
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 };

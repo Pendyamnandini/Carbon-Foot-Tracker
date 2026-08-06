@@ -25,6 +25,17 @@ public class PromptBuilder {
             sb.append("\n\nAnalyze the user's data to explain trends, compare daily variations, and provide personalized advice. Do not output generic advice. Keep your response conversational and use markdown formatting where appropriate.\n");
         }
 
+        // Multilingual response instruction based on user language preference
+        String language = user.getLanguage();
+        if (language == null || language.isEmpty()) {
+            language = "en";
+        }
+        sb.append("\n== CRITICAL MULTILINGUAL INSTRUCTION ==\n");
+        sb.append("The user's preferred language is: '").append(language).append("'.\n");
+        sb.append("You MUST write your entire response, recommendations, explanations, and advice ONLY in this language: '").append(language).append("'.\n");
+        sb.append("Do NOT prepend any language tags like [French], [Hindi], or [Spanish] or similar prefixes. Just output the translated text naturally.\n");
+        sb.append("Do NOT mix English words unless they are technical metrics or standard acronyms (e.g. CO2, kg). Speak directly in the target language.\n");
+
         return sb.toString();
     }
 }

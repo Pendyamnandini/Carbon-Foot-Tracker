@@ -149,3 +149,10 @@ The backend server will start running on **`http://localhost:8080`** using the p
    npm start
    ```
 The frontend will compile and open automatically in your browser at **`http://localhost:3000`** (or `http://localhost:3001`).
+  
+## Final UI, Multilingual & AI Improvements  
+- **Landing Page**: Implemented a professional, premium SaaS design featuring animated eco-gradients, glassmorphism, and dynamic overlays while retaining Carbon Tracker branding.  
+- **Multilingual & Locales**: Fixed all missing translation keys by dynamically injecting English fallbacks across all 99 languages.  
+- **Default Language**: English is enforced as the default language on first visit, and language selections are properly persisted to localStorage.  
+- **Language Selector**: Resolved contrast and visibility issues for the Light Mode dropdown menu.  
+- **AI Chatbot Context**: Upgraded the AI prompt builder to integrate seamlessly with the robust DatabaseContextService, preparing the system to deliver highly contextualized, database-driven responses without repetitive templates. 

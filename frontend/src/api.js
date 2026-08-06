@@ -7,13 +7,15 @@ const api = axios.create({
   },
 });
 
-// Request Interceptor: Attach JWT Access Token
+// Request Interceptor: Attach JWT Access Token and Accept-Language header
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('accessToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    const lang = localStorage.getItem('app_lang') || navigator.language || 'en';
+    config.headers['Accept-Language'] = lang;
     return config;
   },
   (error) => Promise.reject(error)

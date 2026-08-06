@@ -5,12 +5,14 @@ import GetAppIcon from '@mui/icons-material/GetApp';
 import InstallMobileIcon from '@mui/icons-material/InstallMobile';
 import InstallDesktopIcon from '@mui/icons-material/InstallDesktop';
 import { usePWA } from '../context/PWAContext';
+import { useTranslation } from '../context/LanguageContext';
 
 const PWAInstallPrompt = () => {
   const { isInstallable, isInstalled, installApp } = usePWA();
   const [showBanner, setShowBanner] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Show banner after 3 seconds if the app is installable and not yet installed
@@ -92,10 +94,10 @@ const PWAInstallPrompt = () => {
             </Box>
             <Box>
               <Typography variant="subtitle1" fontWeight={900} sx={{ color: '#ffffff', lineHeight: 1.2 }}>
-                Install Carbon Tracker
+                {t('pwa.install_title') || 'Install Carbon Tracker'}
               </Typography>
               <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                {isMobile ? 'Add to Home Screen for native experience' : 'Install on your desktop'}
+                {isMobile ? (t('pwa.mobile_sub') || 'Add to Home Screen for native experience') : (t('pwa.desktop_sub') || 'Install on your desktop')}
               </Typography>
             </Box>
           </Box>
@@ -105,7 +107,7 @@ const PWAInstallPrompt = () => {
         </Box>
 
         <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3, lineHeight: 1.5 }}>
-          Monitor your footprint, log emissions offline, access chatbot conversations, and get instant reminders with our installable PWA.
+          {t('pwa.description') || 'Monitor your footprint, log emissions offline, access chatbot conversations, and get instant reminders with our installable PWA.'}
         </Typography>
 
         <Box display="flex" gap={2}>
@@ -125,7 +127,7 @@ const PWAInstallPrompt = () => {
               }
             }}
           >
-            Not Now
+            {t('pwa.not_now') || 'Not Now'}
           </Button>
           <Button
             variant="contained"
@@ -146,7 +148,7 @@ const PWAInstallPrompt = () => {
               }
             }}
           >
-            Install
+            {t('pwa.install') || 'Install'}
           </Button>
         </Box>
       </Paper>

@@ -15,9 +15,10 @@ public class ApiResponse<T> {
     private T data;
 
     public static <T> ApiResponse<T> success(String message, T data) {
+        String translatedMessage = com.carbontracker.service.ai.Translator.toLocale(message);
         return ApiResponse.<T>builder()
                 .success(true)
-                .message(message)
+                .message(translatedMessage)
                 .data(data)
                 .build();
     }

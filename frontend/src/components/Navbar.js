@@ -126,7 +126,15 @@ const Navbar = ({ handleDrawerToggle }) => {
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                 transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                 PaperProps={{
-                  sx: { width: 320, maxHeight: 400, background: theme.palette.background.paper, border: '1px solid ' + theme.palette.divider }
+                  sx: { 
+                    width: 320, 
+                    maxHeight: 400, 
+                    background: theme.palette.mode === 'dark' ? '#0f172a' : '#ffffff', 
+                    border: '1px solid ' + theme.palette.divider,
+                    boxShadow: theme.palette.mode === 'dark'
+                      ? '0 20px 40px rgba(0,0,0,0.6)'
+                      : '0 20px 35px -10px rgba(15, 23, 42, 0.18), 0 8px 16px -6px rgba(15, 23, 42, 0.12)'
+                  }
                 }}
               >
                 <Box p={2} display="flex" justifyContent="space-between" alignItems="center">
@@ -176,7 +184,13 @@ const Navbar = ({ handleDrawerToggle }) => {
                 open={Boolean(anchorElUser)}
                 onClose={handleCloseUserMenu}
                 PaperProps={{
-                  sx: { background: theme.palette.background.paper, border: '1px solid ' + theme.palette.divider }
+                  sx: { 
+                    background: theme.palette.mode === 'dark' ? '#0f172a' : '#ffffff', 
+                    border: '1px solid ' + theme.palette.divider,
+                    boxShadow: theme.palette.mode === 'dark'
+                      ? '0 20px 40px rgba(0,0,0,0.6)'
+                      : '0 20px 35px -10px rgba(15, 23, 42, 0.18), 0 8px 16px -6px rgba(15, 23, 42, 0.12)'
+                  }
                 }}
               >
                 <MenuItem disabled sx={{ opacity: '1 !important' }}>

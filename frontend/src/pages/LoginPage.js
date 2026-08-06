@@ -69,56 +69,118 @@ const LoginPage = () => {
             alignItems: 'center',
             p: 6,
             background: theme => theme.palette.mode === 'dark'
-              ? 'linear-gradient(135deg, #0b0f19 0%, #111827 100%)'
-              : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+              ? 'linear-gradient(135deg, #022c22 0%, #064e3b 40%, #0f172a 100%)'
+              : 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 40%, #f1f5f9 100%)',
             borderRight: '1px solid',
             borderColor: 'divider',
             position: 'relative',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            '@keyframes float1': {
+              '0%': { transform: 'translateY(0px) translateX(0px) rotate(0deg)' },
+              '50%': { transform: 'translateY(-20px) translateX(10px) rotate(5deg)' },
+              '100%': { transform: 'translateY(0px) translateX(0px) rotate(0deg)' },
+            },
+            '@keyframes float2': {
+              '0%': { transform: 'translateY(0px) translateX(0px) rotate(0deg)' },
+              '50%': { transform: 'translateY(20px) translateX(-15px) rotate(-5deg)' },
+              '100%': { transform: 'translateY(0px) translateX(0px) rotate(0deg)' },
+            },
+            '@keyframes pulseGlow': {
+              '0%': { opacity: 0.6, transform: 'scale(1)' },
+              '100%': { opacity: 1, transform: 'scale(1.1)' }
+            }
           }}
         >
-          {/* Decorative glowing gradient orbs */}
+          {/* Animated Background Elements */}
           <Box sx={{
             position: 'absolute',
-            width: 300,
-            height: 300,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%)',
-            top: '-50px',
-            left: '-50px',
-            filter: 'blur(40px)'
+            width: '140%',
+            height: '140%',
+            background: 'radial-gradient(circle at 20% 30%, rgba(16, 185, 129, 0.4) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(6, 182, 212, 0.3) 0%, transparent 50%)',
+            top: '-20%',
+            left: '-20%',
+            filter: 'blur(60px)',
+            zIndex: 0,
+            animation: 'pulseGlow 8s infinite alternate ease-in-out',
           }} />
+
+          {/* Geometric Overlays */}
           <Box sx={{
             position: 'absolute',
             width: 400,
             height: 400,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%)',
-            bottom: '-100px',
-            right: '-100px',
-            filter: 'blur(50px)'
+            borderRadius: '40% 60% 70% 30% / 40% 50% 60% 50%',
+            background: theme => theme.palette.mode === 'dark' ? 'rgba(16, 185, 129, 0.05)' : 'rgba(16, 185, 129, 0.1)',
+            top: '10%',
+            right: '-10%',
+            animation: 'float1 12s infinite ease-in-out',
+            zIndex: 0,
+            border: '1px solid rgba(255,255,255,0.1)',
+            backdropFilter: 'blur(5px)'
+          }} />
+          <Box sx={{
+            position: 'absolute',
+            width: 300,
+            height: 300,
+            borderRadius: '60% 40% 30% 70% / 50% 30% 70% 40%',
+            background: theme => theme.palette.mode === 'dark' ? 'rgba(6, 182, 212, 0.05)' : 'rgba(6, 182, 212, 0.1)',
+            bottom: '5%',
+            left: '-5%',
+            animation: 'float2 15s infinite ease-in-out',
+            zIndex: 0,
+            border: '1px solid rgba(255,255,255,0.1)',
+            backdropFilter: 'blur(5px)'
           }} />
 
-          <Box sx={{ maxWidth: 450, position: 'relative', zIndex: 1 }}>
-            <Typography variant="h3" fontWeight={900} gutterBottom sx={{ letterSpacing: -1, lineHeight: 1.1 }}>
+          {/* Glassmorphism Content Card */}
+          <Box sx={{ 
+            maxWidth: 500, 
+            position: 'relative', 
+            zIndex: 1,
+            background: theme => theme.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.4)' : 'rgba(255, 255, 255, 0.4)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            borderRadius: 4,
+            p: 5,
+            border: theme => theme.palette.mode === 'dark' ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(255,255,255,0.5)',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+          }}>
+            <Typography variant="h3" fontWeight={900} gutterBottom sx={{ 
+              letterSpacing: -1, 
+              lineHeight: 1.2,
+              background: 'linear-gradient(135deg, #10b981 0%, #06b6d4 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              textShadow: '0 4px 12px rgba(16, 185, 129, 0.2)'
+            }}>
               {t('auth.loginHeroTitle')}
             </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mt: 2, fontSize: '1.1rem', lineHeight: 1.6 }}>
+            <Typography variant="h6" color="text.secondary" sx={{ mt: 2, fontWeight: 500, lineHeight: 1.6 }}>
               {t('auth.loginHeroDesc')}
             </Typography>
 
             {/* Quick Stats Grid */}
-            <Grid container spacing={2} sx={{ mt: 6 }}>
+            <Grid container spacing={3} sx={{ mt: 5 }}>
               <Grid item xs={6}>
-                <Box sx={{ borderLeft: '3px solid #10b981', pl: 2 }}>
-                  <Typography variant="h5" fontWeight={800} color="primary.main">10,000+</Typography>
-                  <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('auth.tonsSaved')}</Typography>
+                <Box sx={{ 
+                  borderLeft: '4px solid #10b981', 
+                  pl: 2.5,
+                  transition: 'transform 0.3s',
+                  '&:hover': { transform: 'translateX(5px)' }
+                }}>
+                  <Typography variant="h4" fontWeight={800} sx={{ color: theme => theme.palette.mode === 'dark' ? '#fff' : '#0f172a' }}>10,000+</Typography>
+                  <Typography variant="body2" color="text.secondary" fontWeight={600} sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>{t('auth.tonsSaved')}</Typography>
                 </Box>
               </Grid>
               <Grid item xs={6}>
-                <Box sx={{ borderLeft: '3px solid #06b6d4', pl: 2 }}>
-                  <Typography variant="h5" fontWeight={800} color="secondary.main">25,000+</Typography>
-                  <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('auth.activitiesLogged')}</Typography>
+                <Box sx={{ 
+                  borderLeft: '4px solid #06b6d4', 
+                  pl: 2.5,
+                  transition: 'transform 0.3s',
+                  '&:hover': { transform: 'translateX(5px)' }
+                }}>
+                  <Typography variant="h4" fontWeight={800} sx={{ color: theme => theme.palette.mode === 'dark' ? '#fff' : '#0f172a' }}>25,000+</Typography>
+                  <Typography variant="body2" color="text.secondary" fontWeight={600} sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>{t('auth.activitiesLogged')}</Typography>
                 </Box>
               </Grid>
             </Grid>

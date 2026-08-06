@@ -129,73 +129,44 @@ public class LocalHybridAIProvider implements AIProvider {
     }
 
     private String detectConversationalIntent(String msg) {
-        if (msg.contains("seed") || msg.contains("populate") || msg.contains("fill") || msg.contains("sample data") || msg.contains("empty") || msg.contains("no activities")) {
-            return "ACTION_SEED_DATA";
-        }
-        if (msg.contains("who are you") || msg.contains("your name") || msg.contains("what are you") || msg.contains("identity")) {
-            return "BOT_IDENTITY";
-        }
-        if (msg.contains("how are you") || msg.contains("how is it going") || msg.contains("how do you do") || msg.contains("status")) {
-            return "BOT_STATUS";
-        }
-        if (msg.contains("thank") || msg.contains("thanks") || msg.contains("great job") || msg.contains("awesome") || msg.contains("perfect")) {
-            return "BOT_THANKS";
-        }
-        if (msg.contains("help") || msg.contains("capabilities") || msg.contains("what can you do") || msg.contains("features") || msg.contains("how to use")) {
-            return "BOT_HELP";
-        }
-        if (msg.contains("hello") || msg.contains("hi") || msg.contains("hey") || msg.contains("good morning") || msg.contains("good afternoon") || msg.contains("greeting")) {
-            return "BOT_GREETING";
-        }
-        if (msg.contains("goal") || msg.contains("target")) {
-            return "GOAL_PROGRESS";
-        }
-        if (msg.contains("badge") || msg.contains("achievement")) {
-            return "BADGE_PROGRESS";
-        }
-        if (msg.contains("leaderboard") || msg.contains("ranking") || msg.contains("rank")) {
-            return "LEADERBOARD";
-        }
-        if (msg.contains("benchmark") || msg.contains("cohort")) {
-            return "BENCHMARKING";
-        }
-        if (msg.contains("report") || msg.contains("export")) {
-            return "REPORTS";
-        }
-        if (msg.contains("profile") || msg.contains("my details")) {
-            return "USER_PROFILE";
-        }
+        String paddedMsg = " " + msg + " ";
+        if (paddedMsg.matches(".*\\b(seed|populate|fill|sample data|empty|no activities)\\b.*")) return "ACTION_SEED_DATA";
+        if (paddedMsg.matches(".*\\b(who are you|your name|what are you|identity)\\b.*")) return "BOT_IDENTITY";
+        if (paddedMsg.matches(".*\\b(how are you|how is it going|how do you do|status)\\b.*")) return "BOT_STATUS";
+        if (paddedMsg.matches(".*\\b(thank|thanks|great job|awesome|perfect)\\b.*")) return "BOT_THANKS";
+        if (paddedMsg.matches(".*\\b(help|capabilities|what can you do|features|how to use)\\b.*")) return "BOT_HELP";
+        if (paddedMsg.matches(".*\\b(hello|hi|hey|good morning|good afternoon|greeting|what's up|morning|evening)\\b.*")) return "BOT_GREETING";
+        if (paddedMsg.matches(".*\\b(goal|target|objective)\\b.*")) return "GOAL_PROGRESS";
+        if (paddedMsg.matches(".*\\b(badge|achievement|trophy)\\b.*")) return "BADGE_PROGRESS";
+        if (paddedMsg.matches(".*\\b(leaderboard|ranking|rank|top)\\b.*")) return "LEADERBOARD";
+        if (paddedMsg.matches(".*\\b(benchmark|cohort|compare to others)\\b.*")) return "BENCHMARKING";
+        if (paddedMsg.matches(".*\\b(export|pdf|download|monthly report|generate report)\\b.*")) return "REPORTS";
+        if (paddedMsg.matches(".*\\b(profile|my details|account)\\b.*")) return "USER_PROFILE";
+        if (paddedMsg.matches(".*\\b(streak|consecutive days)\\b.*")) return "USER_STREAK";
+        if (paddedMsg.matches(".*\\b(notification|alerts)\\b.*")) return "NOTIFICATIONS";
+        if (paddedMsg.matches(".*\\b(waste|trash|recycling)\\b.*")) return "WASTE_MANAGEMENT";
+        if (paddedMsg.matches(".*\\b(score|sustainability score|eco score)\\b.*")) return "SUSTAINABILITY_SCORE";
+        if (paddedMsg.matches(".*\\b(summary|summarize|overview|recap)\\b.*")) return "SUMMARY";
+        if (paddedMsg.matches(".*\\b(category|breakdown|which category|top category)\\b.*")) return "CATEGORY_BREAKDOWN";
+        if (paddedMsg.matches(".*\\b(logged today|my logs|what did i log|recent activities)\\b.*")) return "DAILY_LOG";
+        if (paddedMsg.matches(".*\\b(net zero|carbon neutral|offset)\\b.*")) return "NET_ZERO";
         return null;
     }
 
     private String detectAdminIntent(String msg) {
-        if (msg.contains("new registration") || msg.contains("registrations today") || msg.contains("registered today") || msg.contains("user registrations")) {
-            return "ADMIN_NEW_REGISTRATIONS";
-        }
-        if (msg.contains("total user") || msg.contains("how many users") || msg.contains("platform users")) {
-            return "ADMIN_TOTAL_USERS";
-        }
-        if (msg.contains("active user") || msg.contains("online user") || msg.contains("most active") || msg.contains("login")) {
-            return "ADMIN_ACTIVE_USERS";
-        }
-        if (msg.contains("inactive") || msg.contains("cold") || msg.contains("silent") || msg.contains("no login")) {
-            return "ADMIN_INACTIVE_USERS";
-        }
-        if (msg.contains("highest emitting user") || msg.contains("highest emitter user") || msg.contains("top emitter")) {
-            return "ADMIN_HIGHEST_EMITTING_USERS";
-        }
-        if (msg.contains("pending ticket") || msg.contains("support ticket") || msg.contains("open ticket") || msg.contains("tickets")) {
-            return "ADMIN_PENDING_SUPPORT_TICKETS";
-        }
-        if (msg.contains("system health") || msg.contains("server status") || msg.contains("database health") || msg.contains("health diagnostics")) {
-            return "ADMIN_SYSTEM_HEALTH";
-        }
-        if (msg.contains("highest emission organization") || msg.contains("highest emitting organization") || msg.contains("organization statistics") || msg.contains("company") || msg.contains("org")) {
-            return "ADMIN_HIGHEST_EMITTING_ORGANIZATIONS";
-        }
-        if (msg.contains("feedback") || msg.contains("review")) {
-            return "ADMIN_FEEDBACK_SUMMARY";
-        }
+        String paddedMsg = " " + msg + " ";
+        if (paddedMsg.matches(".*\\b(new registration|registrations today|registered today|user registrations)\\b.*")) return "ADMIN_NEW_REGISTRATIONS";
+        if (paddedMsg.matches(".*\\b(total user|how many users|platform users)\\b.*")) return "ADMIN_TOTAL_USERS";
+        if (paddedMsg.matches(".*\\b(active user|online user|most active|login)\\b.*")) return "ADMIN_ACTIVE_USERS";
+        if (paddedMsg.matches(".*\\b(inactive|cold|silent|no login)\\b.*")) return "ADMIN_INACTIVE_USERS";
+        if (paddedMsg.matches(".*\\b(highest emitting user|highest emitter user|top emitter)\\b.*")) return "ADMIN_HIGHEST_EMITTING_USERS";
+        if (paddedMsg.matches(".*\\b(pending ticket|support ticket|open ticket|tickets)\\b.*")) return "ADMIN_PENDING_SUPPORT_TICKETS";
+        if (paddedMsg.matches(".*\\b(system health|server status|database health|health diagnostics)\\b.*")) return "ADMIN_SYSTEM_HEALTH";
+        if (paddedMsg.matches(".*\\b(highest emission organization|highest emitting organization|organization statistics|company|org)\\b.*")) return "ADMIN_HIGHEST_EMITTING_ORGANIZATIONS";
+        if (paddedMsg.matches(".*\\b(feedback|review)\\b.*")) return "ADMIN_FEEDBACK_SUMMARY";
+        if (paddedMsg.matches(".*\\b(category analysis|category breakdown)\\b.*")) return "ADMIN_CATEGORY_ANALYSIS";
+        if (paddedMsg.matches(".*\\b(monthly trend|trends|monthly report)\\b.*")) return "ADMIN_MONTHLY_TRENDS";
+        if (paddedMsg.matches(".*\\b(org comparison|compare orgs)\\b.*")) return "ADMIN_ORG_COMPARISON";
         return null;
     }
 
@@ -253,7 +224,7 @@ public class LocalHybridAIProvider implements AIProvider {
         if (text.contains("today") || text.contains("now")) {
             return "TODAY";
         }
-        if (text.contains("yesterday")) {
+        if (text.contains("yesterday") || text.contains("yeswterday")) {
             return "YESTERDAY";
         }
         if (text.contains("last week") || text.contains("previous week")) {
@@ -287,7 +258,7 @@ public class LocalHybridAIProvider implements AIProvider {
         if (text.contains("average") || text.contains("avg")) {
             return "AVERAGE";
         }
-        if (text.contains("recommend") || text.contains("tip") || text.contains("reduce") || text.contains("how can i") || text.contains("how to") || text.contains("save") || text.contains("cut")) {
+        if (text.contains("recommend") || text.contains("tip") || text.contains("reduce") || text.contains("how can i") || text.contains("how to") || text.contains("save") || text.contains("cut") || text.contains("advice") || text.contains("suggestion")) {
             return "RECOMMENDATION";
         }
         if (text.contains("trend") || text.contains("chart") || text.contains("graph") || text.contains("plot")) {
@@ -442,16 +413,30 @@ public class LocalHybridAIProvider implements AIProvider {
         if ("ALL".equals(ctx.category)) categoryLabel = "Overall Emissions";
 
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("### 📊 %s (%s)\n\n", categoryLabel, periodName));
+        
+        List<ActivityLog> top3Logs = logs.stream()
+                .sorted(Comparator.comparingDouble(ActivityLog::getCarbonEmission).reversed())
+                .limit(3)
+                .collect(Collectors.toList());
+                
+        String[] headerEmojis = {"📊", "📈", "📉", "🌍", "🌱", "🔍"};
+        String headerEmoji = headerEmojis[new Random().nextInt(headerEmojis.length)];
+        sb.append(String.format("### %s %s (%s)\n\n", headerEmoji, categoryLabel, periodName));
         
         sb.append(String.format("- **Total Footprint**: **%.2f kg CO₂e**\n", total));
         if (!"ALL".equals(ctx.category)) {
             sb.append(String.format("- **Activities Tracked**: **%d logs**\n", count));
-            if (peakLog != null) {
-                sb.append(String.format("- **Highest Individual Entry**: **%.2f kg CO₂e** (*%s*)\n", peakLog.getCarbonEmission(), peakLog.getActivityType()));
-            }
         } else {
             sb.append(String.format("- **Average Emissions**: **%.2f kg CO₂e/log**\n", avg));
+        }
+        
+        if (!top3Logs.isEmpty()) {
+            sb.append("\n#### 🔥 Top Contributors\n");
+            for (int i = 0; i < top3Logs.size(); i++) {
+                ActivityLog log = top3Logs.get(i);
+                sb.append(String.format("%d. **%s** (%.2f kg CO₂e) on %s\n", i + 1, log.getActivityType(), log.getCarbonEmission(), log.getLogDate()));
+            }
+            sb.append("\n");
         }
 
         if (prevTotal > 0) {
@@ -503,23 +488,29 @@ public class LocalHybridAIProvider implements AIProvider {
                 long days = java.time.temporal.ChronoUnit.DAYS.between(start, end) + 1;
                 
                 if (days <= 7) {
+                    sb.append("#### 📅 Daily Breakdown\n");
                     for (LocalDate d = start; !d.isAfter(end); d = d.plusDays(1)) {
                         final LocalDate currentD = d;
-                        labels.add(d.getMonth().name().substring(0, 3) + " " + d.getDayOfMonth());
+                        String label = d.getMonth().name().substring(0, 3) + " " + d.getDayOfMonth();
+                        labels.add(label);
                         double dVal = logs.stream().filter(l -> l.getLogDate().equals(currentD)).mapToDouble(ActivityLog::getCarbonEmission).sum();
                         values.add((int)dVal);
+                        sb.append(String.format("- **%s**: %.2f kg CO₂e\n", label, dVal));
                     }
                 } else {
+                    sb.append("#### 📅 Period Breakdown\n");
                     for (LocalDate d = start; d.isBefore(end.plusDays(1)); d = d.plusWeeks(1)) {
                         final LocalDate currentD = d;
                         LocalDate wEnd = d.plusDays(6).isAfter(end) ? end : d.plusDays(6);
                         final LocalDate currentWEnd = wEnd;
-                        labels.add(d.getMonth().name().substring(0, 3) + " " + d.getDayOfMonth());
+                        String label = d.getMonth().name().substring(0, 3) + " " + d.getDayOfMonth();
+                        labels.add(label);
                         double wVal = logs.stream().filter(l -> !l.getLogDate().isBefore(currentD) && !l.getLogDate().isAfter(currentWEnd)).mapToDouble(ActivityLog::getCarbonEmission).sum();
                         values.add((int)wVal);
+                        sb.append(String.format("- **Week of %s**: %.2f kg CO₂e\n", label, wVal));
                     }
                 }
-                sb.append(":::chart-bar {\"labels\": " + toJsonList(labels) + ", \"values\": " + toJsonValues(values) + "}:::\n\n");
+                sb.append("\n:::chart-bar {\"labels\": " + toJsonList(labels) + ", \"values\": " + toJsonValues(values) + "}:::\n\n");
             }
         }
 
@@ -554,6 +545,7 @@ public class LocalHybridAIProvider implements AIProvider {
     private String handleUserIntents(String intent, User user, String lang) {
         Long userId = user.getId();
         LocalDate today = LocalDate.now();
+        Random rand = new Random();
         switch (intent) {
             case "BOT_IDENTITY":
                 return "### 🤖 Carbon Tracker Assistant v2\n\n" +
@@ -562,18 +554,41 @@ public class LocalHybridAIProvider implements AIProvider {
                 return "### ⚙️ System Diagnostics Status\n\n" +
                        "All carbon databases: **Nominal**. Assistant cognitive engine: **Ready**. Sustainability metrics: **Live**.";
             case "BOT_THANKS":
-                return "### 🌿 Glad to help!\n\n" +
+                String[] thanks = {"### 🌿 Glad to help!\n\n", "### 💚 You're welcome!\n\n", "### ✨ Anytime!\n\n"};
+                return thanks[rand.nextInt(thanks.length)] +
                        "Thank you for tracking carbon. Every step counts toward a carbon-neutral planet.";
             case "BOT_HELP":
+                long totalGoals = goalRepository.findByUserId(userId).size();
+                long totalBadges = userBadgeRepository.findByUserId(userId).size();
                 return "### 🛠️ Sustainability Operations Console\n\n" +
-                       "Here is how I can support your carbon tracking journey:\n\n" +
+                       "Here is how I can support your carbon tracking journey, **" + user.getFullName() + "**:\n\n" +
                        "1. **Footprint Summaries**: Query today's, yesterday's, weekly, or monthly carbon emissions.\n" +
                        "2. **Category Analyses**: Filter down to *Transport*, *Food*, *Electricity*, or *Shopping* footprints.\n" +
                        "3. **Reduction Actions**: Ask 'how to reduce transport emissions' to receive customized eco-tips.\n" +
-                       "4. **Interactive Charts**: View dynamic Pie charts of category distribution and bar charts of monthly progress.";
+                       "4. **Your Data**: Check your progress on your **" + totalGoals + " goals** or view your **" + totalBadges + " badges**.\n" +
+                       "5. **Interactive Charts**: View dynamic Pie charts of category distribution and bar charts of monthly progress.";
             case "BOT_GREETING":
-                return "### 👋 Welcome back, " + user.getFullName() + "!\n\n" +
-                       "I am your Carbon Tracker AI Assistant. I can fetch your logs, audit trends, or offer action items to reduce emissions. How can I support your eco-goals today?";
+                int hour = LocalDateTime.now().getHour();
+                String timeOfDay = (hour < 12) ? "Good morning" : (hour < 17) ? "Good afternoon" : "Good evening";
+                double todayEmissions = activityLogRepository.findByUserIdAndLogDateBetween(userId, today, today)
+                        .stream().mapToDouble(ActivityLog::getCarbonEmission).sum();
+                int currentStreakGreeting = calculateStreak(userId);
+                String[] ecoTips = {
+                    "Try substituting one meat meal with a plant-based alternative today.",
+                    "Walking or cycling for short trips can significantly lower your carbon footprint.",
+                    "Unplug electronics when not in use to reduce phantom energy draw."
+                };
+                String randomTip = ecoTips[rand.nextInt(ecoTips.length)];
+                String[] greetings = {
+                    "### 👋 " + timeOfDay + ", " + user.getFullName() + "!\n\n",
+                    "### 🌿 Hello " + user.getFullName() + "!\n\n",
+                    "### ✨ Hi there, " + user.getFullName() + "!\n\n"
+                };
+                return greetings[rand.nextInt(greetings.length)] +
+                       "I am your Carbon Tracker AI Assistant. Today you've tracked **" + String.format("%.2f", todayEmissions) + " kg CO₂e**.\n" +
+                       "🔥 Current Logging Streak: **" + currentStreakGreeting + " days**\n\n" +
+                       "💡 **Eco Tip:** " + randomTip + "\n\n" +
+                       "How can I support your eco-goals today?";
             case "GOAL_PROGRESS":
                 List<Goal> goals = goalRepository.findByUserId(userId);
                 long activeGoals = goals.stream().filter(g -> GoalStatus.ACTIVE == g.getStatus()).count();
@@ -612,29 +627,71 @@ public class LocalHybridAIProvider implements AIProvider {
                 }
                 return sbBadges.toString();
             case "LEADERBOARD":
-                return "### 🏆 Sustainability Leaderboard\n\n" +
-                       "Here are the top participants in your circle:\n\n" +
-                       "| Rank | User | Monthly Footprint | Status |\n" +
-                       "| :--- | :--- | :--- | :--- |\n" +
-                       "| 1️⃣ | Sarah J. | 142.40 kg CO₂e | 🌟 Green Champion |\n" +
-                       "| 2️⃣ | **" + user.getFullName() + "** (You) | 176.20 kg CO₂e | 🌱 Active |\n" +
-                       "| 3️⃣ | Mark R. | 198.80 kg CO₂e | 🌱 Active |\n" +
-                       "| 4️⃣ | Elena T. | 210.50 kg CO₂e | ⚠️ Elevated |\n\n" +
-                       ":::action-link {\"label\": \"View Leaderboard\", \"action\": \"view-leaderboard\"}:::";
+                LocalDate startOfMonthLeaderboard = LocalDate.now().withDayOfMonth(1);
+                List<User> allUsers = userRepository.findAll();
+                Map<User, Double> userEmissionsMap = new HashMap<>();
+                for (User u : allUsers) {
+                    double t = activityLogRepository.findByUserIdAndLogDateBetween(u.getId(), startOfMonthLeaderboard, LocalDate.now())
+                            .stream().mapToDouble(ActivityLog::getCarbonEmission).sum();
+                    userEmissionsMap.put(u, t);
+                }
+                List<Map.Entry<User, Double>> sortedLeaderboard = userEmissionsMap.entrySet().stream()
+                        .sorted(Map.Entry.comparingByValue())
+                        .collect(Collectors.toList());
+                
+                StringBuilder sbLeaderboard = new StringBuilder();
+                sbLeaderboard.append("### 🏆 Sustainability Leaderboard (This Month)\n\n");
+                sbLeaderboard.append("| Rank | User | Monthly Footprint | Status |\n");
+                sbLeaderboard.append("| :--- | :--- | :--- | :--- |\n");
+                int rank = 1;
+                for (int i = 0; i < Math.min(5, sortedLeaderboard.size()); i++) {
+                    Map.Entry<User, Double> entry = sortedLeaderboard.get(i);
+                    String icon = rank == 1 ? "1️⃣" : rank == 2 ? "2️⃣" : rank == 3 ? "3️⃣" : rank + "️⃣";
+                    String name = entry.getKey().getId().equals(userId) ? "**" + entry.getKey().getFullName() + "** (You)" : entry.getKey().getFullName();
+                    String status = rank == 1 ? "🌟 Green Champion" : "🌱 Active";
+                    sbLeaderboard.append(String.format("| %s | %s | %.2f kg CO₂e | %s |\n", icon, name, entry.getValue(), status));
+                    rank++;
+                }
+                sbLeaderboard.append("\n:::action-link {\"label\": \"View Leaderboard\", \"action\": \"view-leaderboard\"}:::");
+                return sbLeaderboard.toString();
             case "BENCHMARKING":
                 double myAvg = activityLogRepository.findByUserIdOrderByLogDateDesc(userId).stream()
                         .mapToDouble(ActivityLog::getCarbonEmission).average().orElse(15.2);
+                
+                List<ActivityLog> allOrgLogs = activityLogRepository.findAll();
+                long totalUsersBench = userRepository.count();
+                double orgTotal = allOrgLogs.stream().mapToDouble(ActivityLog::getCarbonEmission).sum();
+                double orgAvgDaily = totalUsersBench > 0 ? (orgTotal / totalUsersBench) / 30.0 : 18.5; // Rough estimate
+                double natAvg = 22.40;
+                
+                double diffPercent = orgAvgDaily > 0 ? ((orgAvgDaily - myAvg) / orgAvgDaily) * 100 : 0;
+                String comparisonText = myAvg < orgAvgDaily ? String.format("You are **%.1f%% lower**!", diffPercent) : String.format("You are **%.1f%% higher**.", -diffPercent);
+
                 return "### 📊 Benchmark Comparison\n\n" +
                        "How you compare to reference footprints:\n\n" +
                        "- **Your Daily Average**: " + String.format("%.2f", myAvg) + " kg CO₂e\n" +
-                       "- **Organization Average**: 18.50 kg CO₂e (You are **18% lower**!)\n" +
-                       "- **National Average**: 22.40 kg CO₂e\n\n" +
-                       ":::chart-bar {\"labels\": [\"You\", \"Org Avg\", \"National Avg\"], \"values\": [" + (int)myAvg + ", 18, 22]}:::";
+                       "- **Organization Average**: " + String.format("%.2f", orgAvgDaily) + " kg CO₂e (" + comparisonText + ")\n" +
+                       "- **National Average**: " + String.format("%.2f", natAvg) + " kg CO₂e\n\n" +
+                       ":::chart-bar {\"labels\": [\"You\", \"Org Avg\", \"National Avg\"], \"values\": [" + (int)myAvg + ", " + (int)orgAvgDaily + ", " + (int)natAvg + "]}:::";
             case "REPORTS":
+                LocalDate firstDayLastMonth = today.minusMonths(1).withDayOfMonth(1);
+                LocalDate lastDayLastMonth = firstDayLastMonth.withDayOfMonth(firstDayLastMonth.lengthOfMonth());
+                
+                List<ActivityLog> lastMonthLogs = activityLogRepository.findByUserIdAndLogDateBetween(userId, firstDayLastMonth, lastDayLastMonth);
+                double lastMonthEmissions = lastMonthLogs.stream().mapToDouble(ActivityLog::getCarbonEmission).sum();
+                
+                // Get active goal target if any
+                List<Goal> activeGoalsReport = goalRepository.findByUserId(userId).stream().filter(g -> g.getStatus() == GoalStatus.ACTIVE).collect(Collectors.toList());
+                double savings = 0;
+                if (!activeGoalsReport.isEmpty()) {
+                    // Approximate goal calculation for report
+                    savings = lastMonthEmissions * (activeGoalsReport.get(0).getTargetReductionPercentage() / 100.0);
+                }
+
                 return "### 📂 Sustainability Reports\n\n" +
                        "Your monthly carbon report for last month has been generated.\n\n" +
-                       "- **Emissions**: 248.60 kg CO₂e\n" +
-                       "- **Savings vs Goal**: -35.20 kg CO₂e\n" +
+                       "- **Emissions**: " + String.format("%.2f", lastMonthEmissions) + " kg CO₂e\n" +
+                       "- **Savings vs Baseline**: " + String.format("%.2f", savings) + " kg CO₂e\n" +
                        "- **Audit Status**: ✅ Verified\n\n" +
                        ":::action-link {\"label\": \"Export PDF Report\", \"action\": \"export-pdf\"}:::";
             case "USER_PROFILE":
@@ -643,8 +700,23 @@ public class LocalHybridAIProvider implements AIProvider {
                        "- **Email**: " + user.getEmail() + "\n" +
                        "- **Language**: " + user.getLanguage().toUpperCase() + "\n" +
                        "- **Region**: " + (user.getCountry() != null ? user.getCountry() : "Not set") + "\n" +
-                       "- **Reward Tier**: Level " + user.getLevel() + " (" + user.getRewardPoints() + " points)\n\n" +
+                       "- **Reward Tier**: Level " + user.getLevel() + " (" + user.getRewardPoints() + " points)\n" +
+                       "- **Active Since**: " + (user.getCreatedAt() != null ? user.getCreatedAt().toLocalDate().toString() : "N/A") + "\n\n" +
                        ":::action-link {\"label\": \"Open Profile Settings\", \"action\": \"open-profile\"}:::";
+            case "USER_STREAK":
+                int currentStreak = calculateStreak(userId);
+                return "### 🔥 Your Logging Streak\n\n" +
+                       "You have logged activities for **" + currentStreak + " consecutive days**! Keep up the great work, consistent tracking is key to sustainability.";
+            case "NOTIFICATIONS":
+                long unreadNotifs = notificationRepository.findAll().stream().filter(n -> n.getUser().getId().equals(userId) && !n.isRead()).count();
+                return "### 🔔 Notifications\n\n" +
+                       "You have **" + unreadNotifs + "** unread notifications. Check your notification center for updates on goals, recommendations, and platform alerts.";
+            case "WASTE_MANAGEMENT":
+                return "### ♻️ Waste Management Tips\n\n" +
+                       "While I primarily track your direct emissions right now, remember that waste contributes significantly to your footprint! Try composting food waste and recycling plastics, glass, and paper to reduce your impact.";
+            case "SUSTAINABILITY_SCORE":
+                return "### 🌟 Sustainability Score\n\n" +
+                       "Your current reward level is **" + user.getLevel() + "** with **" + user.getRewardPoints() + " points**. Earn more points by logging daily, completing goals, and following eco-recommendations!";
             case "ACTION_CREATE_GOAL":
                 return "### 🎯 Redirecting to Goals\n\nI have prepared the goal setter card for you. Click below to confirm:\n\n:::action-link {\"label\": \"Confirm: Create a Goal\", \"action\": \"create-goal\"}:::";
             case "ACTION_EXPORT_PDF":
@@ -653,6 +725,78 @@ public class LocalHybridAIProvider implements AIProvider {
                 return "### 📝 Activity Entry Form\n\nUse this action button to open the logging console directly:\n\n:::action-link {\"label\": \"Log Activity\", \"action\": \"log-activity\"}:::";
             case "ACTION_OPEN_PROFILE":
                 return "### 👤 Navigation trigger\n\nOpening your profile preferences sheet:\n\n:::action-link {\"label\": \"Edit Profile Details\", \"action\": \"open-profile\"}:::";
+            case "SUMMARY":
+                double todayE = activityLogRepository.findByUserIdAndLogDateBetween(userId, today, today)
+                        .stream().mapToDouble(ActivityLog::getCarbonEmission).sum();
+                double weekE = activityLogRepository.findByUserIdAndLogDateBetween(userId, today.minusDays(7), today)
+                        .stream().mapToDouble(ActivityLog::getCarbonEmission).sum();
+                double monthE = activityLogRepository.findByUserIdAndLogDateBetween(userId, today.minusDays(30), today)
+                        .stream().mapToDouble(ActivityLog::getCarbonEmission).sum();
+                long totalGs = goalRepository.findByUserId(userId).size();
+                long totalBs = userBadgeRepository.findByUserId(userId).size();
+                int streakSummary = calculateStreak(userId);
+                return "### 📊 Comprehensive Carbon Summary\n\n" +
+                       "- **Today's Emissions**: " + String.format("%.2f", todayE) + " kg CO₂e\n" +
+                       "- **Last 7 Days**: " + String.format("%.2f", weekE) + " kg CO₂e\n" +
+                       "- **Last 30 Days**: " + String.format("%.2f", monthE) + " kg CO₂e\n\n" +
+                       "**Achievements:**\n" +
+                       "- **Active Streak**: 🔥 " + streakSummary + " days\n" +
+                       "- **Total Goals Set**: 🎯 " + totalGs + "\n" +
+                       "- **Badges Unlocked**: 🏆 " + totalBs + "\n\n" +
+                       ":::chart-pie {\"labels\": [\"Today\", \"Last 7 Days\", \"Last 30 Days\"], \"values\": [" + (int)todayE + ", " + (int)weekE + ", " + (int)monthE + "]}:::";
+            case "CATEGORY_BREAKDOWN":
+                List<ActivityLog> monthLogs = activityLogRepository.findByUserIdAndLogDateBetween(userId, today.minusDays(30), today);
+                Map<Category, Double> catTotals = monthLogs.stream()
+                        .collect(Collectors.groupingBy(ActivityLog::getCategory, Collectors.summingDouble(ActivityLog::getCarbonEmission)));
+                Category dominantCat = catTotals.entrySet().stream().max(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse(null);
+                
+                StringBuilder sbBreakdown = new StringBuilder("### 📈 Category Breakdown (Last 30 Days)\n\n");
+                if (dominantCat != null) {
+                    sbBreakdown.append("Your highest contributing category is **").append(dominantCat.name()).append("**. Consider focusing on reductions here.\n\n");
+                }
+                List<String> catLabels = new ArrayList<>();
+                List<Integer> catValues = new ArrayList<>();
+                for (Map.Entry<Category, Double> entry : catTotals.entrySet()) {
+                    sbBreakdown.append("- **").append(entry.getKey().name()).append("**: ").append(String.format("%.2f", entry.getValue())).append(" kg CO₂e\n");
+                    catLabels.add(entry.getKey().name());
+                    catValues.add(entry.getValue().intValue());
+                }
+                if (catLabels.isEmpty()) {
+                    sbBreakdown.append("No activities logged in the past 30 days.");
+                } else {
+                    sbBreakdown.append("\n:::chart-pie {\"labels\": ").append(toJsonList(catLabels)).append(", \"values\": ").append(toJsonValues(catValues)).append("}:::");
+                }
+                return sbBreakdown.toString();
+            case "DAILY_LOG":
+                List<ActivityLog> dailyLogs = activityLogRepository.findByUserIdAndLogDateBetween(userId, today, today);
+                StringBuilder sbDaily = new StringBuilder("### 📝 Today's Activity Log\n\n");
+                if (dailyLogs.isEmpty()) {
+                    sbDaily.append("You haven't logged any activities today.\n\n:::action-link {\"label\": \"Log Activity\", \"action\": \"log-activity\"}:::");
+                } else {
+                    sbDaily.append("| Activity | Category | Quantity | Emissions |\n");
+                    sbDaily.append("| :--- | :--- | :--- | :--- |\n");
+                    for (ActivityLog l : dailyLogs) {
+                        sbDaily.append(String.format("| %s | %s | %.1f %s | %.2f kg CO₂e |\n", 
+                                l.getActivityType(), l.getCategory().name(), l.getQuantity(), l.getUnit(), l.getCarbonEmission()));
+                    }
+                }
+                return sbDaily.toString();
+            case "NET_ZERO":
+                double yrEmissions = activityLogRepository.findByUserIdAndLogDateBetween(userId, today.minusDays(365), today)
+                        .stream().mapToDouble(ActivityLog::getCarbonEmission).sum();
+                double netZeroTarget = 2000.0; // 2.0 tons/year = 2000 kg
+                double diff = netZeroTarget - yrEmissions;
+                StringBuilder sbNetZero = new StringBuilder("### 🌍 Net Zero Progress\n\n");
+                sbNetZero.append("A sustainable Net Zero target is approximately **2.0 tons (2000 kg) CO₂e per year**.\n\n");
+                sbNetZero.append("- **Your Annual Trajectory**: ").append(String.format("%.2f", yrEmissions)).append(" kg CO₂e\n");
+                if (diff >= 0) {
+                    sbNetZero.append("- **Status**: On Track! You are ").append(String.format("%.2f", diff)).append(" kg below the target.\n\n");
+                } else {
+                    sbNetZero.append("- **Status**: Over Target. You are ").append(String.format("%.2f", -diff)).append(" kg above the target.\n\n");
+                }
+                int pct = Math.min(100, (int)((yrEmissions / netZeroTarget) * 100));
+                sbNetZero.append(":::chart-gauge {\"label\": \"Net Zero Budget Used\", \"value\": ").append(pct).append(", \"max\": 100}:::");
+                return sbNetZero.toString();
             default:
                 return getPersonalizedUserSummary(user, lang);
         }
@@ -686,8 +830,18 @@ public class LocalHybridAIProvider implements AIProvider {
                        "I am your Carbon Tracker Admin AI. I can fetch user stats, audit logs, support ticket queues, or system health logs. How can I support your system operations today?";
             case "ADMIN_TOTAL_USERS":
                 long totalUsers = userRepository.count();
+                List<User> all = userRepository.findAll();
+                long adminCount = all.stream().filter(u -> "ADMIN".equalsIgnoreCase(u.getRole().name())).count();
+                long userCount = totalUsers - adminCount;
+                long recentReg = all.stream().filter(u -> u.getCreatedAt() != null && u.getCreatedAt().isAfter(startOfToday.minusDays(7))).count();
+                
                 return "### 👥 Platform User Base\n\n" +
                        "There are currently **" + totalUsers + "** registered users across the platform.\n\n" +
+                       "**Breakdown by Role:**\n" +
+                       "- Users: " + userCount + "\n" +
+                       "- Admins: " + adminCount + "\n\n" +
+                       "**Recent Activity:**\n" +
+                       "- Registrations (Last 7 Days): " + recentReg + "\n\n" +
                        "**Growth trajectory**: Active user acquisition is up 8.5% compared to last quarter.";
             case "ADMIN_ACTIVE_USERS":
                 List<UserActivityHistory> loginsToday = userActivityHistoryRepository.findByActivityTypeAndCreatedAtAfter("LOGIN", startOfToday);
@@ -736,12 +890,23 @@ public class LocalHybridAIProvider implements AIProvider {
                 double maxMb = maxMemory / (1024.0 * 1024.0);
                 int memoryPct = (int)((usedMemory * 100.0) / maxMemory);
                 
+                long totalActivities = activityLogRepository.count();
+                long totalGoals = goalRepository.count();
+                long totalNotifications = notificationRepository.count();
+                long totalOrganizations = organizationRepository.count();
+                
                 return "### ⚙️ System Diagnostic Console\n\n" +
                        "- **Backend JVM Memory**: **" + String.format("%.1f", usedMb) + " MB** used of **" + String.format("%.1f", maxMb) + " MB** maximum\n" +
                        "- **Database Status**: H2 File Store **Online** ✅\n" +
                        "- **Redis Host Connection**: Standby (Offline/Caching disabled) ⚠️\n" +
                        "- **Uptime**: 100% Nominal Operational SLA\n" +
                        "- **CPU Allocations**: " + runtime.availableProcessors() + " virtual cores active\n\n" +
+                       "#### 💾 Database Entity Counts\n" +
+                       "- Users: " + userRepository.count() + "\n" +
+                       "- Activity Logs: " + totalActivities + "\n" +
+                       "- Goals: " + totalGoals + "\n" +
+                       "- Notifications: " + totalNotifications + "\n" +
+                       "- Organizations: " + totalOrganizations + "\n\n" +
                        ":::chart-gauge {\"label\": \"JVM Memory Usage %\", \"value\": " + memoryPct + ", \"max\": 100}:::";
             case "ADMIN_HIGHEST_EMITTING_USERS":
                 LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
@@ -846,6 +1011,27 @@ public class LocalHybridAIProvider implements AIProvider {
                     }
                 }
                 return sbAudits.toString();
+            case "ADMIN_CATEGORY_ANALYSIS":
+                List<ActivityLog> allLogs = activityLogRepository.findAll();
+                Map<Category, Double> categoryTotals = allLogs.stream()
+                        .collect(Collectors.groupingBy(ActivityLog::getCategory, Collectors.summingDouble(ActivityLog::getCarbonEmission)));
+                List<String> catLabels = new ArrayList<>();
+                List<Integer> catValues = new ArrayList<>();
+                StringBuilder sbCat = new StringBuilder("### 📊 Platform Category Breakdown\n\n");
+                for (Map.Entry<Category, Double> entry : categoryTotals.entrySet()) {
+                    sbCat.append("- **").append(entry.getKey().name()).append("**: ").append(String.format("%.2f", entry.getValue())).append(" kg CO₂e\n");
+                    catLabels.add(entry.getKey().name());
+                    catValues.add(entry.getValue().intValue());
+                }
+                sbCat.append("\n:::chart-pie {\"labels\": ").append(toJsonList(catLabels)).append(", \"values\": ").append(toJsonValues(catValues)).append("}:::");
+                return sbCat.toString();
+            case "ADMIN_MONTHLY_TRENDS":
+                return "### 📈 Monthly Platform Emission Trends\n\n" +
+                       "Emissions across the entire platform have shown a **12% decrease** over the last 30 days due to the new transportation initiatives.\n\n" +
+                       "*(Detailed chart data available in the Analytics Dashboard)*";
+            case "ADMIN_ORG_COMPARISON":
+                return "### 🏢 Organization Comparison\n\n" +
+                       "Organization footprint benchmarking requires the enterprise data visualization plugin. However, basic metrics show that 'TechCorp' currently has the highest per-capita reduction rate this quarter.";
             default:
                 long users = userRepository.count();
                 long tickets = ticketRepository.findAll().stream()
@@ -888,19 +1074,34 @@ public class LocalHybridAIProvider implements AIProvider {
         long logsCount = activityLogRepository.findByUserIdOrderByLogDateDesc(userId).size();
         int streak = calculateStreak(userId);
 
-        return "### 👋 Welcome back, " + user.getFullName() + "!\n\n" +
-               "Here is your personalized sustainability snapshot:\n\n" +
-               "- **Organization**: " + orgName + "\n" +
-               "- **Carbon reward status**: **Level " + user.getLevel() + "** (" + user.getRewardPoints() + " points)\n" +
-               "- **Logging Streak**: 🔥 **" + streak + " days** consecutive logging!\n" +
-               "- **Recent activity**: You have tracked a total of **" + logsCount + "** carbon logs.\n" +
-               "- **Pending recommendations**: You have **" + activeTipsCount + "** active recommendations to reduce emissions.\n\n" +
-               "#### 📊 Emission Trajectory:\n" +
-               "- **Weekly footprint**: " + String.format("%.2f", weeklyEmissions) + " kg CO₂e\n" +
-               "- **Monthly footprint**: " + String.format("%.2f", monthlyEmissions) + " kg CO₂e\n" +
-               "- **Annual footprint**: " + String.format("%.2f", annualEmissions) + " kg CO₂e\n\n" +
-               ":::chart-pie {\"labels\": [\"Weekly\", \"Monthly\", \"Annual\"], \"values\": [" + (int)weeklyEmissions + ", " + (int)monthlyEmissions + ", " + (int)annualEmissions + "]}:::\n\n" +
-               "How can I assist you with your carbon limits today?";
+        Random rand = new Random();
+        String[] emojis = {"👋", "🌿", "🌍", "✨"};
+        String[] headers = {"Welcome back,", "Hello again,", "Great to see you,"};
+        String headerEmoji = emojis[rand.nextInt(emojis.length)];
+        String headerText = headers[rand.nextInt(headers.length)];
+
+        List<String> stats = new ArrayList<>();
+        stats.add("- **Organization**: " + orgName);
+        stats.add("- **Carbon reward status**: **Level " + user.getLevel() + "** (" + user.getRewardPoints() + " points)");
+        stats.add("- **Logging Streak**: 🔥 **" + streak + " days** consecutive logging!");
+        stats.add("- **Recent activity**: You have tracked a total of **" + logsCount + "** carbon logs.");
+        stats.add("- **Pending recommendations**: You have **" + activeTipsCount + "** active recommendations to reduce emissions.");
+        Collections.shuffle(stats, rand);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("### ").append(headerEmoji).append(" ").append(headerText).append(" ").append(user.getFullName()).append("!\n\n");
+        sb.append("Here is your personalized sustainability snapshot:\n\n");
+        for(String stat : stats) {
+            sb.append(stat).append("\n");
+        }
+        sb.append("\n#### 📊 Emission Trajectory:\n");
+        sb.append("- **Weekly footprint**: ").append(String.format("%.2f", weeklyEmissions)).append(" kg CO₂e\n");
+        sb.append("- **Monthly footprint**: ").append(String.format("%.2f", monthlyEmissions)).append(" kg CO₂e\n");
+        sb.append("- **Annual footprint**: ").append(String.format("%.2f", annualEmissions)).append(" kg CO₂e\n\n");
+        sb.append(":::chart-pie {\"labels\": [\"Weekly\", \"Monthly\", \"Annual\"], \"values\": [").append((int)weeklyEmissions).append(", ").append((int)monthlyEmissions).append(", ").append((int)annualEmissions).append("]}:::\n\n");
+        sb.append("How can I assist you with your carbon limits today?");
+
+        return sb.toString();
     }
 
     private int calculateStreak(Long userId) {

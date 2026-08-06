@@ -129,6 +129,78 @@ public class EmailService {
         ar.put("ticket.subject", "تم حل تذكرة الدعم الفني الخاصة بك");
         ar.put("ticket.body", "مرحباً %s،\n\nتم حل طلب الدعم الخاص بك بنجاح.\n\nرقم التذكرة: %s\nالموضوع: %s\nالسبب: %s\nخطوات الحل: %s\n\nتحياتنا،\nفريق دعم كربون تراكر");
         DICT.put("ar", ar);
+
+        // Telugu (te)
+        Map<String, String> te = new HashMap<>();
+        te.put("otp.subject", "పాస్‌వర్డ్ రీసెట్ OTP");
+        te.put("otp.dear", "ప్రియమైన వినియోగదారు,\n\nమీ OTP:\n\n%s\n\nఈ OTP 10 నిమిషాల పాటు చెల్లుతుంది.\n\nభవదీయులు,\nకార్బన్ ట్రాకర్ బృందం");
+        te.put("goal.subject", "🎉 అభినందనలు! లక్ష్యం సాధించబడింది");
+        te.put("goal.body", "అభినందనలు!\n\nమీరు మీ స్థిరత్వ లక్ష్యాన్ని విజయవంతంగా సాధించారు: %s.\n\nభవదీయులు,\nకార్బన్ ట్రాకర్ బృందం");
+        te.put("milestone.subject", "🏆 మైలురాయి చేరింది: %s");
+        te.put("milestone.body", "అభినందనలు!\n\nమీరు కొత్త స్థిరత్వ మైలురాయిని అన్‌లాక్ చేసారు: %s!\n\n%s\n\nభవదీయులు,\nకార్బన్ ట్రాకర్ బృందం");
+        te.put("progress.ahead.subject", "🚀 మీ లక్ష్యం దిశగా గొప్ప పురోగతి!");
+        te.put("progress.ahead.body", "గొప్ప వార్త!\n\nమీరు ప్రస్తుతం మీ స్థిరత్వ లక్ష్యం కంటే ముందడుగులో ఉన్నారు: %s.\n\nభవదీయులు,\nకార్బన్ ట్రాకర్ బృందం");
+        te.put("progress.behind.subject", "⚠ స్థిరత్వ లక్ష్యంపై శ్రద్ధ అవసరం");
+        te.put("progress.behind.body", "శ్రద్ధ అవసరం:\n\nమీ లక్ష్యం '%s' ప్రస్తుతం వెనుకబడి ఉంది.\n\nభవదీయులు,\nకార్బన్ ట్రాకర్ బృందం");
+        te.put("notif.subject", "🔔 నోటిఫికేషన్: %s");
+        te.put("notif.body", "ప్రియమైన వినియోగదారు,\n\nమీకు కార్బన్ ట్రాకర్‌లో కొత్త నోటిఫికేషన్ వచ్చింది:\n\nశీర్షిక: %s\nవివరాలు: %s\n\nభవదీయులు,\nకార్బన్ ట్రాకర్ బృందం");
+        te.put("ticket.subject", "మీ సపోర్ట్ టికెట్ పరిష్కరించబడింది");
+        te.put("ticket.body", "హలో %s,\n\nమీ సపోర్ట్ అభ్యర్థన విజయవంతంగా పరిష్కరించబడింది.\n\nటికెట్ ఐడి: %s\nసంగతి: %s\nకారణం: %s\nపరిష్కార దశలు: %s\n\nభవదీయులు,\nకార్బన్ ట్రాకర్ సపోర్ట్ బృందం");
+        DICT.put("te", te);
+
+        // Bengali (bn)
+        Map<String, String> bn = new HashMap<>();
+        bn.put("otp.subject", "পাসওয়ার্ড রিসেট ওটিপি (OTP)");
+        bn.put("otp.dear", "প্রিয় ব্যবহারকারী,\n\nআপনার ওটিপি হলো:\n\n%s\n\nএই ওটিপিটি ১০ মিনিটের জন্য বৈধ।\n\nইতি,\nকার্বন ট্র্যাকার টিম");
+        bn.put("goal.subject", "🎉 অভিনন্দন! লক্ষ্য অর্জিত হয়েছে");
+        bn.put("goal.body", "অভিনন্দন!\n\nআপনি সফলভাবে আপনার স্থায়িত্বের লক্ষ্য অর্জন করেছেন: %s।\n\nইতি,\nকার্বন ট্র্যাকার টিম");
+        bn.put("milestone.subject", "🏆 মাইলফলক অর্জিত হয়েছে: %s");
+        bn.put("milestone.body", "অভিনন্দন!\n\nআপনি একটি নতুন মাইলফলক আনলক করেছেন: %s!\n\n%s\n\nইতি,\nকার্বন ট্র্যাকার টিম");
+        bn.put("progress.ahead.subject", "🚀 আপনার লক্ষ্যের দিকে দুর্দান্ত অগ্রগতি!");
+        bn.put("progress.ahead.body", "দারুণ খবর!\n\nআপনি বর্তমানে আপনার স্থায়িত্বের লক্ষ্য থেকে এগিয়ে আছেন: %s।\n\nইতি,\nকার্বন ট্র্যাকার টিম");
+        bn.put("progress.behind.subject", "⚠ স্থায়িত্বের লক্ষ্যের প্রতি মনোযোগ দিন");
+        bn.put("progress.behind.body", "মনোযোগ প্রয়োজন:\n\nআপনার লক্ষ্য '%s' বর্তমানে পিছিয়ে রয়েছে।\n\nইতি,\nকার্বন ট্র্যাকার টিম");
+        bn.put("notif.subject", "🔔 বিজ্ঞপ্তি: %s");
+        bn.put("notif.body", "প্রিয় ব্যবহারকারী,\n\nআপনি কার্বন ট্র্যাকার থেকে একটি নতুন বিজ্ঞপ্তি পেয়েছেন:\n\nশিরোনাম: %s\nবিস্তারিত: %s\n\nইতি,\nকার্বন ট্র্যাকার টিম");
+        bn.put("ticket.subject", "আপনার সহায়তা টিকিট সমাধান করা হয়েছে");
+        bn.put("ticket.body", "হ্যালো %s,\n\nআপনার সহায়তা টিকিটটি সফলভাবে সমাধান করা হয়েছে।\n\nটিকিট আইডি: %s\nবিষয়: %s\nমূল কারণ: %s\nসমাধান: %s\n\nইতি,\nকার্বন ট্র্যাকার সহায়তা দল");
+        DICT.put("bn", bn);
+
+        // Japanese (ja)
+        Map<String, String> ja = new HashMap<>();
+        ja.put("otp.subject", "パスワード再設定用ワンタイムパスワード (OTP)");
+        ja.put("otp.dear", "ユーザー様、\n\nワンタイムパスワード（OTP）は以下の通りです：\n\n%s\n\nこのOTPは10分間有効です。\n\n敬具、\nCarbon Tracker チーム");
+        ja.put("goal.subject", "🎉 おめでとうございます！目標達成");
+        ja.put("goal.body", "おめでとうございます！\n\nサステナビリティ目標を達成しました： %s\n\n敬具、\nCarbon Tracker チーム");
+        ja.put("milestone.subject", "🏆 マイルストーン達成： %s");
+        ja.put("milestone.body", "おめでとうございます！\n\n新しいマイルストーンをアンロックしました： %s\n\n%s\n\n敬具、\nCarbon Tracker チーム");
+        ja.put("progress.ahead.subject", "🚀 目標への順調な進捗！");
+        ja.put("progress.ahead.body", "素晴らしいニュースです！\n\n現在目標より進んでいます： %s\n\n敬具、\nCarbon Tracker チーム");
+        ja.put("progress.behind.subject", "⚠ 目標進捗に遅れが出ています");
+        ja.put("progress.behind.body", "ご確認ください：\n\n目標 '%s' の進捗が遅れています。\n\n敬具、\nCarbon Tracker チーム");
+        ja.put("notif.subject", "🔔 通知： %s");
+        ja.put("notif.body", "ユーザー様、\n\n新しい通知が届いています：\n\nタイトル： %s\n詳細： %s\n\n敬具、\nCarbon Tracker チーム");
+        ja.put("ticket.subject", "サポートチケットが解決されました");
+        ja.put("ticket.body", "こんにちは %s 様、\n\nサポートリクエストが正常に解決されました。\n\nチケットID： %s\n件名： %s\n原因： %s\n解決手順： %s\n\n敬具、\nCarbon Tracker サポートチーム");
+        DICT.put("ja", ja);
+
+        // Chinese (zh)
+        Map<String, String> zh = new HashMap<>();
+        zh.put("otp.subject", "密码重置验证码 (OTP)");
+        zh.put("otp.dear", "尊敬的用户，\n\n您的验证码是：\n\n%s\n\n该验证码在10分钟内有效。\n\n顺商祺、\nCarbon Tracker 团队");
+        zh.put("goal.subject", "🎉 恭喜！目标已达成");
+        zh.put("goal.body", "恭喜您！\n\n您已成功达成可持续发展目标：%s。\n\n顺商祺、\nCarbon Tracker 团队");
+        zh.put("milestone.subject", "🏆 达成里程碑：%s");
+        zh.put("milestone.body", "恭喜您！\n\n您已解锁新的可持续发展里程碑：%s！\n\n%s\n\n顺商祺、\nCarbon Tracker 团队");
+        zh.put("progress.ahead.subject", "🚀 目标进度领先！");
+        zh.put("progress.ahead.body", "好消息！\n\n您目前在以下目标上进度领先：%s。\n\n顺商祺、\nCarbon Tracker 团队");
+        zh.put("progress.behind.subject", "⚠ 可持续发展目标进度落后");
+        zh.put("progress.behind.body", "注意：\n\n您的目标“%s”目前进度落后。\n\n顺商祺、\nCarbon Tracker 团队");
+        zh.put("notif.subject", "🔔 通知：%s");
+        zh.put("notif.body", "尊敬的用户，\n\n您收到一条来自 Carbon Tracker 的新通知：\n\n标题：%s\n详情：%s\n\n顺商祺、\nCarbon Tracker 团队");
+        zh.put("ticket.subject", "您的技术支持工单已解决");
+        zh.put("ticket.body", "您好 %s，\n\n您的工单已成功解决。\n\n工单ID：%s\n主题：%s\n原因：%s\n解决步骤：%s\n\n顺商祺、\nCarbon Tracker 客服团队");
+        DICT.put("zh", zh);
     }
 
     private String getLang(String toEmail) {

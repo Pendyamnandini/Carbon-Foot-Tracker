@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.cache.annotation.Cacheable;
 
 @Service
 public class DatabaseContextService {
@@ -30,6 +31,10 @@ public class DatabaseContextService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private OrganizationRepository organizationRepository;
+
+    @Cacheable(value = "userContext", key = "#user.id")
     public String getUserContext(User user) {
         if (user == null) return "User Name: Guest\nUser Role: GUEST";
 
@@ -92,6 +97,27 @@ public class DatabaseContextService {
             }
         }
 
+        // Category breakdowns
+        StringBuilder catStr = new StringBuilder();
+        if (!allLogs.isEmpty()) {
+            Map<String, Double> allCatTotals = allLogs.stream()
+                    .collect(Collectors.groupingBy(log -> log.getCategory().name(), Collectors.summingDouble(ActivityLog::getCarbonEmission)));
+            allCatTotals.forEach((k, v) -> catStr.append(String.format("  - %s: %.2f kg CO2e\n", k, v)));
+        } else {
+            catStr.append("  None\n");
+        }
+
+        // Goal Progress
+        StringBuilder goalsStr = new StringBuilder();
+        if (goals.isEmpty()) {
+            goalsStr.append("  None\n");
+        } else {
+            for (Goal g : goals) {
+                double target = g.getTargetReductionPercentage();
+                goalsStr.append(String.format("  - %s (Target: %.1f%%): Status %s\n", g.getGoalTitle(), target, g.getStatus().name()));
+            }
+        }
+
         return String.format(
                 "User Name: %s\n" +
                 "User Role: %s\n" +
@@ -100,9 +126,10 @@ public class DatabaseContextService {
                 "Last 30 Days Emissions: %.2f kg CO2e\n" +
                 "All-time Emissions: %.2f kg CO2e\n" +
                 "Daily Average: %.2f kg CO2e\n" +
+                "Category Breakdown:\n%s" +
                 "Total Logs Tracked: %d\n" +
                 "Highest Category: %s\n" +
-                "Active Goals: %d\n" +
+                "Goals (%d Active):\n%s" +
                 "Reward Points: %d\n" +
                 "Level: %d\n" +
                 "Recent Audit Logs:\n%s",
@@ -113,15 +140,18 @@ public class DatabaseContextService {
                 last30DaysTotal,
                 allTimeTotal,
                 dailyAverage,
+                catStr.toString(),
                 logCount,
                 highestCat.isEmpty() ? "None" : highestCat,
                 activeGoals,
+                goalsStr.toString(),
                 user.getRewardPoints() != null ? user.getRewardPoints() : 0,
                 user.getLevel() != null ? user.getLevel() : 1,
                 auditStr.toString()
         );
     }
 
+    @Cacheable(value = "adminContext", key = "#admin.id")
     public String getAdminContext(User admin) {
         if (admin == null) return "User Name: Guest\nUser Role: GUEST";
 
@@ -162,9 +192,13 @@ public class DatabaseContextService {
 
         // 2. Platform statistics
         long totalUsers = userRepository.count();
+        long orgCount = organizationRepository.count();
         long pendingTickets = ticketRepository.findAll().stream()
                 .filter(t -> "OPEN".equalsIgnoreCase(t.getStatus()) || "IN_PROGRESS".equalsIgnoreCase(t.getStatus()))
                 .count();
+        
+        List<ActivityLog> allPlatformLogs = activityLogRepository.findAll();
+        double totalPlatformEmissions = allPlatformLogs.stream().mapToDouble(ActivityLog::getCarbonEmission).sum();
 
         return String.format(
                 "User Name: %s\n" +
@@ -172,12 +206,16 @@ public class DatabaseContextService {
                 "Active Users Logged In Today: %d\n" +
                 "User Logins Details:\n%s" +
                 "Total Registered Users: %d\n" +
+                "Total Organizations: %d\n" +
+                "Total Platform Emissions: %.2f kg CO2e\n" +
                 "Pending Support Tickets: %d",
                 admin.getFullName(),
                 admin.getRole().name(),
                 activeUsersCount,
                 loginDetails.toString(),
                 totalUsers,
+                orgCount,
+                totalPlatformEmissions,
                 pendingTickets
         );
     }
