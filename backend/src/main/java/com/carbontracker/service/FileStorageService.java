@@ -20,9 +20,11 @@ public class FileStorageService {
     @Autowired
     private UploadedFileRepository uploadedFileRepository;
 
-    private final String uploadDir = "uploads";
+    @org.springframework.beans.factory.annotation.Value("${app.upload.dir:uploads}")
+    private String uploadDir;
 
-    public FileStorageService() {
+    @jakarta.annotation.PostConstruct
+    public void init() {
         // Ensure upload directory exists
         try {
             Files.createDirectories(Paths.get(uploadDir));

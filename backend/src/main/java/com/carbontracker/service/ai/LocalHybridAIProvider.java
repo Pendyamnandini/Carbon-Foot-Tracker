@@ -221,55 +221,38 @@ public class LocalHybridAIProvider implements AIProvider {
     }
 
     private String extractTimePeriod(String text) {
-        if (text.contains("today") || text.contains("now")) {
-            return "TODAY";
+        if (text.contains("today") || text.contains("now")) return "TODAY";
+        if (text.contains("yesterday") || text.contains("yeswterday")) return "YESTERDAY";
+        if (text.contains("last week") || text.contains("previous week")) return "LAST_WEEK";
+        if (text.contains("this week") || text.contains("weekly") || text.contains("week")) return "THIS_WEEK";
+        if (text.contains("last month") || text.contains("previous month")) return "LAST_MONTH";
+        if (text.contains("this month") || text.contains("monthly")) return "THIS_MONTH";
+        if (text.contains("this year") || text.contains("yearly") || text.contains("annual") || text.contains("year")) return "THIS_YEAR";
+        
+        String[] months = {"january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"};
+        for (int i=0; i<months.length; i++) {
+            if (text.contains(months[i])) {
+                return "MONTH_" + (i+1);
+            }
         }
-        if (text.contains("yesterday") || text.contains("yeswterday")) {
-            return "YESTERDAY";
-        }
-        if (text.contains("last week") || text.contains("previous week")) {
-            return "LAST_WEEK";
-        }
-        if (text.contains("this week") || text.contains("weekly") || text.contains("week")) {
-            return "THIS_WEEK";
-        }
-        if (text.contains("last month") || text.contains("previous month")) {
-            return "LAST_MONTH";
-        }
-        if (text.contains("this month") || text.contains("monthly") || text.contains("month")) {
-            return "THIS_MONTH";
-        }
-        if (text.contains("this year") || text.contains("yearly") || text.contains("annual") || text.contains("year")) {
-            return "THIS_YEAR";
-        }
-        if (text.contains("from") || text.contains("between") || text.matches(".*\\d{4}-\\d{2}-\\d{2}.*")) {
-            return "CUSTOM";
-        }
+
+        if (text.contains("month")) return "THIS_MONTH";
+        if (text.contains("from") || text.contains("between") || text.matches(".*\\d{4}-\\d{2}-\\d{2}.*")) return "CUSTOM";
+        
         return null;
     }
 
     private String extractMetric(String text) {
-        if (text.contains("highest") || text.contains("peak") || text.contains("max") || text.contains("most")) {
-            return "HIGHEST";
+        if (text.contains("highest category") || text.contains("top category") || text.contains("which category is highest") || text.contains("maximum category")) {
+            return "HIGHEST_CATEGORY";
         }
-        if (text.contains("lowest") || text.contains("min") || text.contains("least")) {
-            return "LOWEST";
-        }
-        if (text.contains("average") || text.contains("avg")) {
-            return "AVERAGE";
-        }
-        if (text.contains("recommend") || text.contains("tip") || text.contains("reduce") || text.contains("how can i") || text.contains("how to") || text.contains("save") || text.contains("cut") || text.contains("advice") || text.contains("suggestion")) {
-            return "RECOMMENDATION";
-        }
-        if (text.contains("trend") || text.contains("chart") || text.contains("graph") || text.contains("plot")) {
-            return "TREND";
-        }
-        if (text.contains("compare") || text.contains("versus") || text.contains("vs") || text.contains("difference")) {
-            return "COMPARISON";
-        }
-        if (text.contains("recent") || text.contains("last logs") || text.contains("history") || text.contains("logs")) {
-            return "RECENT";
-        }
+        if (text.contains("highest") || text.contains("peak") || text.contains("max") || text.contains("most")) return "HIGHEST";
+        if (text.contains("lowest") || text.contains("min") || text.contains("least")) return "LOWEST";
+        if (text.contains("average") || text.contains("avg")) return "AVERAGE";
+        if (text.contains("recommend") || text.contains("tip") || text.contains("reduce") || text.contains("how can i") || text.contains("how to") || text.contains("save") || text.contains("cut") || text.contains("advice") || text.contains("suggestion")) return "RECOMMENDATION";
+        if (text.contains("trend") || text.contains("chart") || text.contains("graph") || text.contains("plot")) return "TREND";
+        if (text.contains("compare") || text.contains("versus") || text.contains("vs") || text.contains("difference")) return "COMPARISON";
+        if (text.contains("recent") || text.contains("last logs") || text.contains("history") || text.contains("logs")) return "RECENT";
         return null;
     }
 
@@ -381,6 +364,16 @@ public class LocalHybridAIProvider implements AIProvider {
             prevStart = start.minusDays(days);
             prevEnd = start.minusDays(1);
             periodName = "selected period (" + start.toString() + " to " + end.toString() + ")";
+        } else if (ctx.timePeriod != null && ctx.timePeriod.startsWith("MONTH_")) {
+            int m = Integer.parseInt(ctx.timePeriod.split("_")[1]);
+            start = today.withMonth(m).withDayOfMonth(1);
+            if (start.isAfter(today)) {
+                start = start.minusYears(1);
+            }
+            end = start.withDayOfMonth(start.lengthOfMonth());
+            prevStart = start.minusMonths(1);
+            prevEnd = prevStart.withDayOfMonth(prevStart.lengthOfMonth());
+            periodName = start.getMonth().name().toLowerCase();
         } else {
             start = today.withDayOfMonth(1);
             end = today;
@@ -412,8 +405,33 @@ public class LocalHybridAIProvider implements AIProvider {
         String categoryLabel = ctx.category.substring(0, 1).toUpperCase() + ctx.category.substring(1).toLowerCase();
         if ("ALL".equals(ctx.category)) categoryLabel = "Overall Emissions";
 
-        StringBuilder sb = new StringBuilder();
-        
+        if ("HIGHEST_CATEGORY".equals(ctx.metric)) {
+            Map<Category, Double> categoryEmissions = allPeriodLogs.stream()
+                .collect(Collectors.groupingBy(ActivityLog::getCategory, Collectors.summingDouble(ActivityLog::getCarbonEmission)));
+            
+            if (categoryEmissions.isEmpty()) {
+                return "### 📊 No Data Found\n\nThere are no recorded emissions for " + periodName + ".";
+            }
+            
+            Map.Entry<Category, Double> highest = categoryEmissions.entrySet().stream()
+                .max(Map.Entry.comparingByValue()).orElse(null);
+                
+            return String.format("### 🏆 Highest Emission Category (%s)\n\n" +
+                "Your highest emitting category for %s is **%s** with a total of **%.2f kg CO₂e**.", 
+                periodName, periodName, highest.getKey().name(), highest.getValue());
+        }
+
+        if ("HIGHEST".equals(ctx.metric)) {
+            if (peakLog != null) {
+                return String.format("### 🚨 Highest Single Emission (%s)\n\n" + 
+                    "Your highest recorded emission for %s was **%s** on %s, which produced **%.2f kg CO₂e**.",
+                    periodName, periodName, peakLog.getActivityType(), peakLog.getLogDate().toString(), peakLog.getCarbonEmission());
+            } else {
+                return "### 📊 No Data Found\n\nThere are no recorded emissions for " + periodName + " to determine the highest.";
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();        
         List<ActivityLog> top3Logs = logs.stream()
                 .sorted(Comparator.comparingDouble(ActivityLog::getCarbonEmission).reversed())
                 .limit(3)

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.Optional;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Comparator;
+import java.util.stream.Collectors;
 
 @Service
 public class OrganizationService {
@@ -44,6 +46,29 @@ public class OrganizationService {
 
     @Autowired
     private UserBadgeRepository userBadgeRepository;
+
+    @PostConstruct
+    public void seedDemoOrganization() {
+        Optional<User> optUser = userRepository.findByEmail("organizer@carbontracker.com");
+        if (optUser.isPresent()) {
+            User user = optUser.get();
+            List<OrganizationUser> orgs = organizationUserRepository.findByUserId(user.getId());
+            if (orgs.isEmpty()) {
+                Organization org = Organization.builder()
+                        .organizationName("Propelloitte Technologies")
+                        .organizationType("Business")
+                        .build();
+                org = organizationRepository.save(org);
+                
+                OrganizationUser ou = OrganizationUser.builder()
+                        .organization(org)
+                        .user(user)
+                        .role(Role.ORG_ADMIN)
+                        .build();
+                organizationUserRepository.save(ou);
+            }
+        }
+    }
 
     @Transactional
     public Organization createOrganization(OrganizationRequest request, User creator) {
@@ -172,7 +197,60 @@ public class OrganizationService {
     }
 
     public List<OrganizationUser> getUserOrganizations(User user) {
+        if (user.getRole() == Role.ADMIN) {
+            List<Organization> orgs = organizationRepository.findAll();
+            return orgs.stream().map(o -> OrganizationUser.builder()
+                .organization(o)
+                .user(user)
+                .role(Role.ADMIN)
+                .build()).collect(Collectors.toList());
+        }
         return organizationUserRepository.findByUserId(user.getId());
+    }
+
+    public List<OrgActivityResponse> getActivities(Long orgId, User admin, String category, String activityType, LocalDate startDate, LocalDate endDate, Long employeeId) {
+        validateOrgAdmin(orgId, admin);
+        List<OrganizationUser> members = organizationUserRepository.findByOrganizationId(orgId);
+        
+        List<OrgActivityResponse> allActivities = new ArrayList<>();
+        
+        for (OrganizationUser member : members) {
+            if (employeeId != null && !member.getUser().getId().equals(employeeId)) {
+                continue;
+            }
+            List<ActivityLog> logs;
+            if (startDate != null && endDate != null) {
+                logs = activityLogRepository.findByUserIdAndLogDateBetweenOrderByLogDateDesc(member.getUser().getId(), startDate, endDate);
+            } else {
+                logs = activityLogRepository.findByUserIdOrderByLogDateDesc(member.getUser().getId());
+            }
+
+            for (ActivityLog log : logs) {
+                if (category != null && !category.isEmpty() && !log.getCategory().name().equalsIgnoreCase(category)) {
+                    continue;
+                }
+                if (activityType != null && !activityType.isEmpty() && !log.getActivityType().toLowerCase().contains(activityType.toLowerCase())) {
+                    continue;
+                }
+                
+                allActivities.add(OrgActivityResponse.builder()
+                        .id(log.getId())
+                        .userName(member.getUser().getFullName())
+                        .userEmail(member.getUser().getEmail())
+                        .category(log.getCategory().name())
+                        .activityType(log.getActivityType())
+                        .quantity(log.getQuantity())
+                        .unit(log.getUnit())
+                        .carbonEmission(log.getCarbonEmission())
+                        .logDate(log.getLogDate())
+                        .createdAt(log.getCreatedAt())
+                        .build());
+            }
+        }
+        
+        // Sort by logDate desc
+        allActivities.sort(Comparator.comparing(OrgActivityResponse::getLogDate).reversed());
+        return allActivities;
     }
 
     private void validateOrgAdmin(Long orgId, User user) {

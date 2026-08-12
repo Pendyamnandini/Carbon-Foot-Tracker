@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.format.annotation.DateTimeFormat;
+import java.time.LocalDate;
 
 import java.util.List;
 
@@ -44,6 +46,30 @@ public class OrganizationController {
         User user = getCurrentUser();
         List<OrganizationUser> list = organizationService.getUserOrganizations(user);
         return ResponseEntity.ok(ApiResponse.success(list));
+    }
+
+    @GetMapping("/mine")
+    public ResponseEntity<ApiResponse<OrganizationUser>> getMyOrganization() {
+        User user = getCurrentUser();
+        List<OrganizationUser> list = organizationService.getUserOrganizations(user);
+        if (list.isEmpty()) {
+            return ResponseEntity.status(404).body(ApiResponse.error("No organization found"));
+        }
+        return ResponseEntity.ok(ApiResponse.success(list.get(0)));
+    }
+
+    @GetMapping("/{orgId}/activities")
+    public ResponseEntity<ApiResponse<List<OrgActivityResponse>>> getActivities(
+            @PathVariable Long orgId,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String activityType,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) Long employeeId) {
+        
+        User admin = getCurrentUser();
+        List<OrgActivityResponse> activities = organizationService.getActivities(orgId, admin, category, activityType, startDate, endDate, employeeId);
+        return ResponseEntity.ok(ApiResponse.success(activities));
     }
 
     @PostMapping("/{orgId}/employees")

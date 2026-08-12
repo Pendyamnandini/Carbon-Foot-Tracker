@@ -40,7 +40,17 @@ public class TicketService {
     @Autowired
     private EmailService emailService;
 
-    private final String uploadDir = "uploads";
+    @org.springframework.beans.factory.annotation.Value("${app.upload.dir:uploads}")
+    private String uploadDir;
+
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        try {
+            java.nio.file.Files.createDirectories(java.nio.file.Paths.get(uploadDir));
+        } catch (java.io.IOException e) {
+            System.err.println("Could not create upload directory in TicketService: " + e.getMessage());
+        }
+    }
 
     @Transactional
     public TicketResponse createTicket(TicketCreateRequest req, User user) {
@@ -517,7 +527,7 @@ public class TicketService {
         if (base64 == null || base64.isEmpty()) return null;
         try {
             // Ensure directory exists
-            Files.createDirectories(Paths.get(uploadDir));
+            // Directory existence is ensured in @PostConstruct
 
             byte[] bytes = Base64.getDecoder().decode(base64);
             String extension = "";

@@ -180,45 +180,11 @@ public class ChatController {
     }
 
     private String generateFileAnalysisResponse(String filename, String fileType, String content) {
-        String nameLower = filename.toLowerCase();
-        if (nameLower.contains("electricity") || nameLower.contains("utility") || nameLower.contains("power") || nameLower.contains("bill") || nameLower.contains("kwh")) {
-            return "### ⚡ Electricity Bill Analysis\n\n" +
-                   "I have analyzed your uploaded bill: **" + filename + "**.\n\n" +
-                   "- **Detected Billing Period**: Last Month\n" +
-                   "- **Estimated Electricity Consumption**: 420 kWh\n" +
-                   "- **Calculated Carbon Footprint**: **176.40 kg CO₂e**\n" +
-                   "- **Sustainability Status**: ⚠️ **High Utility Intensity** (14% higher than your average)\n\n" +
-                   "#### 💡 Recommended Actions:\n" +
-                   "1. **Optimize Heating/Cooling**: Adjusting thermostat settings by just 1°C can save approximately 30 kg CO₂e this month.\n" +
-                   "2. **Standby Draw**: Unplug chargers and appliances when not in use. Standby power accounts for 5-10% of utility electricity footprint.\n" +
-                   "3. **Eco Settings**: Ensure dishwasher and washing machine are run on 'Eco' modes with full loads.";
-        } else if (nameLower.contains("travel") || nameLower.contains("transport") || nameLower.contains("flight") || nameLower.contains("car") || nameLower.contains("csv")) {
-            return "### 🚗 Transportation & Travel Log Analysis\n\n" +
-                   "I have processed your travel log: **" + filename + "**.\n\n" +
-                   "- **Total Distance Tracked**: 350 km\n" +
-                   "- **Dominant Mode**: Gasoline Passenger Car\n" +
-                   "- **Calculated Carbon Footprint**: **84.00 kg CO₂e**\n" +
-                   "- **Comparison**: This represents 65% of your weekly carbon footprint allocation.\n\n" +
-                   "#### 💡 Recommended Actions:\n" +
-                   "1. **Shift Commute Mode**: Replacing 3 car commutes with light rail or bus would reduce travel carbon outputs by **45 kg CO₂e**.\n" +
-                   "2. **Carpooling**: Setting up a shared ride for office commute halves the trip emissions.\n" +
-                   "3. **Regular Maintenance**: Check tire pressure; under-inflated tires decrease fuel efficiency by up to 3%.";
-        } else if (fileType != null && fileType.startsWith("image/")) {
-            return "### 📸 Receipt / Image Document Analysis\n\n" +
-                   "Successfully uploaded and analyzed image file: **" + filename + "**.\n\n" +
-                   "- **Type**: Sustainability Receipt / Purchase Invoice\n" +
-                   "- **Primary Purchase Identified**: Local groceries & organic goods\n" +
-                   "- **Sustainability Rating**: 🌱 **Excellent Eco Choice!**\n" +
-                   "- **Insight**: Sourcing locally grown items reduces transport-related emissions ('food miles') by over 80% compared to imported equivalents.\n\n" +
-                   "Keep snapping receipts of your green purchases to earn badge progress and unlock reward points!";
-        } else {
-            return "### 📂 File Sustainability Analysis\n\n" +
-                   "Successfully processed document: **" + filename + "** (" + (fileType != null ? fileType : "unknown type") + ").\n\n" +
-                   "- **File Summary**: Parsed metadata and content structure.\n" +
-                   "- **Estimated Impact**: Identified potential sustainability markers in document records.\n" +
-                   "- **Action**: Keep logging your activities and uploading bills to refine your custom dashboard projections.\n\n" +
-                   "Would you like me to map these details to your daily carbon tracking log?";
-        }
+        User user = getCurrentUser();
+        String systemPrompt = promptBuilder.buildSystemPrompt(user, "USER") + 
+            "\nAnalyze the uploaded file based on its content and provide sustainability insights.";
+        String prompt = "Uploaded File: " + filename + "\nType: " + fileType + "\nContent Summary:\n" + content;
+        return aiProvider.generateResponse(systemPrompt, prompt, java.util.Collections.emptyList());
     }
 
     @Autowired

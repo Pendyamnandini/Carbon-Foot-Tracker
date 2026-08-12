@@ -18,9 +18,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -49,11 +51,13 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/api/auth/**",
+                    "/api/organization/auth/**",
                     "/v3/api-docs/**",
                     "/swagger-ui/**",
                     "/swagger-ui.html",
                     "/error",
-                    "/api/chatbot/test-db"
+                    "/api/chatbot/test-db",
+                    "/api/health"
                 ).permitAll()
                 .requestMatchers("/api/admin/**", "/api/v1/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
@@ -64,21 +68,25 @@ public class SecurityConfig {
         return http.build();
     }
 
+    @Value("${app.cors.allowed-origins}")
+    private String allowedOrigins;
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(
-            "http://localhost:3000", 
-            "http://localhost:3001", 
-            "http://localhost:5173", 
-            "http://127.0.0.1:3000", 
-            "http://127.0.0.1:3001", 
-            "http://127.0.0.1:5173"
-        ));
+        
+        List<String> origins = Arrays.asList(allowedOrigins.split(","));
+        configuration.setAllowedOrigins(origins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Cache-Control", "Accept", "X-Requested-With"));
         configuration.setExposedHeaders(Collections.singletonList("Authorization"));
-        configuration.setAllowCredentials(true);
+        
+        // setAllowCredentials(true) throws an exception if allowedOrigins contains "*"
+        if (origins.contains("*")) {
+            configuration.setAllowCredentials(false);
+        } else {
+            configuration.setAllowCredentials(true);
+        }
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

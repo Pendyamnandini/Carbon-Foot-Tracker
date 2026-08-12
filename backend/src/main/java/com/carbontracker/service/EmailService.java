@@ -38,6 +38,8 @@ public class EmailService {
         en.put("notif.body", "Dear User,\n\nYou have received a new notification on Carbon Tracker:\n\nTitle: %s\nDetails: %s\n\nTo view your notifications, please log in to the dashboard.\n\nRegards,\nCarbon Tracker Team");
         en.put("ticket.subject", "Your CarbonTracker Support Ticket Has Been Resolved");
         en.put("ticket.body", "Hello %s,\n\nYour support request has been successfully resolved.\n\nTicket ID:\n%s\n\nIssue:\n%s\n\nRoot Cause:\n%s\n\nResolution Steps:\n%s\n\nChanges Made:\n%s\n\nVerification:\n%s\n\nFinal Notes:\n%s\n\nResolved By:\n%s\n\nResolution Date:\n%s\n\nIf you continue experiencing the issue, you may reopen this ticket directly from your Support Dashboard.\n\nThank you,\nCarbonTracker Support Team");
+        en.put("org.invite.subject", "You've been invited to join %s on Carbon Tracker");
+        en.put("org.invite.body", "Hello,\n\nYou have been invited by %s to join their organization on Carbon Tracker.\n\nPlease click the link below to accept your invitation:\n\n%s\n\nThis invitation will expire on %s.\n\nRegards,\nCarbon Tracker Team");
         DICT.put("en", en);
 
         // Spanish (es)
@@ -200,6 +202,8 @@ public class EmailService {
         zh.put("notif.body", "尊敬的用户，\n\n您收到一条来自 Carbon Tracker 的新通知：\n\n标题：%s\n详情：%s\n\n顺商祺、\nCarbon Tracker 团队");
         zh.put("ticket.subject", "您的技术支持工单已解决");
         zh.put("ticket.body", "您好 %s，\n\n您的工单已成功解决。\n\n工单ID：%s\n主题：%s\n原因：%s\n解决步骤：%s\n\n顺商祺、\nCarbon Tracker 客服团队");
+        zh.put("org.invite.subject", "您被邀请加入 Carbon Tracker 上的 %s");
+        zh.put("org.invite.body", "您好，\n\n您已被 %s 邀请加入他们在 Carbon Tracker 上的组织。\n\n请点击以下链接接受邀请：\n\n%s\n\n此链接将在 %s 后过期。\n\n顺商祺、\nCarbon Tracker 团队");
         DICT.put("zh", zh);
     }
 
@@ -279,6 +283,15 @@ public class EmailService {
                 userName, ticketId, subject, rootCause, resolutionSteps, changesMade, verification, finalNotes, adminName, resolutionDate
         );
         sendGenericEmail(toEmail, emailSubject, body);
+    }
+
+    public void sendOrganizationInvitationEmail(String toEmail, String orgName, String inviterName, String token, java.time.LocalDateTime expiresAt) {
+        String lang = getLang(toEmail);
+        String subject = String.format(getVal("org.invite.subject", lang), orgName);
+        // frontend URL
+        String inviteUrl = "http://localhost:3000/organization/invite/accept?token=" + token; // default hardcoded base URL, in real app from application.properties
+        String body = String.format(getVal("org.invite.body", lang), inviterName, inviteUrl, expiresAt.toString());
+        sendGenericEmail(toEmail, subject, body);
     }
 
     private void sendGenericEmail(String toEmail, String subject, String body) {
