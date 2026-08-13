@@ -46,203 +46,6 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
 // --- Multi-language UI Dictionary ---
-const UI_TRANSLATIONS = {
-  es: {
-    title: "Asistente de Carbono IA",
-    adminTitle: "Administrador de Carbono IA",
-    placeholder: "Haz una pregunta...",
-    searchPlaceholder: "Buscar chats...",
-    uploadTooltip: "Subir documento para análisis",
-    clearTooltip: "Limpiar chat",
-    newChatTooltip: "Nuevo chat",
-    thinking: "El asistente de IA está pensando...",
-    emptyTitle: "Pregunta a tu asistente en vivo",
-    emptySubtitle: "Consulta emisiones, tendencias, objetivos o estadísticas de administración.",
-    renameTitle: "Renombrar conversación",
-    cancel: "Cancelar",
-    save: "Guardar",
-    confirmCreateGoal: "Confirmar: Crear un objetivo",
-    downloadPdf: "Descargar PDF",
-    logActivity: "Registrar actividad",
-    editProfile: "Editar perfil",
-    confirm: "Confirmar",
-    shareAlert: "¡El contenido del chat se ha copiado al portapapeles!",
-    newConversation: "Nueva conversación",
-    systemContext: "Contexto de base de datos en vivo"
-  },
-  fr: {
-    title: "Assistant Carbone IA",
-    adminTitle: "Administrateur Carbone IA",
-    placeholder: "Poser une question...",
-    searchPlaceholder: "Rechercher des chats...",
-    uploadTooltip: "Télécharger le document",
-    clearTooltip: "Effacer le chat",
-    newChatTooltip: "Nouveau chat",
-    thinking: "L'assistant IA réfléchit...",
-    emptyTitle: "Demander à l'assistant carbone",
-    emptySubtitle: "Consultez les émissions, les objectifs ou les statistiques d'administration.",
-    renameTitle: "Renommer la conversation",
-    cancel: "Annuler",
-    save: "Enregistrer",
-    confirmCreateGoal: "Confirmer: Créer un objectif",
-    downloadPdf: "Télécharger le PDF",
-    logActivity: "Enregistrer l'activité",
-    editProfile: "Modifier le profil",
-    confirm: "Confirmer",
-    shareAlert: "Le contenu du chat a été copié dans le presse-papiers !",
-    newConversation: "Nouvelle conversation",
-    systemContext: "Contexte de base de données en direct"
-  },
-  de: {
-    title: "Kohlenstoff-Assistent KI",
-    adminTitle: "Kohlenstoff-Admin KI",
-    placeholder: "Frage stellen...",
-    searchPlaceholder: "Chats durchsuchen...",
-    uploadTooltip: "Dokument hochladen",
-    clearTooltip: "Chat leeren",
-    newChatTooltip: "Neuer Chat",
-    thinking: "KI-Assistent denkt nach...",
-    emptyTitle: "Fragen Sie den KI-Assistenten",
-    emptySubtitle: "Fragen Sie nach Emissionen, Zielen oder Admin-Statistiken.",
-    renameTitle: "Konversation umbenennen",
-    cancel: "Abbrechen",
-    save: "Speichern",
-    confirmCreateGoal: "Bestätigen: Ziel erstellen",
-    downloadPdf: "PDF herunterladen",
-    logActivity: "Aktivität protokollieren",
-    editProfile: "Profil bearbeiten",
-    confirm: "Bestätigen",
-    shareAlert: "Chat-Inhalt wurde in die Zwischenablage kopiert!",
-    newConversation: "Neue Konversation",
-    systemContext: "Live-Datenbankkontext"
-  },
-  ar: {
-    title: "مساعد الكربون بالذكاء الاصطناعي",
-    adminTitle: "مشرف الكربون بالذكاء الاصطناعي",
-    placeholder: "اسأل سؤالاً...",
-    searchPlaceholder: "البحث في المحادثات...",
-    uploadTooltip: "تحميل مستند للتحليل",
-    clearTooltip: "مسح المحادثة",
-    newChatTooltip: "محادثة جديدة",
-    thinking: "المساعد الذكي يفكر...",
-    emptyTitle: "اسأل مساعد الكربون المباشر",
-    emptySubtitle: "استعلم عن الانبعاثات، والاتجاهات، وحالة الأهداف، وإحصاءات المشرف.",
-    renameTitle: "إعادة تسمية المحادثة",
-    cancel: "إلغاء",
-    save: "حفظ",
-    confirmCreateGoal: "تأكيد: إنشاء هدف",
-    downloadPdf: "تحميل PDF",
-    logActivity: "تسجيل النشاط",
-    editProfile: "تعديل الملف الشخصي",
-    confirm: "تأكيد",
-    shareAlert: "تم نسخ المحادثة إلى الحافظة!",
-    newConversation: "محادثة جديدة",
-    systemContext: "سياق قاعدة البيانات الحية"
-  },
-  hi: {
-    title: "कार्बन सहायक एआई",
-    adminTitle: "कार्बन एडमिन एआई",
-    placeholder: "प्रश्न पूछें...",
-    searchPlaceholder: "चैट खोजें...",
-    uploadTooltip: "दस्तावेज़ अपलोड करें",
-    clearTooltip: "चैट साफ़ करें",
-    newChatTooltip: "नई चैट",
-    thinking: "एआई सहायक सोच रहा है...",
-    emptyTitle: "अपने कार्बन सहायक से पूछें",
-    emptySubtitle: "उत्सर्जन, रुझान, लक्ष्यों की स्थिति, या एडमिन आंकड़े पूछें।",
-    renameTitle: "चैट का नाम बदलें",
-    cancel: "रद्द करें",
-    save: "सहेजें",
-    confirmCreateGoal: "पुष्टि करें: लक्ष्य बनाएं",
-    downloadPdf: "पीडीएफ डाउनलोड",
-    logActivity: "गतिविधि दर्ज करें",
-    editProfile: "प्रोफ़ाइल संपादित करें",
-    confirm: "पुष्टि करें",
-    shareAlert: "चैट सामग्री क्लिपबोर्ड पर कॉपी हो गई है!",
-    newConversation: "नई बातचीत",
-    systemContext: "लाइव डेटाबेस संदर्भ"
-  },
-  kn: {
-    title: "ಕಾರ್ಬನ್ ಸಹಾಯಕ ಎಐ",
-    adminTitle: "ಕಾರ್ಬನ್ ಅಡ್ಮಿನ್ ಎಐ",
-    placeholder: "ಪ್ರಶ್ನೆ ಕೇಳಿ...",
-    searchPlaceholder: "ಚಾಟ್‌ಗಳನ್ನು ಹುಡುಕಿ...",
-    uploadTooltip: "ದಾಖಲೆಯನ್ನು ಅಪ್‌ಲೋಡ್ ಮಾಡಿ",
-    clearTooltip: "ಚಾಟ್ ತೆರವುಗೊಳಿಸಿ",
-    newChatTooltip: "ಹೊಸ ಚಾಟ್",
-    thinking: "ಎಐ ಸಹಾಯಕ ಯೋಚಿಸುತ್ತಿದ್ದಾನೆ...",
-    emptyTitle: "ಕಾರ್ಬನ್ ಸಹಾಯಕನನ್ನು ಕೇಳಿ",
-    emptySubtitle: "ಕಾರ್ಬನ್ ಹೊರಸೂಸುವಿಕೆ, ಪ್ರಗತಿ ಅಥವಾ ನಿರ್ವಾಹಕ ಅಂಕಿಅಂಶಗಳನ್ನು ತಿಳಿಯಿರಿ.",
-    renameTitle: "ಹೆಸರು ಬದಲಾಯಿಸಿ",
-    cancel: "ರದ್ದುಗೊಳಿಸಿ",
-    save: "ಉಳಿಸಿ",
-    confirmCreateGoal: "ಖಚಿತಪಡಿಸಿ: ಗುರಿ ರಚಿಸಿ",
-    downloadPdf: "ಪಿಡಿಎಫ್ ಡೌನ್‌ಲೋಡ್",
-    logActivity: "ಚಟುವಟಿಕೆಯನ್ನು ದಾಖಲಿಸಿ",
-    editProfile: "ಪ್ರೊಫೈಲ್ ಸಂಪಾದಿಸಿ",
-    confirm: "ಖಚಿತಪಡಿಸಿ",
-    shareAlert: "ಚಾಟ್ ವಿಷಯವನ್ನು ನಕಲಿಸಲಾಗಿದೆ!",
-    newConversation: "ಹೊಸ ಸಂಭಾಷಣೆ",
-    systemContext: "ಲೈವ್ ಡೇಟಾಬೇಸ್ ಸಂದರ್ಭ"
-  },
-  or: {
-    title: "କାର୍ବନ ସହାୟକ ଏଆଇ",
-    adminTitle: "କାର୍ବନ ଆଡମିନ ଏଆଇ",
-    placeholder: "ପ୍ରଶ୍ନ ପଚାରନ୍ତୁ...",
-    searchPlaceholder: "ଚାଟ୍ ଖୋଜନ୍ତୁ...",
-    uploadTooltip: "ଫାଇଲ୍ ଅପଲୋଡ୍ କରନ୍ତୁ",
-    clearTooltip: "ଚାଟ୍ ସଫା କରନ୍ତୁ",
-    newChatTooltip: "ନୂତନ ଚାଟ୍",
-    thinking: "ଏଆଇ ସହାୟକ ଚିନ୍ତା କରୁଛି...",
-    emptyTitle: "କାର୍ବନ ସହାୟକଙ୍କୁ ପଚାରନ୍ତୁ",
-    emptySubtitle: "ନିଜର କାର୍ବନ ଉତ୍ସର୍ଜନ ଏବଂ ପ୍ରଗତି ବିଷୟରେ ଜାଣନ୍ତୁ।",
-    renameTitle: "ନାମ ବଦଳାନ୍ତୁ",
-    cancel: "ବାତିଲ୍ କରନ୍ତୁ",
-    save: "ସଂରକ୍ଷଣ କରନ୍ତୁ",
-    confirmCreateGoal: "ନିଶ୍ଚିତ କରନ୍ତୁ: ଲକ୍ଷ୍ୟ ସୃଷ୍ଟି କରନ୍ତୁ",
-    downloadPdf: "ପିଡିଏଫ୍ ଡାଉନଲୋଡ୍",
-    logActivity: "କାର୍ଯ୍ୟକଳାପ ଲଗ୍ କରନ୍ତୁ",
-    editProfile: "ପ୍ରୋଫାଇଲ୍ ସଂଶୋଧନ",
-    confirm: "ନିଶ୍ଚିତ",
-    shareAlert: "ଚାଟ୍ ବିବରଣୀ କପି ହୋଇଗଲା!",
-    newConversation: "ନୂତନ ବାର୍ତ୍ତାଳାପ",
-    systemContext: "ଲାଇଭ୍ ଡାଟାବେସ୍ ସନ୍ଦର୍ଭ"
-  }
-};
-
-const getLocalString = (key, lang) => {
-  const currentLang = lang || 'en';
-  const translations = UI_TRANSLATIONS[currentLang];
-  if (translations && translations[key]) {
-    return translations[key];
-  }
-  // English fallback translations
-  const en = {
-    title: "Carbon Assistant AI",
-    adminTitle: "Carbon Admin AI",
-    placeholder: "Ask a question...",
-    searchPlaceholder: "Search chats...",
-    uploadTooltip: "Upload Document for Analysis",
-    clearTooltip: "Clear Chat",
-    newChatTooltip: "New Chat",
-    thinking: "AI Assistant is thinking...",
-    emptyTitle: "Ask your live Carbon Tracker Assistant",
-    emptySubtitle: "Query emissions, trends, goal completion status, or administrative statistics.",
-    renameTitle: "Rename Conversation",
-    cancel: "Cancel",
-    save: "Save",
-    confirmCreateGoal: "Confirm: Create a Goal",
-    downloadPdf: "Download PDF",
-    logActivity: "Log Activity",
-    editProfile: "Edit Profile Details",
-    confirm: "Confirm",
-    shareAlert: "Chat content copied to clipboard!",
-    newConversation: "New Conversation",
-    systemContext: "Live Database Context"
-  };
-  return en[key] || key;
-};
-
 // --- Custom Recharts Renderers ---
 
 const COLORS = ['#10b981', '#06b6d4', '#f59e0b', '#ef4444', '#8b5cf6'];
@@ -410,7 +213,7 @@ export const ChatbotBubble = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { lang } = useTranslation();
+  const { lang, t } = useTranslation();
 
   // Dialog & Visibility State
   const [isOpen, setIsOpen] = useState(false);
@@ -536,7 +339,7 @@ export const ChatbotBubble = () => {
 
   const handleNewConversation = async () => {
     try {
-      const res = await api.post(`/api/chatbot/conversations?role=${userRole}`, { title: getLocalString('newConversation', lang) });
+      const res = await api.post(`/api/chatbot/conversations?role=${userRole}`, { title: t('chat.') });
       if (res.data.success) {
         setConversations(prev => [res.data.data, ...prev]);
         setActiveConversation(res.data.data);
@@ -555,7 +358,7 @@ export const ChatbotBubble = () => {
     if (!convId) {
       setLoading(true);
       try {
-        const createRes = await api.post(`/api/chatbot/conversations?role=${userRole}`, { title: getLocalString('newConversation', lang) });
+        const createRes = await api.post(`/api/chatbot/conversations?role=${userRole}`, { title: t('chat.') });
         if (createRes.data.success) {
           setActiveConversation(createRes.data.data);
           setConversations(prev => [createRes.data.data, ...prev]);
@@ -585,7 +388,7 @@ export const ChatbotBubble = () => {
       console.error(e);
       setMessages(prev => [...prev, {
         sender: 'BOT',
-        content: "⚠️ **System Connection Error:** Failed to generate AI reply.",
+        content: t('chat.errorSystem'),
         createdAt: new Date().toISOString()
       }]);
     } finally {
@@ -695,7 +498,7 @@ export const ChatbotBubble = () => {
     if (!convId) {
       setLoading(true);
       try {
-        const createRes = await api.post(`/api/chatbot/conversations?role=${userRole}`, { title: getLocalString('newConversation', lang) });
+        const createRes = await api.post(`/api/chatbot/conversations?role=${userRole}`, { title: t('chat.') });
         if (createRes.data.success) {
           setActiveConversation(createRes.data.data);
           setConversations(prev => [createRes.data.data, ...prev]);
@@ -723,7 +526,7 @@ export const ChatbotBubble = () => {
       console.error(e);
       setMessages(prev => [...prev, {
         sender: 'BOT',
-        content: "⚠️ **File Parsing Failure**: Failed to analyze file details.",
+        content: t('chat.errorFile'),
         createdAt: new Date().toISOString()
       }]);
     } finally {
@@ -759,7 +562,7 @@ export const ChatbotBubble = () => {
     if (!activeConversation) return;
     const textToShare = messages.map(m => `[${m.sender}] ${m.content}`).join('\n\n');
     navigator.clipboard.writeText(textToShare);
-    alert(getLocalString('shareAlert', lang));
+    alert(t('chat.'));
   };
 
   const sortedConversations = useMemo(() => {
@@ -779,22 +582,22 @@ export const ChatbotBubble = () => {
   const suggestedPrompts = useMemo(() => {
     if (userRole === 'ADMIN') {
       return [
-        "Show active users today",
-        "Total platform registrations",
-        "Pending support tickets",
-        "Platform category breakdown",
-        "System health check"
+        t('chat.promptAdmin1'),
+        t('chat.promptAdmin2'),
+        t('chat.promptAdmin3'),
+        t('chat.promptAdmin4'),
+        t('chat.promptAdmin5')
       ];
     } else {
       return [
-        "What are my emissions today?",
-        "Show my weekly carbon trend",  
-        "How can I reduce my footprint?",
-        "Show my goal progress",
-        "Summarize my carbon data"
+        t('chat.promptUser1'),
+        t('chat.promptUser2'),
+        t('chat.promptUser3'),
+        t('chat.promptUser4'),
+        t('chat.promptUser5')
       ];
     }
-  }, [userRole]);
+  }, [userRole, t]);
 
   const renderMessageContent = (text, msgId) => {
     if (!text) return null;
@@ -873,7 +676,7 @@ export const ChatbotBubble = () => {
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 260, damping: 20 }}
           >
-            <Tooltip title={userRole === 'ADMIN' ? getLocalString('adminTitle', lang) : getLocalString('title', lang)} placement="left">
+            <Tooltip title={userRole === 'ADMIN' ? t('chat.') : t('chat.')} placement="left">
               <IconButton
                 onClick={() => setIsOpen(true)}
                 sx={{
@@ -959,7 +762,7 @@ export const ChatbotBubble = () => {
                     <TextField
                       fullWidth
                       size="small"
-                      placeholder={getLocalString('searchPlaceholder', lang)}
+                      placeholder={t('chat.')}
                       value={historySearch}
                       onChange={(e) => setHistorySearch(e.target.value)}
                       InputProps={{
@@ -971,7 +774,7 @@ export const ChatbotBubble = () => {
                         sx: { borderRadius: 2.5, fontSize: '0.8rem', bgcolor: 'background.paper' }
                       }}
                     />
-                    <Tooltip title={getLocalString('newChatTooltip', lang)}>
+                    <Tooltip title={t('chat.')}>
                       <IconButton size="small" onClick={handleNewConversation} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2.5, bgcolor: 'background.paper' }}>
                         <AddIcon fontSize="small" />
                       </IconButton>
@@ -1047,10 +850,10 @@ export const ChatbotBubble = () => {
                     </Badge>
                     <Box>
                       <Typography variant="subtitle2" fontWeight={800}>
-                        {userRole === 'ADMIN' ? getLocalString('adminTitle', lang) : getLocalString('title', lang)}
+                        {userRole === 'ADMIN' ? t('chat.') : t('chat.')}
                       </Typography>
                       <Typography variant="caption" color="text.secondary" display="block">
-                        {activeConversation ? activeConversation.title : getLocalString('systemContext', lang)}
+                        {activeConversation ? activeConversation.title : t('chat.')}
                       </Typography>
                     </Box>
                   </Box>
@@ -1096,10 +899,10 @@ export const ChatbotBubble = () => {
                     <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" height="100%" textAlign="center" p={3}>
                       <AutoAwesomeIcon sx={{ fontSize: 44, color: 'primary.main', mb: 2, opacity: 0.8 }} />
                       <Typography variant="subtitle2" fontWeight={800} gutterBottom>
-                        {getLocalString('emptyTitle', lang)}
+                        {t('chat.')}
                       </Typography>
                       <Typography variant="caption" color="text.secondary" maxWidth={280}>
-                        {getLocalString('emptySubtitle', lang)}
+                        {t('chat.')}
                       </Typography>
                     </Box>
                   ) : (
@@ -1189,7 +992,7 @@ export const ChatbotBubble = () => {
                 {/* Input Bar */}
                 <Box sx={{ p: 2, borderTop: '1px solid', borderColor: 'divider', bgcolor: theme.palette.mode === 'dark' ? 'rgba(30, 41, 59, 0.3)' : 'rgba(255,255,255,0.3)' }}>
                   <Box display="flex" gap={1} alignItems="center">
-                    <Tooltip title={getLocalString('uploadTooltip', lang)}>
+                    <Tooltip title={t('chat.')}>
                       <IconButton size="small" onClick={handleFileUploadClick} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2.5, bgcolor: 'background.paper' }}>
                         <CloudUploadIcon fontSize="small" />
                       </IconButton>
@@ -1202,7 +1005,7 @@ export const ChatbotBubble = () => {
                       accept=".pdf,.csv,.txt,image/*"
                     />
 
-                    <Tooltip title={getLocalString('clearTooltip', lang)}>
+                    <Tooltip title={t('chat.')}>
                       <IconButton size="small" onClick={handleClearChat} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2.5, bgcolor: 'background.paper' }}>
                         <ClearAllIcon fontSize="small" />
                       </IconButton>
@@ -1211,7 +1014,7 @@ export const ChatbotBubble = () => {
                     <TextField
                       fullWidth
                       size="small"
-                      placeholder={getLocalString('placeholder', lang)}
+                      placeholder={t('chat.')}
                       value={inputMsg}
                       onChange={(e) => setInputMsg(e.target.value)}
                       onKeyDown={(e) => {
@@ -1255,7 +1058,7 @@ export const ChatbotBubble = () => {
       <Dialog open={renameDialogOpen} onClose={() => setRenameDialogOpen(false)}>
         <Box sx={{ p: 3, width: 300 }}>
           <Typography variant="subtitle2" fontWeight={800} mb={2}>
-            {getLocalString('renameTitle', lang)}
+            {t('chat.')}
           </Typography>
           <TextField 
             fullWidth 
@@ -1265,8 +1068,8 @@ export const ChatbotBubble = () => {
             sx={{ mb: 2 }}
           />
           <Box display="flex" justifyContent="flex-end" gap={1}>
-            <Button size="small" onClick={() => setRenameDialogOpen(false)}>{getLocalString('cancel', lang)}</Button>
-            <Button size="small" variant="contained" onClick={handleRenameSave}>{getLocalString('save', lang)}</Button>
+            <Button size="small" onClick={() => setRenameDialogOpen(false)}>{t('chat.')}</Button>
+            <Button size="small" variant="contained" onClick={handleRenameSave}>{t('chat.')}</Button>
           </Box>
         </Box>
       </Dialog>

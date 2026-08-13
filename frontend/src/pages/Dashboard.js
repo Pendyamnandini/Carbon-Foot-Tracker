@@ -236,7 +236,7 @@ const Dashboard = () => {
             startIcon={<DownloadIcon />} 
             onClick={() => handleDownload('csv')}
           >
-            Export CSV
+            {t('dashboard.exportCSV')}
           </Button>
           <Button 
             variant="contained" 
@@ -244,7 +244,7 @@ const Dashboard = () => {
             startIcon={<DownloadIcon />} 
             onClick={() => handleDownload('pdf')}
           >
-            Export PDF
+            {t('dashboard.exportPDF')}
           </Button>
         </Stack>
       </Box>
@@ -301,7 +301,7 @@ const Dashboard = () => {
                   InputLabelProps={{ shrink: true }}
                 />
                 <Button type="submit" variant="contained" color="secondary" size="large">
-                  Search
+                  {t('dashboard.search')}
                 </Button>
               </Stack>
             </form>
@@ -627,7 +627,7 @@ const Dashboard = () => {
           <Grid item xs={12} md={6}>
             <Card sx={{ p: 2 }}>
               <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
-                Category Emissions Contribution (Selected Period)
+                {t('dashboard.categoryEmissionsContrib')}
               </Typography>
               {categoryBreakdown.length === 0 ? (
                 <Box height={300} display="flex" justifyContent="center" alignItems="center">
@@ -659,7 +659,7 @@ const Dashboard = () => {
           <Grid item xs={12}>
             <Card sx={{ p: 2 }}>
               <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 2 }}>
-                Emissions Details List (Selected Period)
+                {t('dashboard.emissionsDetailsList')}
               </Typography>
               <Stack spacing={1.5}>
                 {categoryBreakdown.map((cat, i) => {
@@ -672,7 +672,7 @@ const Dashboard = () => {
                         </Avatar>
                         <Box>
                           <Typography variant="subtitle2" fontWeight={700}>{cat.category}</Typography>
-                          <Typography variant="caption" color="text.secondary">{cat.percentageContribution.toFixed(1)}% of overall emissions</Typography>
+                          <Typography variant="caption" color="text.secondary">{cat.percentageContribution.toFixed(1)}% {t('dashboard.ofOverallEmissions')}</Typography>
                         </Box>
                       </Box>
                       <Typography variant="subtitle2" fontWeight={800} color={details.color}>
@@ -755,8 +755,8 @@ const Dashboard = () => {
                             </Box>
                           </Box>
                           <Stack direction="row" spacing={1}>
-                            <Chip label={`Difficulty: ${tip.difficulty}`} size="small" variant="outlined" sx={{ fontWeight: 600 }} />
-                            <Chip label={`Impact: ${tip.impact}`} size="small" color={tip.impact === 'High' ? 'error' : tip.impact === 'Medium' ? 'warning' : 'primary'} sx={{ fontWeight: 700 }} />
+                            <Chip label={`${t('dashboard.difficultyLabel')} ${tip.difficulty}`} size="small" variant="outlined" sx={{ fontWeight: 600 }} />
+                            <Chip label={`${t('dashboard.impactLabel')} ${tip.impact}`} size="small" color={tip.impact === 'High' ? 'error' : tip.impact === 'Medium' ? 'warning' : 'primary'} sx={{ fontWeight: 700 }} />
                           </Stack>
                         </Stack>
                       </Card>
@@ -784,11 +784,11 @@ const Dashboard = () => {
 
               <Stack spacing={2.5}>
                 <Box>
-                  <Typography variant="body2" color="text.secondary" mb={0.5}>{t('dashboard.yourFootprint')} (Current Month)</Typography>
+                  <Typography variant="body2" color="text.secondary" mb={0.5}>{t('dashboard.yourFootprint')} {t('dashboard.currentMonth')}</Typography>
                   <LinearProgress variant="determinate" value={Math.min(100, (benchmarking?.yourEmissions / (benchmarking?.platformAverage || 1)) * 50)} color="secondary" sx={{ height: 10, borderRadius: 5 }} />
                   <Box display="flex" justifyContent="space-between" mt={0.5}>
                     <Typography variant="caption" fontWeight={700}>{benchmarking?.yourEmissions.toFixed(1)} kg CO₂</Typography>
-                    <Typography variant="caption" color="text.secondary">{t('goals.targetReduction')} {benchmarking?.platformAverage.toFixed(1)} kg avg</Typography>
+                    <Typography variant="caption" color="text.secondary">{t('goals.targetReduction')} {benchmarking?.platformAverage.toFixed(1)} {t('dashboard.kgAvg')}</Typography>
                   </Box>
                 </Box>
 

@@ -48,5 +48,14 @@
   "landing.testimonial2Role": "Individual User & Climate Advocate",
   "landing.testimonial3": "The automated email goal alerts and period comparison engine make tracking our department's green targets effortless and rewarding.",
   "landing.testimonial3Author": "Elena Rostova",
-  "landing.testimonial3Role": "ESG Manager, GreenVentures"
+  "landing.testimonial3Role": "ESG Manager, GreenVentures",
+  "landing.heroCardTitle": "Real-Time Carbon Intelligence",
+  "landing.heroCardDesc": "Live monitoring, dynamic period comparisons, and automated milestone tracking.",
+  "landing.featuresSubtitle": "Everything you need to measure emissions, complete eco challenges, and report zero carbon compliance.",
+  "landing.startTrackingFree": "Start Tracking Free",
+  "landing.changeLanguage": "Change Language?",
+  "landing.detectLangText1": "We detected your browser language is ",
+  "landing.detectLangText2": ". Would you like to switch to this language?",
+  "landing.keepEnglish": "No, keep English",
+  "landing.yesSwitch": "Yes, switch"
 }

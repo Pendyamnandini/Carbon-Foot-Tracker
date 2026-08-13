@@ -30,13 +30,13 @@ const OtpVerificationPage = () => {
     try {
       const res = await api.post('/api/auth/verify-otp', { email, otp });
       if (res.data.success) {
-        setSuccess('OTP verified successfully! Redirecting to password reset...');
+        setSuccess(t('auth.otpVerifySuccess'));
         setTimeout(() => navigate(`/reset-password?email=${encodeURIComponent(email)}&otp=${encodeURIComponent(otp)}`), 2000);
       } else {
         setError(res.data.message);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Verification failed. Try again.');
+      setError(err.response?.data?.message || t('auth.otpVerifyError'));
     } finally {
       setLoading(false);
     }
@@ -47,9 +47,9 @@ const OtpVerificationPage = () => {
     setSuccess('');
     try {
       await api.post('/api/auth/forgot-password', { email });
-      setSuccess('A new OTP has been sent to your email.');
+      setSuccess(t('auth.otpResendSuccess'));
     } catch (err) {
-      setError('Failed to resend OTP.');
+      setError(t('auth.otpResendError'));
     }
   };
 

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://127.0.0.1:8080',
+  baseURL: process.env.REACT_APP_API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -14,7 +14,7 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    const lang = localStorage.getItem('app_lang') || navigator.language || 'en';
+    const lang = localStorage.getItem('app_lang') || 'en';
     config.headers['Accept-Language'] = lang;
     return config;
   },
@@ -38,7 +38,7 @@ api.interceptors.response.use(
       if (refreshToken) {
         try {
           // Token Renewal flow
-          const res = await axios.post('http://127.0.0.1:8080/api/auth/refresh', {
+          const res = await axios.post(`${process.env.REACT_APP_API_URL || ''}/api/auth/refresh`, {
             refreshToken: refreshToken,
           });
 

@@ -130,7 +130,7 @@ const Leaderboard = () => {
                             fontSize: '1rem',
                             fontWeight: 700
                           }} 
-                          src={row.profileImageUrl ? `http://127.0.0.1:8080${row.profileImageUrl}` : undefined}
+                          src={row.profileImageUrl ? `${process.env.REACT_APP_API_URL || ""}${row.profileImageUrl}` : undefined}
                         >
                           {row.userName.charAt(0).toUpperCase()}
                         </Avatar>
@@ -219,7 +219,7 @@ const Leaderboard = () => {
                         {ub.badge.description}
                       </Typography>
                       <Chip 
-                        label={`{t('profile.badgesEarnedOn')}${new Date(ub.awardedDate).toLocaleDateString()}`}
+                        label={`${t('profile.badgesEarnedOn')} ${new Date(ub.awardedDate).toLocaleDateString()}`}
                         size="small" 
                         color="primary"
                         variant="outlined"

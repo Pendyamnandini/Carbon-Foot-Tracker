@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '../context/LanguageContext';
 import LanguageSelector from './LanguageSelector';
 import api from '../api';
+import LogoutConfirmationModal from './LogoutConfirmationModal';
 
 const Navbar = ({ handleDrawerToggle }) => {
   const { t } = useTranslation();
@@ -24,6 +25,7 @@ const Navbar = ({ handleDrawerToggle }) => {
   const [anchorElNotif, setAnchorElNotif] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
 
   const fetchNotifications = async () => {
     try {
@@ -60,10 +62,9 @@ const Navbar = ({ handleDrawerToggle }) => {
     }
   };
 
-  const handleLogout = async () => {
+  const handleLogoutClick = () => {
     handleCloseUserMenu();
-    await logout();
-    navigate('/login');
+    setLogoutModalOpen(true);
   };
 
   const handleProfile = () => {
@@ -204,10 +205,15 @@ const Navbar = ({ handleDrawerToggle }) => {
                 <MenuItem onClick={handleProfile}>
                   <AccountCircleIcon sx={{ mr: 1, fontSize: 20 }} /> {t('nav.profile')}
                 </MenuItem>
-                <MenuItem onClick={handleLogout}>
+                <MenuItem onClick={handleLogoutClick}>
                   <LogoutIcon sx={{ mr: 1, fontSize: 20 }} /> {t('nav.logout')}
                 </MenuItem>
               </Menu>
+              
+              <LogoutConfirmationModal
+                open={logoutModalOpen}
+                onClose={() => setLogoutModalOpen(false)}
+              />
             </>
           )}
         </Box>

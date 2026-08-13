@@ -31,6 +31,10 @@ import Leaderboard from './pages/Leaderboard';
 import Feedback from './pages/Feedback';
 import SupportPage from './pages/SupportPage';
 import OrganizationDashboard from './pages/OrganizationDashboard';
+import OrganizationActivities from './pages/OrganizationActivities';
+import OrganizationMembers from './pages/OrganizationMembers';
+import AcceptInvitation from './pages/AcceptInvitation';
+import OrganizationLogin from './pages/OrganizationLogin';
 
 // Admin Pages
 import AdminDashboard from './pages/AdminDashboard';
@@ -105,6 +109,7 @@ const AppContent = () => {
           <Route path="/forgot-password" element={user ? <Navigate to="/dashboard" replace /> : <ForgotPasswordPage />} />
           <Route path="/verify-otp" element={user ? <Navigate to="/dashboard" replace /> : <OtpVerificationPage />} />
           <Route path="/reset-password" element={user ? <Navigate to="/dashboard" replace /> : <ResetPasswordPage />} />
+          <Route path="/organization/login" element={user ? <Navigate to="/org/dashboard" replace /> : <OrganizationLogin />} />
 
           {/* Protected User Routes */}
           <Route path="/dashboard" element={
@@ -153,8 +158,32 @@ const AppContent = () => {
             </ProtectedRoute>
           } />
           <Route path="/organization" element={
-            <ProtectedRoute allowedRoles={['USER', 'ORG_ADMIN', 'ORG_USER']}>
+            <ProtectedRoute allowedRoles={['ADMIN', 'USER', 'ORG_ADMIN', 'ORG_USER']}>
               <OrganizationDashboard />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/org/activities" element={
+            <ProtectedRoute allowedRoles={['ORG_ADMIN', 'ORG_USER']}>
+              <OrganizationActivities />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/org/members" element={
+            <ProtectedRoute allowedRoles={['ORG_ADMIN', 'ORG_USER']}>
+              <OrganizationMembers />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/org/dashboard" element={
+            <ProtectedRoute allowedRoles={['ORG_ADMIN', 'ORG_USER']}>
+              <OrganizationDashboard />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/organization/invite/accept" element={
+            <ProtectedRoute allowedRoles={['USER', 'ORG_ADMIN', 'ORG_USER']}>
+              <AcceptInvitation />
             </ProtectedRoute>
           } />
 

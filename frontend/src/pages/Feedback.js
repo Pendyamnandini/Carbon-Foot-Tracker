@@ -44,7 +44,7 @@ const Feedback = () => {
         fetchFeedbacks();
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Submission failed.');
+      setError(err.response?.data?.message || t('feedback.errorMsg'));
     } finally {
       setLoading(false);
     }
@@ -85,7 +85,7 @@ const Feedback = () => {
                 >
                   {CATEGORIES.map((cat) => (
                     <MenuItem key={cat} value={cat}>
-                      {cat.replace('_', ' ')}
+                      {t(`category.${cat.toLowerCase()}`)}
                     </MenuItem>
                   ))}
                 </TextField>
@@ -105,7 +105,7 @@ const Feedback = () => {
 
               <Grid item xs={12} display="flex" justifyContent="flex-end">
                 <Button type="submit" variant="contained" color="primary" disabled={loading}>
-                  {loading ? 'Submitting...' : 'Submit Feedback'}
+                  {loading ? t('feedback.submitting') : t('feedback.formSubmit')}
                 </Button>
               </Grid>
             </Grid>
@@ -140,7 +140,7 @@ const Feedback = () => {
                   <TableCell>{f.category}</TableCell>
                   <TableCell>{f.feedbackText}</TableCell>
                   <TableCell align="center" sx={{ fontWeight: 700, color: getStatusColor(f.status) }}>
-                    {f.status}
+                    {t(`status.${f.status.toLowerCase()}`)}
                   </TableCell>
                 </TableRow>
               ))

@@ -106,13 +106,13 @@ const ActivityLogging = () => {
     if (!navigator.onLine) {
       try {
         await queueOfflineAction('/api/activities' + (editId ? `/${editId}` : ''), editId ? 'PUT' : 'POST', payload);
-        setSuccess('Currently offline. Log stored locally and queued for automatic sync!');
+        setSuccess(t('activity.offlineLogSuccess'));
         setQuantity('');
         if (editId) setEditId(null);
         setLoading(false);
         return;
       } catch (e) {
-        setError('Failed to log offline.');
+        setError(t('activity.offlineLogError'));
         setLoading(false);
         return;
       }
@@ -196,7 +196,7 @@ const ActivityLogging = () => {
       <Card sx={{ mb: 5 }}>
         <CardContent>
           <Typography variant="h6" fontWeight={700} sx={{ mb: 3 }}>
-            {editId ? '✏️ Edit Selected Activity' : '🌱 Log New Activity'}
+            {editId ? t('activity.editSelected') : t('activity.logNew')}
           </Typography>
           <form onSubmit={handleSubmit}>
             <Grid container spacing={3}>
@@ -316,7 +316,7 @@ const ActivityLogging = () => {
               </Box>
               <Box textAlign="right">
                 <Typography variant="h5" fontWeight={900} color="primary.main">
-                  {dailyTotalEmission.toFixed(2)} <Typography variant="caption" color="text.secondary">kg CO2</Typography>
+                  {dailyTotalEmission.toFixed(2)} <Typography variant="caption" color="text.secondary">{t('activity.kgCO2Unit')}</Typography>
                 </Typography>
                 <Typography variant="caption" color="text.secondary" fontWeight={600}>
                   {filteredLogs.length} {t('activity.logsOnThisDay')}

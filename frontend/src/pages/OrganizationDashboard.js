@@ -56,9 +56,9 @@ const OrganizationDashboard = () => {
         if (isOrgAdmin) {
           const [empRes, trendsRes, deptsRes, rankingsRes] = await Promise.all([
             api.get(`/api/organizations/${orgId}/employees`),
-            api.get(`/api/v1/organizations/${orgId}/employee-trends`),
-            api.get(`/api/v1/organizations/${orgId}/department-performance`),
-            api.get(`/api/v1/organizations/${orgId}/team-rankings`)
+            api.get(`/api/organizations/${orgId}/employee-trends`),
+            api.get(`/api/organizations/${orgId}/department-performance`),
+            api.get(`/api/organizations/${orgId}/team-rankings`)
           ]);
 
           if (empRes.data.success) setEmployees(empRes.data.data);
@@ -156,52 +156,20 @@ const OrganizationDashboard = () => {
     );
   }
 
-  // Render onboarding if user has no linked organization
+  // Render error if user has no linked organization
   if (!orgLink) {
     return (
       <Container maxWidth="sm" sx={{ py: 6 }}>
         <Card>
           <CardContent>
             <Box textAlign="center" mb={4}>
-              <Typography variant="h4" fontWeight={800} color="primary" gutterBottom>
-                {t('org.institutionalTitle')}
+              <Typography variant="h4" fontWeight={800} color="error" gutterBottom>
+                No Organization Assigned
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                {t('org.institutionalSubtitle')}
+                Your account is designated as an Organization Administrator, but no organization is currently linked to your profile. Please contact platform support.
               </Typography>
             </Box>
-
-            {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
-            {success && <Alert severity="success" sx={{ mb: 3 }}>{success}</Alert>}
-
-            <form onSubmit={handleCreateOrg}>
-              <Stack spacing={3}>
-                <TextField
-                  label={t('org.orgName')}
-                  fullWidth
-                  required
-                  value={orgName}
-                  onChange={(e) => setOrgName(e.target.value)}
-                />
-
-                <TextField
-                  select
-                  label={t('org.type')}
-                  fullWidth
-                  value={orgType}
-                  onChange={(e) => setOrgType(e.target.value)}
-                >
-                  <MenuItem value="Business">{t('org.typeBusiness')}</MenuItem>
-                  <MenuItem value="School">{t('org.typeSchool')}</MenuItem>
-                  <MenuItem value="Institution">{t('org.typeGovernment')}</MenuItem>
-                  <MenuItem value="Community">{t('org.typeCommunity')}</MenuItem>
-                </TextField>
-
-                <Button type="submit" variant="contained" color="primary" fullWidth size="large">
-                  {t('org.createBtn')}
-                </Button>
-              </Stack>
-            </form>
           </CardContent>
         </Card>
       </Container>

@@ -226,10 +226,10 @@ const AnalyticsPage = () => {
   // Journey Timeline Demo Events
   const journeyEvents = [
     { title: 'Account Registration', date: '2026-01-10', desc: 'Joined CarbonTracker Sustainability Platform', icon: <WorkspacePremiumIcon color="primary" /> },
-    { title: 'First Activity Logged', date: '2026-01-11', desc: 'Logged 15.2 kg CO₂ transport commuting', icon: <DirectionsCarIcon color="secondary" /> },
+    { title: 'First Activity Logged', date: '2026-01-11', desc: `Logged 15.2 ${t('analytics.kgCo2')} transport commuting`, icon: <DirectionsCarIcon color="secondary" /> },
     { title: 'First Goal Created', date: '2026-01-15', desc: 'Set target to cut electricity emissions by 20%', icon: <BoltIcon color="primary" /> },
     { title: 'Milestone: 7-Day Streak Badge', date: '2026-01-18', desc: 'Earned 7-Day Streak Badge for continuous logging', icon: <WorkspacePremiumIcon color="secondary" /> },
-    { title: 'Goal Completed: Eco Saver 10kg', date: '2026-02-01', desc: 'Reduced 10 kg CO₂e verified carbon savings', icon: <TrendingDownIcon color="primary" /> }
+    { title: 'Goal Completed: Eco Saver 10kg', date: '2026-02-01', desc: `Reduced 10 ${t('analytics.kgCo2e')} verified carbon savings`, icon: <TrendingDownIcon color="primary" /> }
   ];
 
   // Export PDF handler
@@ -279,7 +279,7 @@ const AnalyticsPage = () => {
             {t('analytics.title')}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            Deep-dive category breakdown ({selectedCategory}), period comparison, predictive forecasts, and carbon potential engine.
+            {t('analytics.subtitle')}
           </Typography>
         </Box>
 
@@ -299,13 +299,13 @@ const AnalyticsPage = () => {
           {/* 1. Period Type Select */}
           <Grid item xs={12} sm={6} md={3}>
             <FormControl fullWidth size="small">
-              <InputLabel>Period Type</InputLabel>
+              <InputLabel>{t('analytics.inputPeriodType')}</InputLabel>
               <Select value={periodType} label={t('analytics.periodType')} onChange={(e) => setPeriodType(e.target.value)}>
                 <MenuItem value="DAILY">{t('analytics.dailyAnalytics')}</MenuItem>
                 <MenuItem value="WEEKLY">{t('analytics.weeklyAnalytics')}</MenuItem>
                 <MenuItem value="MONTHLY">{t('analytics.monthlyAnalytics')}</MenuItem>
                 <MenuItem value="YEARLY">{t('analytics.yearlyAnalytics')}</MenuItem>
-                <MenuItem value="CUSTOM">Custom Date Range</MenuItem>
+                <MenuItem value="CUSTOM">{t('analytics.customDateRange')}</MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -313,7 +313,7 @@ const AnalyticsPage = () => {
           {/* 2. Category Filter */}
           <Grid item xs={12} sm={6} md={3}>
             <FormControl fullWidth size="small">
-              <InputLabel>Category Filter</InputLabel>
+              <InputLabel>{t('analytics.inputCategoryFilter')}</InputLabel>
               <Select value={selectedCategory} label={t('analytics.categoryFilter')} onChange={(e) => setSelectedCategory(e.target.value)}>
                 <MenuItem value="ALL">{t('recs.filterAll')}</MenuItem>
                 <MenuItem value="TRANSPORT">{t('analytics.transportAnalytics')}</MenuItem>
@@ -370,7 +370,7 @@ const AnalyticsPage = () => {
           {periodType === 'YEARLY' && (
             <Grid item xs={12} sm={6} md={4}>
               <FormControl fullWidth size="small">
-                <InputLabel>Select Year</InputLabel>
+                <InputLabel>{t('analytics.inputSelectYear')}</InputLabel>
                 <Select value={selectedYear} label={t('analytics.selectYear')} onChange={(e) => setSelectedYear(e.target.value)}>
                   {[2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030].map(y => (
                     <MenuItem key={y} value={y}>{y}</MenuItem>
@@ -419,11 +419,11 @@ const AnalyticsPage = () => {
       {/* CATEGORY SELECTOR CARDS */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {[
-          { key: 'ALL', label: 'All Categories', desc: 'System-wide summary' },
-          { key: 'TRANSPORT', label: 'Transport Analytics', desc: 'Vehicles, flights, public transit' },
-          { key: 'ELECTRICITY', label: 'Electricity Analytics', desc: 'Household power & heating' },
-          { key: 'FOOD', label: 'Food Analytics', desc: 'Dietary choices & agriculture' },
-          { key: 'SHOPPING', label: 'Shopping Analytics', desc: 'Goods, apparel & manufacturing' }
+          { key: 'ALL', label: t('analytics.catAll'), desc: t('analytics.descAll') },
+          { key: 'TRANSPORT', label: t('analytics.catTransport'), desc: t('analytics.descTransport') },
+          { key: 'ELECTRICITY', label: t('analytics.catElectricity'), desc: t('analytics.descElectricity') },
+          { key: 'FOOD', label: t('analytics.catFood'), desc: t('analytics.descFood') },
+          { key: 'SHOPPING', label: t('analytics.catShopping'), desc: t('analytics.descShopping') }
         ].map((item) => {
           const isSelected = selectedCategory === item.key;
           const color = categoryColors[item.key] || '#10b981';
@@ -476,14 +476,14 @@ const AnalyticsPage = () => {
           {/* Section 1: Emissions Overview */}
           <Box>
             <Typography variant="h6" fontWeight={800} gutterBottom sx={{ mb: 2 }}>
-              📊 Emissions Overview KPIs ({selectedCategory})
+              {t('analytics.emissionsOverviewKpis')} ({selectedCategory})
             </Typography>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={6} md={3}>
                 <Paper className="glass-card" sx={{ p: 3 }}>
                   <Typography variant="caption" color="text.secondary">{t('analytics.totalPeriodCarbonFootprint')} ({selectedCategory})</Typography>
                   <Typography variant="h4" fontWeight={900} color="primary.main">{selectedTotalEmissions.toFixed(1)} kg</Typography>
-                  <Typography variant="caption" color="text.secondary">CO₂ equivalent</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('analytics.co2Equivalent')}</Typography>
                 </Paper>
               </Grid>
 
@@ -491,7 +491,7 @@ const AnalyticsPage = () => {
                 <Paper className="glass-card" sx={{ p: 3 }}>
                   <Typography variant="caption" color="text.secondary">{t('analytics.dailyAverage')}</Typography>
                   <Typography variant="h4" fontWeight={900}>{dailyAvg.toFixed(1)} kg</Typography>
-                  <Typography variant="caption" color="text.secondary">Per active day ({selectedCategory})</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('analytics.perActiveDay')} ({selectedCategory})</Typography>
                 </Paper>
               </Grid>
 
@@ -499,7 +499,7 @@ const AnalyticsPage = () => {
                 <Paper className="glass-card" sx={{ p: 3 }}>
                   <Typography variant="caption" color="text.secondary">{t('analytics.weeklyAverage')}</Typography>
                   <Typography variant="h4" fontWeight={900}>{weeklyAvg.toFixed(1)} kg</Typography>
-                  <Typography variant="caption" color="text.secondary">Projected 7-day average</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('analytics.proj7Day')}</Typography>
                 </Paper>
               </Grid>
 
@@ -507,7 +507,7 @@ const AnalyticsPage = () => {
                 <Paper className="glass-card" sx={{ p: 3 }}>
                   <Typography variant="caption" color="text.secondary">{t('analytics.monthlyAverage')}</Typography>
                   <Typography variant="h4" fontWeight={900}>{monthlyAvg.toFixed(1)} kg</Typography>
-                  <Typography variant="caption" color="text.secondary">Projected 30-day average</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('analytics.proj30Day')}</Typography>
                 </Paper>
               </Grid>
 
@@ -515,7 +515,7 @@ const AnalyticsPage = () => {
                 <Paper className="glass-card" sx={{ p: 3 }}>
                   <Typography variant="caption" color="text.secondary">{t('analytics.previousPeriod')}</Typography>
                   <Typography variant="h4" fontWeight={900} color="secondary.main">{previousPeriodEmissions.toFixed(1)} kg</Typography>
-                  <Typography variant="caption" color="text.secondary">Baseline comparison</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('analytics.baselineComparison')}</Typography>
                 </Paper>
               </Grid>
 
@@ -523,7 +523,7 @@ const AnalyticsPage = () => {
                 <Paper className="glass-card" sx={{ p: 3 }}>
                   <Typography variant="caption" color="text.secondary">{t('analytics.peakDay')}</Typography>
                   <Typography variant="h5" fontWeight={800} color="error.main">{peakDayObj.date || 'N/A'}</Typography>
-                  <Typography variant="caption" color="text.secondary">{peakDayObj.val !== undefined ? `${peakDayObj.val.toFixed(1)} kg CO₂` : 'No data'}</Typography>
+                  <Typography variant="caption" color="text.secondary">{peakDayObj.val !== undefined ? `${peakDayObj.val.toFixed(1)} {t('analytics.kgCo2')}` : t('analytics.noData')}</Typography>
                 </Paper>
               </Grid>
 
@@ -531,7 +531,7 @@ const AnalyticsPage = () => {
                 <Paper className="glass-card" sx={{ p: 3 }}>
                   <Typography variant="caption" color="text.secondary">{t('analytics.lowestDay')}</Typography>
                   <Typography variant="h5" fontWeight={800} color="success.main">{lowestDayObj.date || 'N/A'}</Typography>
-                  <Typography variant="caption" color="text.secondary">{lowestDayObj.val !== undefined ? `${lowestDayObj.val.toFixed(1)} kg CO₂` : 'No data'}</Typography>
+                  <Typography variant="caption" color="text.secondary">{lowestDayObj.val !== undefined ? `${lowestDayObj.val.toFixed(1)} {t('analytics.kgCo2')}` : t('analytics.noData')}</Typography>
                 </Paper>
               </Grid>
 
@@ -541,7 +541,7 @@ const AnalyticsPage = () => {
                   <Typography variant="h4" fontWeight={900} color={percentageChange <= 0 ? "success.main" : "error.main"}>
                     {percentageChange.toFixed(1)}%
                   </Typography>
-                  <Typography variant="caption" color="text.secondary">Trend status: {trendLabel}</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('analytics.trendStatus')}: {trendLabel}</Typography>
                 </Paper>
               </Grid>
             </Grid>
@@ -550,12 +550,12 @@ const AnalyticsPage = () => {
           {/* Section 2: Sustainability Performance */}
           <Box>
             <Typography variant="h6" fontWeight={800} gutterBottom sx={{ mb: 2 }}>
-              🌱 Sustainability Performance & Forecast Metrics ({selectedCategory})
+              {t('analytics.sustainabilityPerf')} ({selectedCategory})
             </Typography>
             <Grid container spacing={3}>
               <Grid item xs={12} md={4}>
                 <Paper className="glass-card" sx={{ p: 3 }}>
-                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>Sustainability Score</Typography>
+                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>{t('analytics.sustainabilityScore')}</Typography>
                   <Stack direction="row" alignItems="center" spacing={2} my={1}>
                     <Typography variant="h3" fontWeight={900} color="primary.main">{sustainabilityScore.toFixed(0)} / 100</Typography>
                     <Chip label={sustainabilityScore >= 80 ? t('analytics.excellent') : sustainabilityScore >= 60 ? t('analytics.good') : t('analytics.needsImprovement')} color={sustainabilityScore >= 70 ? "success" : "warning"} size="small" />
@@ -566,15 +566,15 @@ const AnalyticsPage = () => {
 
               <Grid item xs={12} md={4}>
                 <Paper className="glass-card" sx={{ p: 3 }}>
-                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>Estimated Annual Trajectory ({selectedCategory})</Typography>
+                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>{t('analytics.estAnnualTrajectory')} ({selectedCategory})</Typography>
                   <Typography variant="h3" fontWeight={900}>{estimatedAnnual.toFixed(0)} kg</Typography>
-                  <Typography variant="caption" color="text.secondary">CO₂e annual projected footprint</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('analytics.co2eAnnualProj')}</Typography>
                 </Paper>
               </Grid>
 
               <Grid item xs={12} md={4}>
                 <Paper className="glass-card" sx={{ p: 3 }}>
-                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>Goal Target Success Odds</Typography>
+                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>{t('analytics.goalSuccessOdds')}</Typography>
                   <Stack direction="row" alignItems="center" spacing={2} my={1}>
                     <Typography variant="h3" fontWeight={900} color="secondary.main">{Math.max(30, Math.min(98, Math.round(sustainabilityScore + 5)))}%</Typography>
                     <Chip label={t('analytics.calculatedOdds')} color="primary" size="small" />
@@ -598,7 +598,7 @@ const AnalyticsPage = () => {
                   </Paper>
                 ))
               ) : (
-                <Typography color="text.secondary">Logging activities generates dynamic intelligence insights automatically.</Typography>
+                <Typography color="text.secondary">{t('analytics.loggingGeneratesInsights')}</Typography>
               )}
             </Stack>
           </Paper>
@@ -651,7 +651,7 @@ const AnalyticsPage = () => {
           {/* Category Breakdown Donut Chart */}
           <Grid item xs={12} md={6}>
             <Paper className="glass-card" sx={{ p: 3, borderRadius: 4, height: 400 }}>
-              <Typography variant="h6" fontWeight={700} gutterBottom>System Category Breakdown</Typography>
+              <Typography variant="h6" fontWeight={700} gutterBottom>{t('analytics.systemCatBreakdown')}</Typography>
               <ResponsiveContainer width="100%" height="85%">
                 <PieChart>
                   <Pie data={categoryBreakdown} dataKey="emissionValue" nameKey="category" cx="50%" cy="50%" innerRadius={60} outerRadius={90} label>
@@ -675,19 +675,19 @@ const AnalyticsPage = () => {
             <Grid item xs={12} md={6}>
               <Paper className="glass-card" sx={{ p: 4, borderRadius: 4 }}>
                 <Typography variant="h6" fontWeight={800} gutterBottom color="primary.main">
-                  🔮 Carbon Savings Potential Engine ({selectedCategory})
+                  {t('analytics.carbonSavingsEngine')} ({selectedCategory})
                 </Typography>
                 <Stack spacing={2} mt={2}>
                   <Box>
-                    <Typography variant="body2" color="text.secondary">Potential Monthly Reduction</Typography>
+                    <Typography variant="body2" color="text.secondary">{t('analytics.potentialMonthlyReduction')}</Typography>
                     <Typography variant="h4" fontWeight={900} color="success.main">
-                      {(selectedCategory === 'ALL' ? 43.0 : 18.5).toFixed(1)} kg CO₂e / month
+                      {(selectedCategory === 'ALL' ? 43.0 : 18.5).toFixed(1)} {t('analytics.kgCo2eMonth')}
                     </Typography>
                   </Box>
                   <Box>
-                    <Typography variant="body2" color="text.secondary">Potential Annual Reduction</Typography>
+                    <Typography variant="body2" color="text.secondary">{t('analytics.potentialAnnualReduction')}</Typography>
                     <Typography variant="h4" fontWeight={900} color="success.main">
-                      {(selectedCategory === 'ALL' ? 516.0 : 222.0).toFixed(1)} kg CO₂e / year
+                      {(selectedCategory === 'ALL' ? 516.0 : 222.0).toFixed(1)} {t('analytics.kgCo2eYear')}
                     </Typography>
                   </Box>
                 </Stack>
@@ -697,16 +697,16 @@ const AnalyticsPage = () => {
             <Grid item xs={12} md={6}>
               <Paper className="glass-card" sx={{ p: 4, borderRadius: 4 }}>
                 <Typography variant="h6" fontWeight={800} gutterBottom color="secondary.main">
-                  📈 Predictive Trajectory ({selectedCategory})
+                  {t('analytics.predictiveTrajectory')} ({selectedCategory})
                 </Typography>
                 <Stack spacing={2} mt={2}>
                   <Box>
-                    <Typography variant="body2" color="text.secondary">Predicted Next Month Emissions</Typography>
-                    <Typography variant="h4" fontWeight={900}>{monthlyAvg.toFixed(1)} kg CO₂e</Typography>
+                    <Typography variant="body2" color="text.secondary">{t('analytics.predictedNextMonth')}</Typography>
+                    <Typography variant="h4" fontWeight={900}>{monthlyAvg.toFixed(1)} {t('analytics.kgCo2e')}</Typography>
                   </Box>
                   <Box>
-                    <Typography variant="body2" color="text.secondary">Predicted Annual Footprint</Typography>
-                    <Typography variant="h4" fontWeight={900}>{estimatedAnnual.toFixed(0)} kg CO₂e</Typography>
+                    <Typography variant="body2" color="text.secondary">{t('analytics.predictedAnnual')}</Typography>
+                    <Typography variant="h4" fontWeight={900}>{estimatedAnnual.toFixed(0)} {t('analytics.kgCo2e')}</Typography>
                   </Box>
                 </Stack>
               </Paper>
@@ -716,17 +716,17 @@ const AnalyticsPage = () => {
           {/* Recommendation Impact Analytics */}
           <Paper className="glass-card" sx={{ p: 4, borderRadius: 4 }}>
             <Typography variant="h6" fontWeight={800} gutterBottom sx={{ mb: 3 }}>
-              💡 Recommendation Impact Analytics ({selectedCategory})
+              {t('analytics.recImpactAnalytics')} ({selectedCategory})
             </Typography>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 700 }}>Suggested Action</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>Category</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>Monthly Savings</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>Annual Savings</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>Difficulty</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>Impact Level</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>{t('analytics.suggestedAction')}</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>{t('analytics.category')}</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>{t('analytics.monthlySavings')}</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>{t('analytics.annualSavings')}</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>{t('analytics.difficulty')}</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>{t('analytics.impactLevel')}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -740,7 +740,7 @@ const AnalyticsPage = () => {
                       <TableCell sx={{ color: 'success.main', fontWeight: 700 }}>{rec.estimatedSavings.includes("reduction:") ? rec.estimatedSavings.split("reduction:")[1].trim() : rec.estimatedSavings}</TableCell>
                       <TableCell sx={{ color: 'success.main', fontWeight: 700 }}>
                         {rec.estimatedSavings.includes("reduction:") ? 
-                          (parseFloat(rec.estimatedSavings.split("reduction:")[1].split(" ")[1]) * 12).toFixed(1) + " kg CO₂" : 
+                          (parseFloat(rec.estimatedSavings.split("reduction:")[1].split(" ")[1]) * 12).toFixed(1) + " {t('analytics.kgCo2')}" : 
                           "N/A"}
                       </TableCell>
                       <TableCell><Chip label={rec.difficulty} size="small" variant="outlined" /></TableCell>
@@ -750,7 +750,7 @@ const AnalyticsPage = () => {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={6} align="center" sx={{ color: 'text.secondary', py: 3 }}>
-                      No recommendations found for this category and period. Keep logging activities!
+                      {t('analytics.noRecsFound')}
                     </TableCell>
                   </TableRow>
                 )}
@@ -765,7 +765,7 @@ const AnalyticsPage = () => {
         <Stack spacing={4}>
           <Paper className="glass-card" sx={{ p: 4, borderRadius: 4 }}>
             <Typography variant="h6" fontWeight={800} gutterBottom sx={{ mb: 3 }}>
-              📅 Activity Logging Heatmap (Consistency Grid)
+              {t('analytics.activityHeatmap')}
             </Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
               {Array.from({ length: 60 }).map((_, idx) => {
@@ -791,7 +791,7 @@ const AnalyticsPage = () => {
 
           <Paper className="glass-card" sx={{ p: 4, borderRadius: 4 }}>
             <Typography variant="h6" fontWeight={800} gutterBottom sx={{ mb: 3 }}>
-              🗺️ Carbon Journey Timeline
+              {t('analytics.carbonJourneyTimeline')}
             </Typography>
             <Stack spacing={3}>
               {journeyEvents.map((ev, idx) => (

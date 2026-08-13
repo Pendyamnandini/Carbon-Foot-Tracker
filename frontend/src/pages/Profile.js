@@ -464,7 +464,7 @@ const Profile = () => {
       <Box display="flex" alignItems="center" flexWrap="wrap" sx={{ mb: 4, gap: 3, p: 3, borderRadius: 3, background: 'linear-gradient(135deg, rgba(16,185,129,0.04) 0%, rgba(6,182,212,0.04) 100%)', border: '1px solid rgba(255,255,255,0.03)' }}>
         <Box position="relative">
           <Avatar
-            src={profile.profileImageUrl ? `http://127.0.0.1:8080${profile.profileImageUrl}` : undefined}
+            src={profile.profileImageUrl ? `${process.env.REACT_APP_API_URL || ""}${profile.profileImageUrl}` : undefined}
             sx={{ width: 110, height: 110, bgcolor: 'secondary.main', fontSize: '3rem', border: '3px solid #10b981' }}
           >
             {profile.fullName.charAt(0).toUpperCase()}
@@ -536,7 +536,7 @@ const Profile = () => {
         <Tab label={t('profile.tabRewards')} sx={{ fontWeight: 800 }} />
         <Tab label={t('profile.tabNotifications')} sx={{ fontWeight: 800 }} />
         <Tab label={t('profile.tabSettings')} sx={{ fontWeight: 800 }} />
-        <Tab label="Mobile App" sx={{ fontWeight: 800 }} />
+        <Tab label={t('recs.tabMobileApp')} sx={{ fontWeight: 800 }} />
       </Tabs>
 
       {/* Tab 0: Edit Profile */}
@@ -647,7 +647,7 @@ const Profile = () => {
           <CardContent>
             <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2} mb={3}>
               <Typography variant="h6" fontWeight={700}>
-                User Activity Audit Trail
+                {t('profile.userActivityAudit')}
               </Typography>
               <Stack direction="row" spacing={1}>
                 <Button size="small" variant={historyFilter === 'today' ? 'contained' : 'outlined'} onClick={() => handleFilterChange('today')}>
@@ -669,16 +669,16 @@ const Profile = () => {
               <Table size="small">
                 <TableHead sx={{ bgcolor: 'rgba(255,255,255,0.01)' }}>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 700 }}>Action</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Description</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Page</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Date & Time</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>{t('profile.action')}</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>{t('profile.description')}</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>{t('profile.page')}</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>{t('profile.dateTime')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {activityHistory.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} align="center">No actions logged in this period.</TableCell>
+                      <TableCell colSpan={4} align="center">{t('profile.noActionsLogged')}</TableCell>
                     </TableRow>
                   ) : (
                     activityHistory.map((act) => (

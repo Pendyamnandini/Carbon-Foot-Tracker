@@ -94,10 +94,10 @@ const PWAInstallPrompt = () => {
             </Box>
             <Box>
               <Typography variant="subtitle1" fontWeight={900} sx={{ color: '#ffffff', lineHeight: 1.2 }}>
-                {t('pwa.install_title') || 'Install Carbon Tracker'}
+                {t('pwa.install_title')}
               </Typography>
               <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                {isMobile ? (t('pwa.mobile_sub') || 'Add to Home Screen for native experience') : (t('pwa.desktop_sub') || 'Install on your desktop')}
+                {isMobile ? t('pwa.mobile_sub') : t('pwa.desktop_sub')}
               </Typography>
             </Box>
           </Box>
@@ -107,7 +107,7 @@ const PWAInstallPrompt = () => {
         </Box>
 
         <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3, lineHeight: 1.5 }}>
-          {t('pwa.description') || 'Monitor your footprint, log emissions offline, access chatbot conversations, and get instant reminders with our installable PWA.'}
+          {t('pwa.description')}
         </Typography>
 
         <Box display="flex" gap={2}>
@@ -127,7 +127,7 @@ const PWAInstallPrompt = () => {
               }
             }}
           >
-            {t('pwa.not_now') || 'Not Now'}
+            {t('pwa.not_now')}
           </Button>
           <Button
             variant="contained"
@@ -148,7 +148,7 @@ const PWAInstallPrompt = () => {
               }
             }}
           >
-            {t('pwa.install') || 'Install'}
+            {t('pwa.install')}
           </Button>
         </Box>
       </Paper>

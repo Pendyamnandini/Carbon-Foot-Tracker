@@ -125,18 +125,8 @@ export const LanguageSelector = ({ size = 'small', color = 'inherit' }) => {
   // Flattened items list for keyboard navigation
   const flatItemsList = useMemo(() => {
     if (searchQuery) return filteredLanguages;
-    
-    // Flatten recents, favorites, and all into a single list
-    const items = [];
-    if (groupedLanguages.recents.length > 0) {
-      items.push(...groupedLanguages.recents.map(l => ({ ...l, group: 'recents' })));
-    }
-    if (groupedLanguages.favorites.length > 0) {
-      items.push(...groupedLanguages.favorites.map(l => ({ ...l, group: 'favorites' })));
-    }
-    items.push(...groupedLanguages.all.map(l => ({ ...l, group: 'all' })));
-    return items;
-  }, [searchQuery, filteredLanguages, groupedLanguages]);
+    return sortedAllLanguages.map(l => ({ ...l, group: 'all' }));
+  }, [searchQuery, filteredLanguages, sortedAllLanguages]);
 
   // Keyboard navigation handler
   const handleKeyDown = (e) => {
@@ -356,39 +346,7 @@ export const LanguageSelector = ({ size = 'small', color = 'inherit' }) => {
             )
           ) : (
             <>
-              {/* Recents Section */}
-              {groupedLanguages.recents.length > 0 && (
-                <>
-                  <Typography variant="caption" sx={{ px: 2.5, py: 1, display: 'block', color: isDark ? '#10b981' : '#047857', fontWeight: 700, letterSpacing: 1.2 }}>
-                    RECENT LANGUAGES
-                  </Typography>
-                  {groupedLanguages.recents.map((item, idx) => renderLanguageItem(item, idx, 'recent'))}
-                  <Divider sx={{ my: 1, borderColor: isDark ? 'rgba(255,255,255,0.06)' : '#e2e8f0' }} />
-                </>
-              )}
-
-              {/* Favorites Section */}
-              {groupedLanguages.favorites.length > 0 && (
-                <>
-                  <Typography variant="caption" sx={{ px: 2.5, py: 1, display: 'block', color: isDark ? '#fbbf24' : '#d97706', fontWeight: 700, letterSpacing: 1.2 }}>
-                    FAVORITE LANGUAGES
-                  </Typography>
-                  {groupedLanguages.favorites.map((item, idx) => {
-                    const offsetIndex = groupedLanguages.recents.length + idx;
-                    return renderLanguageItem(item, offsetIndex, 'fav');
-                  })}
-                  <Divider sx={{ my: 1, borderColor: isDark ? 'rgba(255,255,255,0.06)' : '#e2e8f0' }} />
-                </>
-              )}
-
-              {/* All Languages Section */}
-              <Typography variant="caption" sx={{ px: 2.5, py: 1, display: 'block', color: isDark ? 'rgba(255,255,255,0.5)' : '#64748b', fontWeight: 700, letterSpacing: 1.2 }}>
-                ALL LANGUAGES
-              </Typography>
-              {groupedLanguages.all.map((item, idx) => {
-                const offsetIndex = groupedLanguages.recents.length + groupedLanguages.favorites.length + idx;
-                return renderLanguageItem(item, offsetIndex, 'all');
-              })}
+              {sortedAllLanguages.map((item, idx) => renderLanguageItem(item, idx, 'all'))}
             </>
           )}
         </List>

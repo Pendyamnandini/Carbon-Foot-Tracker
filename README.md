@@ -100,6 +100,19 @@ Make sure you have the following installed:
 
 ---
 
+## 🌐 Live Production Deployment
+- **Backend (Render):** `https://carbon-foot-tracker.onrender.com`
+- **Frontend (Vercel):** *Deploying...*
+
+To deploy the frontend to Vercel:
+1. Import the project in Vercel.
+2. Set the **Root Directory** to `frontend`.
+3. Add the following Environment Variable:
+   - `REACT_APP_API_URL` = `https://carbon-foot-tracker.onrender.com`
+4. Deploy!
+
+---
+
 ### Step 1: Configure SMTP (For Password Reset Emails)
 Open the backend configuration file:
 `backend/src/main/resources/application.yml`
@@ -156,3 +169,23 @@ The frontend will compile and open automatically in your browser at **`http://lo
 - **Default Language**: English is enforced as the default language on first visit, and language selections are properly persisted to localStorage.  
 - **Language Selector**: Resolved contrast and visibility issues for the Light Mode dropdown menu.  
 - **AI Chatbot Context**: Upgraded the AI prompt builder to integrate seamlessly with the robust DatabaseContextService, preparing the system to deliver highly contextualized, database-driven responses without repetitive templates. 
+
+---
+
+## Backend Environment Variables
+
+The backend requires the following environment variables for production deployments (e.g., on Render):
+
+- `DB_HOST`: The hostname of the remote PostgreSQL database (e.g., Supabase host).
+- `DB_PORT`: The port of the remote PostgreSQL database (typically 5432).
+- `DB_NAME`: The database name.
+- `DB_USER`: The database user.
+- `DB_PASSWORD`: The secure password for the database.
+- `SPRING_PROFILES_ACTIVE`: Set to `prod` to activate the PostgreSQL production profile.
+- `JWT_SECRET`: A long, random string used to sign JWT authentication tokens securely.
+- `SMTP_HOST`: The SMTP server host for sending emails (e.g., smtp.gmail.com).
+- `SMTP_PORT`: The SMTP server port (e.g., 587).
+- `SMTP_USER`: The email address used to authenticate with the SMTP server.
+- `SMTP_PASSWORD`: The app password for the SMTP email account.
+- `REDIS_HOST`: The hostname for the Redis server.
+- `REDIS_PORT`: The port for the Redis server.

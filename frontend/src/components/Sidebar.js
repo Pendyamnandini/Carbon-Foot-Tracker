@@ -1,5 +1,5 @@
 import React from 'react';
-import { Drawer, Toolbar, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Box, Divider, useTheme } from '@mui/material';
+import { Drawer, Toolbar, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Box, Divider, useTheme, Typography } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
@@ -66,18 +66,38 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
     );
 
     if (isOrg) {
-      menuItems.push({ text: 'Organization Analytics', icon: <BusinessIcon />, path: '/organization', color: '#14b8a6' });
-    } else {
-      menuItems.push({ text: 'Join/Create Org', icon: <BusinessIcon />, path: '/organization', color: '#14b8a6' });
+      menuItems.push({ text: 'Organization Control Panel', icon: <BusinessIcon />, path: '/org/dashboard', color: '#14b8a6' });
     }
   }
+
+  // Override for Organization Control Panel if currently on an /org/ path
+  const isOrgPanel = location.pathname.startsWith('/org/');
+  const displayItems = isOrgPanel ? [
+    { type: 'header', text: 'OVERVIEW' },
+    { text: 'Dashboard', icon: <DashboardIcon />, path: '/org/dashboard', color: '#0ea5e9' },
+    { type: 'header', text: 'MANAGEMENT' },
+    { text: 'Team Members', icon: <PeopleIcon />, path: '/org/members', color: '#10b981' },
+    { text: 'Activities', icon: <AnalyticsIcon />, path: '/org/activities', color: '#f59e0b' },
+    { text: 'Goals', icon: <AssignmentIcon />, path: '/org/goals', color: '#3b82f6' },
+    { type: 'header', text: 'SUSTAINABILITY' },
+    { text: 'Analytics', icon: <EqualizerIcon />, path: '/org/analytics', color: '#8b5cf6' },
+    { text: 'Achievements', icon: <LightbulbIcon />, path: '/org/achievements', color: '#f43f5e' }
+  ] : menuItems;
 
   const drawerContent = (
     <Box sx={{ height: '100%', background: 'background.default', color: 'text.primary' }}>
       <Toolbar />
       <Divider sx={{ borderColor: 'divider' }} />
       <List>
-        {menuItems.map((item) => {
+        {displayItems.map((item, index) => {
+          if (item.type === 'header') {
+            return (
+              <Typography key={index} variant="caption" color="text.secondary" sx={{ ml: 3, mt: 2, mb: 1, display: 'block', fontWeight: 800, letterSpacing: 1 }}>
+                {item.text}
+              </Typography>
+            );
+          }
+
           const active = location.pathname === item.path;
           return (
             <ListItem key={item.text} disablePadding>
@@ -104,7 +124,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
                   {item.icon}
                 </ListItemIcon>
                 <ListItemText 
-                  primary={t('nav.' + item.text.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, ''))} 
+                  primary={isOrgPanel ? item.text : t('nav.' + item.text.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, ''))} 
                   primaryTypographyProps={{ 
                     variant: 'body2', 
                     fontWeight: active ? 800 : 500,

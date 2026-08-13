@@ -21,13 +21,13 @@ const ForgotPasswordPage = () => {
     try {
       const res = await api.post('/api/auth/forgot-password', { email });
       if (res.data.success) {
-        setSuccess('OTP sent successfully! Redirecting to OTP Verification...');
+        setSuccess(t('auth.otpSentSuccess'));
         setTimeout(() => navigate(`/verify-otp?email=${encodeURIComponent(email)}`), 2000);
       } else {
         setError(res.data.message);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to request password reset');
+      setError(err.response?.data?.message || t('auth.forgotPasswordError'));
     } finally {
       setLoading(false);
     }

@@ -33,6 +33,8 @@ const LoginPage = () => {
       const savedUser = JSON.parse(localStorage.getItem('user'));
       if (savedUser?.role === 'ADMIN') {
         navigate('/admin');
+      } else if (savedUser?.role === 'ORG_ADMIN') {
+        navigate('/org/dashboard');
       } else {
         navigate(from, { replace: true });
       }

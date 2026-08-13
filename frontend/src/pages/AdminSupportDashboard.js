@@ -81,7 +81,7 @@ const AdminSupportDashboard = () => {
         setAdmins(userList.filter(u => u.role === 'ADMIN'));
       }
     } catch (e) {
-      setError('Could not retrieve support dashboard analytics.');
+      setError(t('admin.errorRetrieveSupportAnalytics'));
       console.error(e);
     } finally {
       setLoading(false);
@@ -163,7 +163,7 @@ const AdminSupportDashboard = () => {
         fetchData();
       }
     } catch (err) {
-      setError('Failed to update ticket status.');
+      setError(t('admin.errorUpdateTicketStatus'));
     }
   };
 
@@ -175,7 +175,7 @@ const AdminSupportDashboard = () => {
         fetchData();
       }
     } catch (err) {
-      setError('Failed to update ticket priority.');
+      setError(t('admin.errorUpdateTicketPriority'));
     }
   };
 
@@ -186,12 +186,12 @@ const AdminSupportDashboard = () => {
         assignedAdminId: assigneeId
       });
       if (res.data.success) {
-        setSuccess('Ticket assigned successfully.');
+        setSuccess(t('admin.successAssignTicket'));
         setAssignOpen(false);
         fetchData();
       }
     } catch (err) {
-      setError('Failed to assign ticket.');
+      setError(t('admin.errorAssignTicket'));
     }
   };
 
@@ -501,17 +501,17 @@ const AdminSupportDashboard = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredTickets.map((t) => (
-                  <TableRow key={t.id} hover>
-                    <TableCell>{t.ticketId}</TableCell>
-                    <TableCell>{t.username}</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>{t.subject}</TableCell>
-                    <TableCell><Chip label={t.category} size="small" variant="outlined" sx={{ fontSize: '0.65rem' }} /></TableCell>
+                {filteredTickets.map((ticket) => (
+                  <TableRow key={ticket.id} hover>
+                    <TableCell>{ticket.ticketId}</TableCell>
+                    <TableCell>{ticket.username}</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>{ticket.subject}</TableCell>
+                    <TableCell><Chip label={ticket.category} size="small" variant="outlined" sx={{ fontSize: '0.65rem' }} /></TableCell>
                     <TableCell>
                       <Select
-                        value={t.priority}
+                        value={ticket.priority}
                         size="small"
-                        onChange={(e) => handleUpdatePriority(t.ticketId, e.target.value)}
+                        onChange={(e) => handleUpdatePriority(ticket.ticketId, e.target.value)}
                         sx={{ fontSize: '0.75rem', height: 28 }}
                       >
                         <MenuItem value="Critical">Critical</MenuItem>
@@ -522,9 +522,9 @@ const AdminSupportDashboard = () => {
                     </TableCell>
                     <TableCell>
                       <Select
-                        value={t.status}
+                        value={ticket.status}
                         size="small"
-                        onChange={(e) => handleUpdateStatus(t.ticketId, e.target.value)}
+                        onChange={(e) => handleUpdateStatus(ticket.ticketId, e.target.value)}
                         sx={{ fontSize: '0.75rem', height: 28 }}
                       >
                         <MenuItem value="Open">Open</MenuItem>
@@ -541,9 +541,9 @@ const AdminSupportDashboard = () => {
                           size="small"
                           color="info"
                           onClick={() => {
-                            setSelectedTicket(t);
+                            setSelectedTicket(ticket);
                             setReplyOpen(true);
-                            fetchTicketDetails(t.ticketId);
+                            fetchTicketDetails(ticket.ticketId);
                           }}
                           title="Open Conversation"
                         >
@@ -553,7 +553,7 @@ const AdminSupportDashboard = () => {
                           size="small"
                           color="primary"
                           onClick={() => {
-                            setSelectedTicket(t);
+                            setSelectedTicket(ticket);
                             setAssigneeId('');
                             setAssignOpen(true);
                           }}
@@ -565,7 +565,7 @@ const AdminSupportDashboard = () => {
                           size="small"
                           color="secondary"
                           onClick={() => {
-                            setSelectedTicket(t);
+                            setSelectedTicket(ticket);
                             setDuplicateId('');
                             setMergeOpen(true);
                           }}

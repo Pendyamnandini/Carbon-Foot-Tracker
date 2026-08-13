@@ -24,7 +24,7 @@ const EmissionFactorManagement = () => {
         setFactors(res.data.data);
       }
     } catch (e) {
-      setError('Could not retrieve emission factors.');
+      setError(t('admin.errorRetrieveFactors'));
     } finally {
       setLoading(false);
     }
@@ -54,7 +54,7 @@ const EmissionFactorManagement = () => {
         fetchFactors();
       }
     } catch (err) {
-      setError('Failed to update emission factor.');
+      setError(t('admin.errorUpdateFactor'));
     } finally {
       setSaving(false);
     }
@@ -75,7 +75,7 @@ const EmissionFactorManagement = () => {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Typography variant="h4" fontWeight={800} gutterBottom sx={{ mb: 4 }}>
-        Emission Coefficient Factors
+        {t('admin.factorsTitle')}
       </Typography>
 
       {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
@@ -91,7 +91,7 @@ const EmissionFactorManagement = () => {
             <form onSubmit={handleSave}>
               <Stack direction="row" spacing={2} alignItems="center">
                 <TextField
-                  label="Coefficient Factor"
+                  label={t('admin.factorsTableCoefficient')}
                   type="number"
                   required
                   value={editFactor}
@@ -105,7 +105,7 @@ const EmissionFactorManagement = () => {
                   onChange={(e) => setEditVersion(e.target.value)}
                 />
                 <Button type="submit" variant="contained" color="primary" disabled={saving}>
-                  {saving ? 'Saving...' : t('common.save')}
+                  {saving ? t('common.saving') : t('common.save')}
                 </Button>
                 <Button variant="outlined" color="inherit" onClick={handleCancel}>
                   {t('common.cancel')}
@@ -121,9 +121,9 @@ const EmissionFactorManagement = () => {
         <Table>
           <TableHead sx={{ backgroundColor: 'rgba(255,255,255,0.02)' }}>
             <TableRow>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Category</TableCell>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Activity Type</TableCell>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Unit</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('admin.factorsTableCategory')}</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('admin.factorsTableType')}</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('admin.factorsTableUnit')}</TableCell>
               <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="right">{t('admin.factorCoefficient')}</TableCell>
               <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('admin.versionShort')}</TableCell>
               <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('admin.factorSource')}</TableCell>

@@ -169,5 +169,16 @@
   "admin.supportActions": "Actions",
   "admin.supportResolve": "Resolve & Close",
   "admin.supportChat": "Open Ticket Conversation",
-  "org.orgAverage": "Organization Average"
+  "org.orgAverage": "Organization Average",
+  "admin.errorUserDirectory": "Could not retrieve user directory.",
+  "admin.loadingUserDirectory": "Loading user directory...",
+  "admin.na": "N/A",
+  "admin.errorRetrieveFactors": "Could not retrieve emission factors.",
+  "admin.errorUpdateFactor": "Failed to update emission factor.",
+  "common.saving": "Saving...",
+  "admin.errorRetrieveSupportAnalytics": "Could not retrieve support dashboard analytics.",
+  "admin.errorUpdateTicketStatus": "Failed to update ticket status.",
+  "admin.errorUpdateTicketPriority": "Failed to update ticket priority.",
+  "admin.successAssignTicket": "Ticket assigned successfully.",
+  "admin.errorAssignTicket": "Failed to assign ticket."
 }

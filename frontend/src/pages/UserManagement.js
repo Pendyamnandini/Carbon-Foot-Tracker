@@ -17,7 +17,7 @@ const UserManagement = () => {
         setUsers(res.data.data);
       }
     } catch (e) {
-      setError('Could not retrieve user directory.');
+      setError(t('admin.errorUserDirectory'));
     } finally {
       setLoading(false);
     }
@@ -30,7 +30,7 @@ const UserManagement = () => {
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
-        <Typography>Loading user directory...</Typography>
+        <Typography>{t('admin.loadingUserDirectory')}</Typography>
       </Box>
     );
   }
@@ -48,9 +48,9 @@ const UserManagement = () => {
           <TableHead sx={{ backgroundColor: 'rgba(255,255,255,0.02)' }}>
             <TableRow>
               <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('admin.userProfile')}</TableCell>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Email Address</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('admin.usersTableEmail')}</TableCell>
               <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('profile.mobileNumber')}</TableCell>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Platform Role</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('admin.usersTableRole')}</TableCell>
               <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="center">{t('admin.usersTableStatus')}</TableCell>
             </TableRow>
           </TableHead>
@@ -59,14 +59,14 @@ const UserManagement = () => {
               <TableRow key={u.id}>
                 <TableCell>
                   <Box display="flex" alignItems="center" gap={1.5}>
-                    <Avatar sx={{ bgcolor: 'secondary.main' }} src={u.profileImageUrl ? `http://127.0.0.1:8080${u.profileImageUrl}` : undefined}>
+                    <Avatar sx={{ bgcolor: 'secondary.main' }} src={u.profileImageUrl ? `${process.env.REACT_APP_API_URL || ""}${u.profileImageUrl}` : undefined}>
                       {u.fullName.charAt(0).toUpperCase()}
                     </Avatar>
                     <Typography variant="body2" fontWeight={600}>{u.fullName}</Typography>
                   </Box>
                 </TableCell>
                 <TableCell>{u.email}</TableCell>
-                <TableCell>{u.mobileNumber || 'N/A'}</TableCell>
+                <TableCell>{u.mobileNumber || t('admin.na')}</TableCell>
                 <TableCell>
                   <Chip label={u.role} size="small" color={u.role === 'ADMIN' ? 'error' : u.role === 'ORG_ADMIN' ? 'secondary' : 'default'} />
                 </TableCell>

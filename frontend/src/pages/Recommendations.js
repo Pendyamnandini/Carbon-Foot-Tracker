@@ -219,10 +219,10 @@ const Recommendations = () => {
           <TipsAndUpdatesIcon sx={{ fontSize: '2.8rem', color: 'primary.main' }} />
           <Box>
             <Typography variant="h4" fontWeight={850}>
-              Personalized Recommendation Engine
+              {t('recs.personalizedEngine')}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Intelligent, data-driven reduction suggestions computed from your logs.
+              {t('recs.intelligentSuggestions')}
             </Typography>
           </Box>
         </Box>
@@ -255,7 +255,7 @@ const Recommendations = () => {
             onChange={(e) => setEndDate(e.target.value)}
             InputLabelProps={{ shrink: true }}
           />
-          <Button type="submit" variant="contained" size="small">Apply Range</Button>
+          <Button type="submit" variant="contained" size="small">{t('recs.applyRange')}</Button>
         </Card>
       )}
 
@@ -582,7 +582,7 @@ const Recommendations = () => {
             <Stack spacing={2.5}>
               <Box>
                 <Typography variant="caption" color="text.secondary" fontWeight={800} uppercase display="block" mb={0.5}>
-                  Recommendation Explanation
+                  {t('recs.explanation')}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
                   {detailRec.explanation}
@@ -591,7 +591,7 @@ const Recommendations = () => {
 
               <Box>
                 <Typography variant="caption" color="text.secondary" fontWeight={800} uppercase display="block" mb={0.5}>
-                  Sustainability Tip
+                  {t('recs.sustainabilityTip')}
                 </Typography>
                 <Paper sx={{ p: 2, bgcolor: 'action.hover', borderLeft: '4px solid #10b981' }}>
                   <Typography variant="body2" fontWeight={600} color="text.primary">
@@ -602,7 +602,7 @@ const Recommendations = () => {
 
               <Grid container spacing={2}>
                 <Grid item xs={6} sm={3}>
-                  <Typography variant="caption" color="text.secondary" display="block">Category</Typography>
+                  <Typography variant="caption" color="text.secondary" display="block">{t('recs.categoryTitle')}</Typography>
                   <Chip label={detailRec.category} size="small" color="primary" variant="outlined" sx={{ fontWeight: 800, mt: 0.5 }} />
                 </Grid>
                 <Grid item xs={6} sm={3}>
@@ -621,7 +621,7 @@ const Recommendations = () => {
 
               <Grid container spacing={2} sx={{ p: 2, bgcolor: 'rgba(255,255,255,0.02)', borderRadius: 2 }}>
                 <Grid item xs={6}>
-                  <Typography variant="caption" color="text.secondary">Estimated {t('recs.monthlySavings')}</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('recs.currentEmission')}</Typography>
                   <Typography variant="h6" fontWeight={800} color="primary.main">{detailRec.estimatedMonthlySavings} kg CO₂</Typography>
                 </Grid>
                 <Grid item xs={6}>
@@ -641,10 +641,10 @@ const Recommendations = () => {
                 navigate(`/activities/log?category=${detailRec.category}`);
               }}
             >
-              Log Activity
+              {t('recs.logActivity')}
             </Button>
             <Button onClick={() => setDetailRec(null)} color="inherit">
-              Close
+              {t('recs.close')}
             </Button>
           </DialogActions>
         </Dialog>

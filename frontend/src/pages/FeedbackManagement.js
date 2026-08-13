@@ -69,7 +69,7 @@ const FeedbackManagement = () => {
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
         <Typography variant="h4" fontWeight={800}>
-          User Feedback Management
+          {t('admin.feedbackTitle')}
         </Typography>
 
         <TextField
@@ -94,9 +94,9 @@ const FeedbackManagement = () => {
         <Table>
           <TableHead sx={{ backgroundColor: 'rgba(255,255,255,0.02)' }}>
             <TableRow>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Date</TableCell>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>User</TableCell>
-              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>Category</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('admin.feedbackTableDate')}</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('admin.feedbackTableUser')}</TableCell>
+              <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('admin.feedbackTableCategory')}</TableCell>
               <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }}>{t('admin.feedbackTableText')}</TableCell>
               <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="center">{t('admin.supportStatus')}</TableCell>
               <TableCell sx={{ color: 'text.secondary', fontWeight: 700 }} align="center">{t('admin.supportActions')}</TableCell>

@@ -51,13 +51,13 @@ const ResetPasswordPage = () => {
       });
 
       if (res.data.success) {
-        setSuccess('Password updated successfully! Redirecting to login...');
+        setSuccess(t('auth.resetPasswordSuccess'));
         setTimeout(() => navigate('/login'), 2000);
       } else {
         setError(res.data.message);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to reset password');
+      setError(err.response?.data?.message || t('auth.resetPasswordError'));
     } finally {
       setLoading(false);
     }
@@ -69,7 +69,7 @@ const ResetPasswordPage = () => {
         <CardContent>
           <Box textAlign="center" mb={4}>
             <Typography variant="h4" fontWeight={800} color="primary" gutterBottom>
-              Reset Password
+              {t('auth.resetPasswordTitle')}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               {t('auth.resetPasswordSubtitle')}

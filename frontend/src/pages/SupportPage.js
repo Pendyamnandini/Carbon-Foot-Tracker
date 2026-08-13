@@ -143,7 +143,7 @@ const SupportPage = () => {
   // AI Diagnostic Pre-check helper
   const handleAiPrecheck = async () => {
     if (!ticketSubject.trim() || !ticketDesc.trim()) {
-      setError('Subject and details are required to run AI diagnostics.');
+      setError(t('support.aiCheckError'));
       return;
     }
     setError('');
@@ -154,47 +154,47 @@ const SupportPage = () => {
     setTimeout(() => {
       const query = ticketDesc.toLowerCase();
       let response = {
-        analysis: "Minor configuration mismatch in local storage metadata.",
+        analysis: t('support.aiAnalysisMinor'),
         steps: [
-          "Check if third-party cookies are enabled in your browser settings.",
-          "Clear application cache and reload the tab.",
-          "Ensure your device network connection is stable (Current Status: Online)."
+          t('support.aiStepCookies'),
+          t('support.aiStepCache'),
+          t('support.aiStepNetwork')
         ],
-        recommendations: "We recommend refreshing your session token and trying again. Click 'Cancel Ticket' if this solved your problem.",
+        recommendations: t('support.aiRecToken'),
         solved: true
       };
 
       if (query.includes('login') || query.includes('auth') || query.includes('otp')) {
         response = {
-          analysis: "Session synchronization mismatch in JWT token authorization.",
+          analysis: t('support.aiAnalysisSync'),
           steps: [
-            "Logout from the profile panel and log back in.",
-            "If requesting OTP, wait for 60 seconds before retrying.",
-            "Verify your email profile credentials under settings."
+            t('support.aiStepLogout'),
+            t('support.aiStepOtp'),
+            t('support.aiStepVerify')
           ],
-          recommendations: "Refreshing your session updates the cryptographic authorization signature.",
+          recommendations: t('support.aiRecSync'),
           solved: true
         };
       } else if (query.includes('calculate') || query.includes('emission') || query.includes('log')) {
         response = {
-          analysis: "Invalid value entry parsed in activity log.",
+          analysis: t('support.aiAnalysisInvalid'),
           steps: [
-            "Check that electricity bills are entered in kWh and distances in km.",
-            "Do not input negative numbers or special currency symbols.",
-            "Ensure the correct category is chosen from dropdown."
+            t('support.aiStepCheckUnits'),
+            t('support.aiStepNoNegative'),
+            t('support.aiStepCategory')
           ],
-          recommendations: "Double check emission factors configured on the platform.",
+          recommendations: t('support.aiRecFactors'),
           solved: true
         };
       } else if (query.includes('badge') || query.includes('reward') || query.includes('goal')) {
         response = {
-          analysis: "Leaderboard and badge milestones background cron latency.",
+          analysis: t('support.aiAnalysisCron'),
           steps: [
-            "Milestones are evaluated asynchronously once every 5 minutes.",
-            "Verify your logged activities match requirements under goal details.",
-            "Reload the page to fetch the latest achievements from database."
+            t('support.aiStepCron5m'),
+            t('support.aiStepVerifyGoals'),
+            t('support.aiStepReload')
           ],
-          recommendations: "Wait for the hourly cron system to calculate points totals.",
+          recommendations: t('support.aiRecWaitHourly'),
           solved: false
         };
       }
@@ -224,14 +224,14 @@ const SupportPage = () => {
       });
 
       if (res.data.success) {
-        setSuccess('Support ticket created successfully!');
+        setSuccess(t('support.ticketCreated'));
         setTicketSubject('');
         setTicketDesc('');
         setAttachment(null);
         fetchTickets();
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to submit ticket.');
+      setError(err.response?.data?.message || t('support.ticketFailed'));
     } finally {
       setFormLoading(false);
     }
@@ -308,11 +308,11 @@ const SupportPage = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <LanguageIcon color="primary" />
           <FormControl size="small" variant="outlined" sx={{ minWidth: 120 }}>
-            <InputLabel>Language</InputLabel>
+            <InputLabel>{t('support.language')}</InputLabel>
             <Select
               value={lang}
               onChange={(e) => setLang(e.target.value)}
-              label="Language"
+              label={t('support.language')}
             >
               <MenuItem value="en">English</MenuItem>
               <MenuItem value="hi">हिंदी (Hindi)</MenuItem>
@@ -328,7 +328,7 @@ const SupportPage = () => {
       {activeTicket ? (
         <Box>
           <Button startIcon={<ArrowBackIcon />} onClick={handleGoBack} sx={{ mb: 3, fontWeight: 800 }}>
-            Back to Dashboard
+            {t('support.backToDashboard')}
           </Button>
 
           <Grid container spacing={3}>
@@ -338,7 +338,7 @@ const SupportPage = () => {
                 <Box sx={{ p: 2, bgcolor: 'rgba(16,185,129,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Box>
                     <Typography variant="subtitle1" fontWeight={850}>{activeTicket.subject}</Typography>
-                    <Typography variant="caption" color="text.secondary">Ticket ID: {activeTicket.ticketId}</Typography>
+                    <Typography variant="caption" color="text.secondary">{t('support.ticketId')}: {activeTicket.ticketId}</Typography>
                   </Box>
                   <Chip label={t(`status.${activeTicket.status.toLowerCase().replace(/\s+/g, '_')}`)} color={getStatusColor(activeTicket.status)} size="small" />
                 </Box>
@@ -346,7 +346,7 @@ const SupportPage = () => {
                 {/* Message logs */}
                 <Box sx={{ flexGrow: 1, p: 2, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 2 }}>
                   <Paper sx={{ p: 2, bgcolor: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.03)' }}>
-                    <Typography variant="caption" color="text.secondary" display="block">Original Issue Description:</Typography>
+                    <Typography variant="caption" color="text.secondary" display="block">{t('support.originalIssue')}:</Typography>
                     <Typography variant="body2" sx={{ mt: 0.5 }}>{activeTicket.description}</Typography>
                   </Paper>
 
@@ -367,7 +367,7 @@ const SupportPage = () => {
                             <Box sx={{ mt: 1, p: 1, bgcolor: 'rgba(0,0,0,0.1)', borderRadius: 1 }}>
                               <Typography variant="caption" display="block">📎 {msg.attachmentName}</Typography>
                               <Button size="small" href={msg.attachmentUrl} target="_blank" sx={{ textTransform: 'none', fontSize: '0.7rem', p: 0 }}>
-                                View Attachment
+                                {t('support.viewAttachment')}
                               </Button>
                             </Box>
                           )}
@@ -378,7 +378,7 @@ const SupportPage = () => {
                   {isTyping && (
                     <Box display="flex" gap={1} alignItems="center">
                       <Avatar sx={{ width: 28, height: 28, bgcolor: 'primary.main' }}><SmartToyIcon fontSize="inherit" /></Avatar>
-                      <Typography variant="caption" color="text.secondary">Support is typing...</Typography>
+                      <Typography variant="caption" color="text.secondary">{t('support.supportTyping')}</Typography>
                     </Box>
                   )}
                   <div ref={chatEndRef} />
@@ -450,7 +450,7 @@ const SupportPage = () => {
               <Card sx={{ border: '1px solid rgba(255,255,255,0.05)' }}>
                 <CardContent>
                   <Typography variant="subtitle1" fontWeight={850} sx={{ mb: 2 }}>
-                    Ticket Activity Timeline
+                    {t('support.timeline')}
                   </Typography>
                   <List>
                     {activeTicket.timeline.map((step, idx) => (
@@ -508,7 +508,7 @@ const SupportPage = () => {
                   {t('support.faq')}
                 </Typography>
                 <TextField
-                  placeholder="Search FAQ guides..."
+                  placeholder={t('support.searchFaq')}
                   size="small"
                   value={faqSearch}
                   onChange={(e) => setFaqSearch(e.target.value)}
@@ -551,11 +551,11 @@ const SupportPage = () => {
                 </Paper>
               ) : (
                 <Stack spacing={2}>
-                  {tickets.map((t) => (
+                  {tickets.map((ticket) => (
                     <Card
-                      key={t.id}
+                      key={ticket.id}
                       variant="outlined"
-                      onClick={() => setActiveTicket(t)}
+                      onClick={() => setActiveTicket(ticket)}
                       sx={{
                         borderColor: 'rgba(255,255,255,0.05)',
                         background: 'transparent',
@@ -566,17 +566,17 @@ const SupportPage = () => {
                     >
                       <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
                         <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                          <Chip label={t(`category.${t.category.toLowerCase()}`)} size="small" variant="outlined" sx={{ fontWeight: 800, fontSize: '0.65rem' }} />
+                          <Chip label={t(`category.${ticket.category.toLowerCase()}`)} size="small" variant="outlined" sx={{ fontWeight: 800, fontSize: '0.65rem' }} />
                           <Stack direction="row" spacing={1}>
-                            <Chip label={t(`priority.${t.priority.toLowerCase()}`)} size="small" color={t.priority === 'Critical' ? 'error' : 'default'} sx={{ fontWeight: 800, fontSize: '0.65rem' }} />
-                            <Chip label={t(`status.${t.status.toLowerCase().replace(/\s+/g, '_')}`)} size="small" color={getStatusColor(t.status)} sx={{ fontWeight: 800, fontSize: '0.65rem' }} />
+                            <Chip label={t(`priority.${ticket.priority.toLowerCase()}`)} size="small" color={ticket.priority === 'Critical' ? 'error' : 'default'} sx={{ fontWeight: 800, fontSize: '0.65rem' }} />
+                            <Chip label={t(`status.${ticket.status.toLowerCase().replace(/\s+/g, '_')}`)} size="small" color={getStatusColor(ticket.status)} sx={{ fontWeight: 800, fontSize: '0.65rem' }} />
                           </Stack>
                         </Box>
                         <Typography variant="body2" sx={{ mb: 1, fontWeight: 800 }}>
-                          {t.subject}
+                          {ticket.subject}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          Ticket ID: {t.ticketId} | Created: {new Date(t.createdAt).toLocaleDateString()}
+                          {t('support.ticketId')}: {ticket.ticketId} | {t('support.created')}: {new Date(ticket.createdAt).toLocaleDateString()}
                         </Typography>
                       </CardContent>
                     </Card>
@@ -597,14 +597,14 @@ const SupportPage = () => {
                       <Avatar sx={{ bgcolor: 'rgba(16,185,129,0.1)', color: '#10b981' }}><EmailIcon /></Avatar>
                       <Box>
                         <Typography variant="caption" color="text.secondary" display="block">{t('support.email')}</Typography>
-                        <Typography variant="subtitle2" fontWeight={800}>support@carbontracker.org</Typography>
+                        <Typography variant="subtitle2" fontWeight={800}>{t('support.emailAddr')}</Typography>
                       </Box>
                     </Box>
                     <Box display="flex" alignItems="center" gap={2}>
                       <Avatar sx={{ bgcolor: 'rgba(6,182,212,0.1)', color: 'info.main' }}><PhoneIcon /></Avatar>
                       <Box>
                         <Typography variant="caption" color="text.secondary" display="block">{t('support.phone')}</Typography>
-                        <Typography variant="subtitle2" fontWeight={800}>+1 (800) 555-GREEN</Typography>
+                        <Typography variant="subtitle2" fontWeight={800}>{t('support.phoneNum')}</Typography>
                       </Box>
                     </Box>
                   </Stack>
