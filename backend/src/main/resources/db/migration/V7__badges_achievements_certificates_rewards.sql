@@ -1,4 +1,4 @@
-ALTER TABLE users ADD COLUMN reward_points INT DEFAULT 0;
+﻿ALTER TABLE users ADD COLUMN reward_points INT DEFAULT 0;
 ALTER TABLE users ADD COLUMN level INT DEFAULT 1;
 
 ALTER TABLE badges ADD COLUMN category VARCHAR(50) DEFAULT 'GENERAL';
@@ -16,10 +16,10 @@ INSERT INTO badges (badge_name, description, criteria, category, image_url) VALU
 ('7-Day Activity Streak', 'Logged carbon logs for 7 consecutive days.', 'STREAK >= 7', 'CONSISTENCY', '/assets/badges/streak_7.png'),
 ('30-Day Consistency', 'Logged carbon logs for 30 consecutive days.', 'STREAK >= 30', 'CONSISTENCY', '/assets/badges/streak_30.png'),
 ('First Goal Achieved', 'Successfully reached 100% on your first active goal.', 'GOALS_COMPLETED >= 1', 'GOAL', '/assets/badges/goal_1.png'),
-('Eco Saver 10 kg', 'Reduced overall carbon footprint by 10 kg CO₂.', 'SAVED_CO2 >= 10', 'SAVINGS', '/assets/badges/eco_10.png'),
-('Eco Saver 25 kg', 'Reduced overall carbon footprint by 25 kg CO₂.', 'SAVED_CO2 >= 25', 'SAVINGS', '/assets/badges/eco_25.png'),
-('Eco Saver 50 kg', 'Reduced overall carbon footprint by 50 kg CO₂.', 'SAVED_CO2 >= 50', 'SAVINGS', '/assets/badges/eco_50.png'),
-('Carbon Champion', 'Reduced carbon footprint by over 100 kg CO₂.', 'SAVED_CO2 >= 100', 'SAVINGS', '/assets/badges/champion.png'),
+('Eco Saver 10 kg', 'Reduced overall carbon footprint by 10 kg CO2.', 'SAVED_CO2 >= 10', 'SAVINGS', '/assets/badges/eco_10.png'),
+('Eco Saver 25 kg', 'Reduced overall carbon footprint by 25 kg CO2.', 'SAVED_CO2 >= 25', 'SAVINGS', '/assets/badges/eco_25.png'),
+('Eco Saver 50 kg', 'Reduced overall carbon footprint by 50 kg CO2.', 'SAVED_CO2 >= 50', 'SAVINGS', '/assets/badges/eco_50.png'),
+('Carbon Champion', 'Reduced carbon footprint by over 100 kg CO2.', 'SAVED_CO2 >= 100', 'SAVINGS', '/assets/badges/champion.png'),
 ('Sustainability Expert', 'Maintained a sustainability score above 85 for 7 consecutive days.', 'SUSTAINABILITY_SCORE >= 85', 'GENERAL', '/assets/badges/expert.png'),
 ('Top 10 Leaderboard', 'Ranked in the top 10 positions on the global leaderboard.', 'LEADERBOARD_RANK <= 10', 'LEADERBOARD', '/assets/badges/top_10.png'),
 ('Organization Contributor', 'Joined an organization and contributed to reports.', 'ORG_COUNT >= 1', 'COMMUNITY', '/assets/badges/contributor.png'),
