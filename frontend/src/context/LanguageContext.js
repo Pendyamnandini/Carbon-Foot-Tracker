@@ -1,20 +1,17 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../api';
 import { useAuth } from './AuthContext';
+import { useTranslation as useI18nTranslation } from 'react-i18next';
 import i18n from '../i18n';
 
 const LanguageContext = createContext(null);
-
-const namespaces = [
-  'common', 'dashboard', 'analytics', 'profile', 'support',
-  'admin', 'landing', 'auth', 'reports', 'settings'
-];
 
 export const LanguageProvider = ({ children }) => {
   const auth = useAuth();
   const user = auth ? auth.user : null;
   const updateProfileState = auth ? auth.updateProfileState : null;
-
+  
+  const { t } = useI18nTranslation();
   const [lang, setLang] = useState(i18n.language || 'en');
 
   // Sync with user language preference on login
@@ -28,7 +25,7 @@ export const LanguageProvider = ({ children }) => {
     // Change language in i18next
     await i18n.changeLanguage(newLang);
     setLang(newLang);
-    localStorage.setItem('app_lang', newLang);
+    localStorage.setItem('language', newLang);
     
     // Handle RTL
     const isRTL = ['ar', 'he', 'fa', 'ur'].includes(newLang);
@@ -47,26 +44,6 @@ export const LanguageProvider = ({ children }) => {
     }
   };
 
-  // Custom multi-namespace literal lookup
-  const t = (key) => {
-    const currentLang = i18n.language || 'en';
-    for (const ns of namespaces) {
-      const bundle = i18n.getResourceBundle(currentLang, ns);
-      if (bundle && bundle[key] !== undefined) {
-        return bundle[key];
-      }
-    }
-    if (currentLang !== 'en') {
-      for (const ns of namespaces) {
-        const bundle = i18n.getResourceBundle('en', ns);
-        if (bundle && bundle[key] !== undefined) {
-          return bundle[key];
-        }
-      }
-    }
-    return key;
-  };
-
   return (
     <LanguageContext.Provider value={{ lang: i18n.language, changeLanguage, t }}>
       {children}
@@ -76,31 +53,13 @@ export const LanguageProvider = ({ children }) => {
 
 export const useTranslation = () => {
   const context = useContext(LanguageContext);
-  
-  const customT = (key) => {
-    const currentLang = i18n.language || 'en';
-    for (const ns of namespaces) {
-      const bundle = i18n.getResourceBundle(currentLang, ns);
-      if (bundle && bundle[key] !== undefined) {
-        return bundle[key];
-      }
-    }
-    if (currentLang !== 'en') {
-      for (const ns of namespaces) {
-        const bundle = i18n.getResourceBundle('en', ns);
-        if (bundle && bundle[key] !== undefined) {
-          return bundle[key];
-        }
-      }
-    }
-    return key;
-  };
+  const { t: i18nT } = useI18nTranslation();
 
   if (!context) {
     return {
       lang: i18n.language || 'en',
       changeLanguage: () => {},
-      t: customT
+      t: i18nT
     };
   }
   return context;

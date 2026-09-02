@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.carbontracker.service.ai.GeminiService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @RestController
 @RequestMapping("/api/activities")
 public class ActivityController {
@@ -23,6 +26,11 @@ public class ActivityController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private GeminiService geminiService;
+
+    private final ObjectMapper mapper = new ObjectMapper();
 
     private User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -65,6 +73,35 @@ public class ActivityController {
         User user = getCurrentUser();
         activityService.deleteActivityLog(id, user);
         return ResponseEntity.ok(ApiResponse.success("Activity log deleted successfully", null));
+    }
+
+    @PostMapping("/nlp")
+    public ResponseEntity<ApiResponse<ActivityLogResponse>> logActivityNlp(@RequestBody java.util.Map<String, String> request) {
+        User user = getCurrentUser();
+        String text = request.get("text");
+        if (text == null || text.trim().isEmpty()) {
+            throw new IllegalArgumentException("Text cannot be empty");
+        }
+
+        String systemPrompt = "Extract carbon footprint activity from the text. Respond ONLY with a valid JSON object matching exactly this structure: {\"category\": \"string (TRANSPORT|ELECTRICITY|FOOD|SHOPPING)\", \"activityType\": \"string\", \"quantity\": float}. For example: {\"category\":\"TRANSPORT\", \"activityType\":\"Car Travel\", \"quantity\":20.0}. If the language is not English, translate it first mentally, then provide the JSON.";
+        String json = geminiService.analyzeText(text, systemPrompt);
+
+        try {
+            com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(json);
+            if (!root.has("category") || !root.has("quantity")) {
+                throw new IllegalArgumentException("Could not understand activity");
+            }
+            ActivityLogRequest dto = new ActivityLogRequest();
+            dto.setCategory(com.carbontracker.entity.Category.valueOf(root.get("category").asText()));
+            dto.setActivityType(root.get("activityType").asText());
+            dto.setQuantity(root.get("quantity").asDouble());
+            dto.setLogDate(java.time.LocalDate.now());
+            
+            ActivityLog log = activityService.logActivity(dto, user);
+            return ResponseEntity.ok(ApiResponse.success("Activity logged via NLP successfully", mapToResponse(log)));
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Failed to extract activity from text. Please try again or use manual entry.", e);
+        }
     }
 
     private ActivityLogResponse mapToResponse(ActivityLog log) {

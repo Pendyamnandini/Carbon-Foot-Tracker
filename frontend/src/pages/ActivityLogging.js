@@ -56,6 +56,7 @@ const ActivityLogging = () => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [filterDate, setFilterDate] = useState('');
+  const [nlpText, setNlpText] = useState('');
 
   const filteredLogs = filterDate
     ? logs.filter((log) => log.logDate === filterDate)
@@ -133,6 +134,26 @@ const ActivityLogging = () => {
       }
       setQuantity('');
       fetchLogs();
+    } catch (err) {
+      setError(err.response?.data?.message || t('activity.failedError'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleNlpSubmit = async () => {
+    if (!nlpText.trim()) return;
+    setError('');
+    setSuccess('');
+    setLoading(true);
+
+    try {
+      const res = await api.post('/api/activities/nlp', { text: nlpText });
+      if (res.data.success) {
+        setSuccess(t('activity.logSuccess'));
+        setNlpText('');
+        fetchLogs();
+      }
     } catch (err) {
       setError(err.response?.data?.message || t('activity.failedError'));
     } finally {
@@ -270,6 +291,31 @@ const ActivityLogging = () => {
               </Grid>
             </Grid>
           </form>
+
+          {/* NLP Option */}
+          <Box sx={{ mt: 4, pt: 3, borderTop: '1px dashed rgba(255,255,255,0.2)' }}>
+            <Typography variant="subtitle2" fontWeight={600} mb={2}>
+              {t('activity.orUseNlp', 'Or describe your activity in any language')}
+            </Typography>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="stretch">
+              <TextField 
+                fullWidth
+                size="small"
+                placeholder={t('activity.nlpPlaceholder', 'e.g., I traveled 20 km by car today')}
+                value={nlpText}
+                onChange={(e) => setNlpText(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleNlpSubmit(); } }}
+              />
+              <Button 
+                variant="contained" 
+                color="secondary" 
+                onClick={handleNlpSubmit}
+                disabled={loading || !nlpText.trim()}
+              >
+                {t('activity.nlpSubmit', 'Auto Log')}
+              </Button>
+            </Stack>
+          </Box>
         </CardContent>
       </Card>
 

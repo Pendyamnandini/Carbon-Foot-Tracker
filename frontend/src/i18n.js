@@ -2,37 +2,23 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { SUPPORTED_LANGUAGES } from './locales/languages';
 
-const savedLang = localStorage.getItem('app_lang') || 'en';
-
-const namespaces = [
-  'common',
-  'dashboard',
-  'analytics',
-  'profile',
-  'support',
-  'admin',
-  'landing',
-  'auth',
-  'reports',
-  'settings'
-];
+const savedLang = localStorage.getItem('language') || 'en';
 
 const customBackend = {
   type: 'backend',
   init(services, backendOptions, i18nextOptions) {},
   read(language, namespace, callback) {
-    fetch(`/locales/${language}/${namespace}.json`)
+    fetch(`/locales/${language}/translation.json`)
       .then(res => {
         if (!res.ok) {
-          // If the locale JSON is not found, fallback to English
-          return fetch(`/locales/en/${namespace}.json`).then(r => r.json());
+          return fetch(`/locales/en/translation.json`).then(r => r.json());
         }
         return res.json();
       })
       .then(data => callback(null, data))
       .catch(err => {
-        console.warn(`Failed to load namespace ${namespace} for ${language}:`, err);
-        callback(null, {}); // fallback gracefully
+        console.warn(`Failed to load translations for ${language}:`, err);
+        callback(null, {});
       });
   }
 };
@@ -43,8 +29,8 @@ i18n
   .init({
     lng: savedLang,
     fallbackLng: 'en',
-    ns: namespaces,
-    defaultNS: 'common',
+    ns: ['translation'],
+    defaultNS: 'translation',
     nsSeparator: false,
     keySeparator: false,
     react: {
@@ -55,7 +41,6 @@ i18n
     }
   });
 
-// Apply RTL direction for Arabic, Hebrew, Persian, Urdu on document body
 const isRTL = ['ar', 'he', 'fa', 'ur'].includes(savedLang);
 document.body.dir = isRTL ? 'rtl' : 'ltr';
 
