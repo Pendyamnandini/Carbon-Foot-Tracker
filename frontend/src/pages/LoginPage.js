@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, Card, CardContent, Typography, TextField, Button, Box, Alert, Stack, Divider, Grid, InputAdornment, IconButton, Paper } from '@mui/material';
+import { Container, Card, CardContent, Typography, TextField, Button, Box, Alert, Stack, Divider, Grid, InputAdornment, IconButton, Paper, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -19,6 +19,12 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
 
   const from = location.state?.from?.pathname || '/dashboard';
+
+  const handleRoleToggle = (event, newRole) => {
+    if (newRole === 'org') {
+      navigate('/organization/login');
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -212,6 +218,22 @@ const LoginPage = () => {
                 {t('auth.loginSubtitle')}
               </Typography>
             </Box>
+
+            {/* Login Type Toggle */}
+            <ToggleButtonGroup
+              value="user"
+              exclusive
+              onChange={handleRoleToggle}
+              fullWidth
+              sx={{ mb: 4 }}
+            >
+              <ToggleButton value="user" sx={{ fontWeight: 600 }}>
+                User
+              </ToggleButton>
+              <ToggleButton value="org" sx={{ fontWeight: 600 }}>
+                Organizer
+              </ToggleButton>
+            </ToggleButtonGroup>
 
             {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 

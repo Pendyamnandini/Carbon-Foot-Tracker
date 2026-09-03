@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, Card, CardContent, Typography, TextField, Button, Box, Alert, Stack, CircularProgress } from '@mui/material';
+import { Container, Card, CardContent, Typography, TextField, Button, Box, Alert, Stack, CircularProgress, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import BusinessIcon from '@mui/icons-material/Business';
 import { useAuth } from '../context/AuthContext';
@@ -23,13 +23,17 @@ const OrganizationLogin = () => {
     try {
       const res = await api.post('/api/organization/auth/login', { email, password });
       if (res.data.success) {
-        // Handle token just like normal auth
-        const { token, user } = res.data.data;
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
+        const data = res.data.data;
+        const loggedUser = {
+          id: data.id,
+          fullName: data.fullName,
+          email: data.email,
+          role: data.role,
+        };
+        localStorage.setItem('accessToken', data.accessToken);
+        localStorage.setItem('refreshToken', data.refreshToken);
+        localStorage.setItem('user', JSON.stringify(loggedUser));
         
-        // Use a generic hack to force context reload or use standard auth context if it reacts to localStorage
-        // Ideally auth context has a specialized way to ingest token, assuming window reload works
         window.location.href = '/org/dashboard'; 
       }
     } catch (err) {
@@ -58,6 +62,24 @@ const OrganizationLogin = () => {
               Sign in to access your organization's control panel.
             </Typography>
           </Box>
+
+          {/* Login Type Toggle */}
+          <ToggleButtonGroup
+            value="org"
+            exclusive
+            onChange={(e, val) => {
+              if (val === 'user') navigate('/login');
+            }}
+            fullWidth
+            sx={{ mb: 4 }}
+          >
+            <ToggleButton value="user" sx={{ fontWeight: 600 }}>
+              User
+            </ToggleButton>
+            <ToggleButton value="org" sx={{ fontWeight: 600 }}>
+              Organizer
+            </ToggleButton>
+          </ToggleButtonGroup>
 
           {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
@@ -99,11 +121,6 @@ const OrganizationLogin = () => {
             <Typography variant="body2" color="text.secondary">
               <span style={{ cursor: 'pointer', color: '#14b8a6', textDecoration: 'underline' }} onClick={() => navigate('/forgot-password')}>
                 Forgot Password?
-              </span>
-            </Typography>
-            <Typography variant="body2" color="text.secondary" mt={1}>
-              <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate('/login')}>
-                Go to standard user login
               </span>
             </Typography>
           </Box>

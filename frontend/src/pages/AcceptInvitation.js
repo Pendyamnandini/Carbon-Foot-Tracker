@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 const AcceptInvitation = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -93,7 +93,25 @@ const AcceptInvitation = () => {
             </Typography>
           </Box>
 
-          {error && <Alert severity="error" sx={{ mb: 3, textAlign: 'left' }}>{error}</Alert>}
+          {error && (
+            <Box mb={3} textAlign="left">
+              <Alert severity="error">{error}</Alert>
+              {error.includes('Please login with the correct account') && (
+                <Button 
+                  variant="outlined" 
+                  color="error" 
+                  fullWidth 
+                  sx={{ mt: 2 }} 
+                  onClick={async () => {
+                    await logout();
+                    navigate('/login', { state: { from: location.pathname + location.search } });
+                  }}
+                >
+                  Log out and Switch Account
+                </Button>
+              )}
+            </Box>
+          )}
           {success && <Alert severity="success" sx={{ mb: 3, textAlign: 'left' }}>Successfully joined {invitation?.organizationName}! Redirecting...</Alert>}
 
           {!error && !success && invitation && (

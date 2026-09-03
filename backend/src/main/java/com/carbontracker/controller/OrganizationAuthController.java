@@ -28,7 +28,7 @@ public class OrganizationAuthController {
         LoginResponse response = authService.login(request);
         User user = userRepository.findByEmail(request.getEmail()).orElse(null);
         
-        if (user == null || (!"ORG_ADMIN".equals(user.getRole()) && !"ORG_USER".equals(user.getRole()))) {
+        if (user == null || (!"ORG_ADMIN".equals(user.getRole().name()) && !"ORG_USER".equals(user.getRole().name()))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(ApiResponse.error("Access Denied: You do not have organization credentials."));
         }

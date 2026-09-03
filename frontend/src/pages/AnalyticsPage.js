@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   Box, Typography, Grid, Paper, Card, CardContent, Stack, Button, Chip,
   Select, MenuItem, FormControl, InputLabel, TextField, Tabs, Tab,
@@ -59,6 +60,19 @@ const AnalyticsPage = () => {
 
   const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState(true);
+  
+  const location = useLocation();
+  
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tab = params.get('tab');
+    if (tab === 'score') setActiveTab(0);
+    else if (tab === 'charts') setActiveTab(1);
+    else if (tab === 'recs') setActiveTab(2);
+    else if (tab === 'timeline') setActiveTab(3);
+    else if (tab === 'benchmarking') setActiveTab(4);
+    else if (tab === 'exports') setActiveTab(5); // exports doesn't exist yet but mapped here
+  }, [location.search]);
 
   // Consolidated Analytics Data States
   const [totalEmissions, setTotalEmissions] = useState(0);

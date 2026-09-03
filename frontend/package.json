@@ -7,6 +7,7 @@
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.14.9",
     "@mui/material": "^5.14.9",
+    "@vitalets/google-translate-api": "^9.2.1",
     "axios": "^1.5.0",
     "framer-motion": "^12.43.0",
     "i18next": "^26.3.6",

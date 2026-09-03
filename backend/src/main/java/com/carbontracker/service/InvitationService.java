@@ -131,6 +131,12 @@ public class InvitationService {
 
         organizationUserRepository.save(newUser);
 
+        // Upgrade global role if they are just a regular user
+        if (authenticatedUser.getRole() == Role.USER) {
+            authenticatedUser.setRole(Role.ORG_USER);
+            userRepository.save(authenticatedUser);
+        }
+
         // Update invitation status
         invitation.setStatus("ACCEPTED");
         invitation.setAcceptedAt(LocalDateTime.now());

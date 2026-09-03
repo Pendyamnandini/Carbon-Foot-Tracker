@@ -10,5 +10,11 @@ export const SUPPORTED_LANGUAGES = [
   { code: 'pt', label: 'Portuguese', native: 'Português' },
   { code: 'es', label: 'Spanish', native: 'Español' },
   { code: 'ta', label: 'Tamil', native: 'தமிழ்' },
-  { code: 'te', label: 'Telugu', native: 'తెలుగు' }
+  { code: 'te', label: 'Telugu', native: 'తెలుగు' },
+  { code: 'bn', label: 'Bengali', native: 'বাংলা' },
+  { code: 'mr', label: 'Marathi', native: 'मराठी' },
+  { code: 'gu', label: 'Gujarati', native: 'ગુજરાતી' },
+  { code: 'or', label: 'Odia', native: 'ଓଡ଼ିଆ' },
+  { code: 'pa', label: 'Punjabi', native: 'ਪੰਜਾਬੀ' },
+  { code: 'ur', label: 'Urdu', native: 'اردو' }
 ].sort((a, b) => a.label.localeCompare(b.label));

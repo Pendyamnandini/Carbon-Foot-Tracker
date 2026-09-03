@@ -60,8 +60,16 @@ public class GeminiService {
 
     private String fallbackAnalyze(String text) {
         String lower = text.toLowerCase();
-        if (lower.contains("car") || lower.contains("కారులో") || lower.contains("transport")) {
+        if (lower.contains("bus")) {
+            return "{\"category\":\"TRANSPORT\", \"activityType\":\"Bus Travel\", \"quantity\": 40}";
+        } else if (lower.contains("car") || lower.contains("transport")) {
             return "{\"category\":\"TRANSPORT\", \"activityType\":\"Car Travel\", \"quantity\": 20}";
+        } else if (lower.contains("flight") || lower.contains("fly") || lower.contains("plane")) {
+            return "{\"category\":\"TRANSPORT\", \"activityType\":\"Air Travel\", \"quantity\": 500}";
+        } else if (lower.contains("electricity") || lower.contains("power") || lower.contains("energy")) {
+            return "{\"category\":\"ELECTRICITY\", \"activityType\":\"Home Electricity\", \"quantity\": 150}";
+        } else if (lower.contains("food") || lower.contains("meat") || lower.contains("beef") || lower.contains("meal")) {
+            return "{\"category\":\"FOOD\", \"activityType\":\"High-Impact Meal\", \"quantity\": 5}";
         }
         return "{}";
     }

@@ -109,6 +109,32 @@ public class OrganizationController {
         return ResponseEntity.ok(ApiResponse.success(reports));
     }
 
+    @GetMapping("/fix-my-role")
+    public ResponseEntity<ApiResponse<String>> fixMyRole() {
+        User user = getCurrentUser();
+        user.setRole(com.carbontracker.entity.Role.ORG_USER);
+        userRepository.save(user);
+        return ResponseEntity.ok(ApiResponse.success("Role fixed", null));
+    }
+    
+    @jakarta.annotation.PostConstruct
+    public void fixNandiniRole() {
+        userRepository.findAll().forEach(u -> {
+            if (u.getEmail().toLowerCase().contains("nandu")) {
+                u.setRole(com.carbontracker.entity.Role.ORG_USER);
+                userRepository.save(u);
+                System.out.println("FIXED ROLE FOR: " + u.getEmail());
+            }
+        });
+    }
+
+    @GetMapping("/dump-users-debug")
+    public ResponseEntity<List<String>> dumpUsers() {
+        return ResponseEntity.ok(userRepository.findAll().stream()
+            .map(u -> u.getEmail() + " : " + u.getRole())
+            .toList());
+    }
+
     @GetMapping("/{orgId}/employee-trends")
     public ResponseEntity<ApiResponse<List<EmployeeTrendResponse>>> getEmployeeTrends(
             @PathVariable Long orgId) {

@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.security.core.userdetails.UserDetails;
+import com.carbontracker.repository.UserRepository;
+
 @RestController
 @RequestMapping("/api/invitations")
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -22,12 +25,18 @@ public class InvitationController {
     @Autowired
     private InvitationService invitationService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @PostMapping("/send/{organizationId}")
     public ResponseEntity<ApiResponse<Void>> sendInvitation(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long organizationId,
             @Valid @RequestBody InviteMemberRequest request) {
         
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+                
         invitationService.sendInvitation(user, organizationId, request);
         return ResponseEntity.ok(new ApiResponse<>(true, "Invitation sent successfully", null));
     }
@@ -50,9 +59,12 @@ public class InvitationController {
 
     @PostMapping("/accept")
     public ResponseEntity<ApiResponse<Void>> acceptInvitation(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody Map<String, String> payload) {
         
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+                
         String token = payload.get("token");
         if (token == null || token.isEmpty()) {
             throw new RuntimeException("Token is missing");

@@ -31,6 +31,19 @@ export const LanguageProvider = ({ children }) => {
     const isRTL = ['ar', 'he', 'fa', 'ur'].includes(newLang);
     document.body.dir = isRTL ? 'rtl' : 'ltr';
 
+    // Trigger Google NLP Translate for any hardcoded strings
+    setTimeout(() => {
+      try {
+        const selectElement = document.querySelector('.goog-te-combo');
+        if (selectElement) {
+          selectElement.value = newLang;
+          selectElement.dispatchEvent(new Event('change'));
+        }
+      } catch (e) {
+        console.error("Google NLP Translate trigger failed", e);
+      }
+    }, 500);
+
     // Sync preference to server
     if (user) {
       try {

@@ -29,9 +29,9 @@ api.interceptors.response.use(
 
     if ((error.response?.status === 401 || error.response?.status === 403) && 
         !originalRequest._retry && 
-        !originalRequest.url?.includes('/api/auth/login') && 
-        !originalRequest.url?.includes('/api/auth/register') && 
-        !originalRequest.url?.includes('/api/auth/google')) {
+        !originalRequest.url?.includes('/auth/login') && 
+        !originalRequest.url?.includes('/auth/register') && 
+        !originalRequest.url?.includes('/auth/google')) {
       originalRequest._retry = true;
 
       const refreshToken = localStorage.getItem('refreshToken');

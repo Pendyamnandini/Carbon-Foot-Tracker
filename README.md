@@ -166,9 +166,10 @@ The frontend will compile and open automatically in your browser at **`http://lo
 ## Final UI, Multilingual & AI Improvements  
 - **Landing Page**: Implemented a professional, premium SaaS design featuring animated eco-gradients, glassmorphism, and dynamic overlays while retaining Carbon Tracker branding.  
 - **UI Redesigns**: Completely redesigned the Logout Confirmation modal with a medium-sized, curvy, modern layout featuring fully rounded pill buttons, soft shadows, and dynamic light/dark mode theme support.
-- **Multilingual & Locales**: Completely overhauled the frontend `react-i18next` architecture. Consolidated translation namespaces into single unified JSON files (`translation.json`), added an automated `validate_i18n.js` build script, locked the language list to 12 supported locales, and properly wired the `useTranslation` hook across all components.
-- **Natural Language Processing (NLP) Activity Logging**: Added a new "Quick Log via Text" feature. Users can now type unstructured multilingual sentences (e.g. "I drove 15 miles in my petrol car today"), which is sent to the backend `/api/activities/nlp`. The `GeminiService` processes this via the Gemini API to extract structured fields (Activity Type, Category, Subcategory, Quantity, Units) and automatically logs the carbon footprint.
-- **Email & OTP Delivery**: Refined the backend SMTP configuration to seamlessly handle genuine email delivery (like Password Reset OTPs) when environment variables (`SMTP_USER`, `SMTP_PASSWORD`) are injected.
+- **Multilingual & Locales**: Completely overhauled the frontend architecture to seamlessly support over 130 languages (including key Indian languages like Hindi, Telugu, Tamil, Bengali, Marathi, Gujarati, Odia, Punjabi, and Urdu). Integrated an advanced MutationObserver DOM script to transparently hide the Google Translate widget branding, creating a 100% native experience.
+- **Natural Language Processing (NLP) Activity Logging**: Added a new "Quick Log via Text" feature. Users can now type unstructured multilingual sentences (e.g. "I traveled 40 kms by bus yesterday"), which is processed by the AI backend to automatically extract fields (Activity Type, Category, Quantity) and log the footprint. Added a robust fallback parser supporting buses, flights, electricity, and food.
+- **Email & OTP Delivery**: Refined the backend SMTP configuration to seamlessly handle genuine email delivery (like Password Reset OTPs and Organization Invites).
+- **Organization Control Panel**: Fixed backend role-upgrade logic for Organization Invitations. Accepting an invitation now flawlessly upgrades the user's global JWT roles in the H2 Database, ensuring the Sidebar UI correctly unlocks the Organization features.
 
 ---
 

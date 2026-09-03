@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -10,18 +10,74 @@
     <meta name="apple-mobile-web-app-title" content="Carbon Tracker" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/icons/icon-192x192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <meta
-      name="description"
-      content="AI Powered Carbon Footprint Monitoring Platform"
-    />
+    <meta name="description" content="AI Powered Carbon Footprint Monitoring Platform" />
     <title>Carbon Footprint Monitoring &amp; Analytics Platform</title>
+    
     <!-- Google Fonts: Plus Jakarta Sans, Inter, Manrope -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Manrope:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+      /* Hide Google Translate Banner and Tooltips aggressively */
+      body > .skiptranslate {
+        display: none !important;
+      }
+      .goog-te-banner-frame.skiptranslate {
+        display: none !important;
+      }
+      .goog-tooltip {
+        display: none !important;
+      }
+      .goog-tooltip:hover {
+        display: none !important;
+      }
+      .goog-text-highlight {
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+      #google_translate_element {
+        display: none !important;
+      }
+      body {
+        top: 0px !important;
+        position: static !important;
+      }
+      html {
+        top: 0px !important;
+        position: static !important;
+      }
+    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    
+    <!-- Google Translate NLP Engine -->
+    <div id="google_translate_element" style="display:none;"></div>
+    <script type="text/javascript">
+      function googleTranslateElementInit() {
+        new google.translate.TranslateElement({pageLanguage: 'en', autoDisplay: false}, 'google_translate_element');
+      }
+      
+      // Secondary JS fallback to destroy the banner if CSS fails
+      const observer = new MutationObserver(() => {
+        const skipTranslateDivs = document.querySelectorAll('body > .skiptranslate');
+        skipTranslateDivs.forEach(div => {
+            if (div.id !== 'google_translate_element') {
+                div.style.display = 'none';
+                div.style.visibility = 'hidden';
+                div.style.opacity = '0';
+            }
+        });
+        if (document.body.style.top !== '0px' && document.body.style.top !== '') {
+            document.body.style.setProperty('top', '0px', 'important');
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    
   </body>
 </html>
